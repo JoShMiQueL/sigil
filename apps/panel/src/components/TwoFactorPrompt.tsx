@@ -35,6 +35,7 @@ export function TwoFactorPrompt({ userId, onVerify }: TwoFactorPromptProps) {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
+          // biome-ignore lint/a11y/noAutofocus: 2FA input should be focused on load for UX
           autoFocus
           autoComplete="one-time-code"
         />

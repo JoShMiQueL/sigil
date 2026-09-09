@@ -15,7 +15,8 @@ apiKeys.use("*", async (c, next) => {
 });
 
 apiKeys.post("/", zValidator("json", ApiKeyCreateSchema), async (c) => {
-  const user = c.get("user")!;
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
   const { name, scopes } = c.req.valid("json");
 
   const result = await createApiKey(user.id, name, scopes);
@@ -23,13 +24,15 @@ apiKeys.post("/", zValidator("json", ApiKeyCreateSchema), async (c) => {
 });
 
 apiKeys.get("/", async (c) => {
-  const user = c.get("user")!;
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
   const keys = await listApiKeys(user.id);
   return c.json({ keys });
 });
 
 apiKeys.delete("/:id", async (c) => {
-  const user = c.get("user")!;
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
   const id = c.req.param("id");
 
   const revoked = await revokeApiKey(user.id, id);

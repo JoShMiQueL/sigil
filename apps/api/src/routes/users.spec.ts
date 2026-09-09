@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../middleware/rate-limit", () => ({
-  rateLimitMiddleware: async (c: any, next: any) => {
+  rateLimitMiddleware: async (_c: unknown, next: () => Promise<void>) => {
     await next();
   },
   checkRateLimit: async () => true,
@@ -95,12 +95,6 @@ describe("users routes [US2: user management]", () => {
   });
 
   it("T051: admin cannot suspend the last admin", async () => {
-    // Get admin's user id
-    const meRes = await apiRequest(app, "/api/auth/me", { cookie: adminCookie });
-    const adminId = (await parseJson(meRes)).user.id;
-
-    // Try to suspend via direct DB update to bypass self-check, then try suspending via API
-    // Actually, we need a second admin to test last-admin suspension
     // Create a second admin and suspend them first
     const secondAdminId = await createUser("admin2@test.local", "admin12345", "admin");
 

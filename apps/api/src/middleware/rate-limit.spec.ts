@@ -87,13 +87,13 @@ const mockRedis = vi.hoisted(() => {
   return new InMemoryRedis();
 });
 
-vi.mock("ioredis", () => ({
-  default: class {
-    constructor() {
+vi.mock("ioredis", () => {
+  return {
+    default: function RedisMock() {
       return mockRedis;
-    }
-  },
-}));
+    },
+  };
+});
 
 // Do NOT mock the rate-limit module — we want to test the real implementation
 import app from "../index";
@@ -105,11 +105,13 @@ function makeRequest(
 ): Promise<Response> {
   const headers: Record<string, string> = { ...options.headers };
   if (options.body) headers["Content-Type"] = "application/json";
-  return app.request(path, {
-    method: options.method ?? "GET",
-    headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
+  return Promise.resolve(
+    app.request(path, {
+      method: options.method ?? "GET",
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    }),
+  );
 }
 
 describe("rate-limit [US1: login rate limiting]", () => {
@@ -139,7 +141,7 @@ describe("rate-limit [US1: login rate limiting]", () => {
       body: { email: "rl-admin@test.local", password: "wrongpass" },
     });
     expect(res.status).toBe(429);
-    const body = await res.json();
+    const body = (await res.json()) as { error: string };
     expect(body.error).toContain("Too many attempts");
   });
 

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock rate limiter to avoid Redis state interference between tests
 vi.mock("../middleware/rate-limit", () => ({
-  rateLimitMiddleware: async (c: any, next: any) => {
+  rateLimitMiddleware: async (_c: unknown, next: () => Promise<void>) => {
     await next();
   },
   checkRateLimit: async () => true,
@@ -270,7 +270,7 @@ describe("auth routes [US4: 2FA]", () => {
       body: { userId, code: code2 },
     });
     expect(res2fa.status).toBe(200);
-    const body2fa: any = await parseJson(res2fa);
+    const body2fa = await parseJson(res2fa);
     expect(body2fa.status).toBe("ok");
     expect(body2fa.user.email).toBe("2fa-login@test.local");
   });
@@ -310,7 +310,7 @@ describe("auth routes [US4: 2FA]", () => {
       method: "POST",
       cookie: extractCookie(recoveryRes),
     });
-    const loginRes2 = await apiRequest(app, "/api/auth/login", {
+    await apiRequest(app, "/api/auth/login", {
       method: "POST",
       body: { email: "2fa-recovery@test.local", password: "admin12345" },
     });

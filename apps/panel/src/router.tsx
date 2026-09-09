@@ -137,8 +137,6 @@ function DashboardPage() {
 }
 
 function UsersPage() {
-  const { user } = useAuth();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
 
@@ -298,7 +296,6 @@ interface TotpEnableResponse {
 
 function SecurityPage() {
   const { user } = useAuth();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [totpData, setTotpData] = useState<TotpEnableResponse | null>(null);
   const [disablePassword, setDisablePassword] = useState("");
@@ -474,7 +471,6 @@ const securityRoute = createRoute({
 
 function ApiKeysPage() {
   const { user } = useAuth();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   if (!user) return null;

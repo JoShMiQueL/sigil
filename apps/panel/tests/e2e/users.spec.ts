@@ -25,7 +25,7 @@ test.describe("US2: User creation flow [T053]", () => {
     await page.click('form:has(h2:has-text("Create User")) button[type="submit"]');
 
     // User should appear in the table
-    await expect(page.locator("text=" + uniqueEmail)).toBeVisible({ timeout: 5000 });
+    await expect(page.locator(`text=${uniqueEmail}`)).toBeVisible({ timeout: 5000 });
   });
 
   test("admin can suspend a user", async ({ page }) => {

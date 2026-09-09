@@ -32,8 +32,8 @@ export function TotpSetup({ qrUri, secret, recoveryCodes, onVerify }: TotpSetupP
         <h2>2FA Enabled Successfully</h2>
         <p>Save these recovery codes in a safe place. Each can be used once:</p>
         <ul>
-          {recoveryCodes.map((code, i) => (
-            <li key={i}>{code}</li>
+          {recoveryCodes.map((code) => (
+            <li key={code}>{code}</li>
           ))}
         </ul>
       </div>

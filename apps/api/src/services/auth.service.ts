@@ -97,7 +97,7 @@ export async function verify2fa(
     .where(eq(schema.users.id, userId))
     .limit(1);
 
-  if (!userRow || !userRow.totpEnabled) {
+  if (!userRow?.totpEnabled) {
     return { error: "2FA not enabled" };
   }
 
@@ -136,7 +136,7 @@ export async function getCurrentUser(token: string): Promise<User | null> {
     .where(eq(schema.users.id, session.userId))
     .limit(1);
 
-  if (!userRow || userRow.status !== "active") {
+  if (userRow?.status !== "active") {
     return null;
   }
 

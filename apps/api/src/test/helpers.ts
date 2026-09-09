@@ -59,7 +59,8 @@ export function extractCookie(res: Response): string | null {
   return match ? `sigil_session=${match[1]}` : null;
 }
 
-// Parse JSON response body (typed as any for test convenience)
+// Parse JSON response body (typed for test convenience)
+// biome-ignore lint/suspicious/noExplicitAny: test helper needs flexible return type
 export async function parseJson(res: Response): Promise<any> {
   return res.json();
 }
@@ -76,7 +77,7 @@ export async function apiRequest(
   } = {},
 ): Promise<Response> {
   const headers: Record<string, string> = { ...options.headers };
-  if (options.cookie) headers["Cookie"] = options.cookie;
+  if (options.cookie) headers.Cookie = options.cookie;
   if (options.body) headers["Content-Type"] = "application/json";
 
   return Promise.resolve(

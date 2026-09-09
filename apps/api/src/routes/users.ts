@@ -15,7 +15,7 @@ const users = new Hono<AuthContext>();
 // Admin-only guard
 users.use("*", async (c, next) => {
   const user = c.get("user");
-  if (!user || user.role !== "admin") {
+  if (user?.role !== "admin") {
     return c.json({ error: "Forbidden" }, 403);
   }
   await next();

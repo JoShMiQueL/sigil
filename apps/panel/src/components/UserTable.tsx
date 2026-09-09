@@ -1,5 +1,4 @@
 import type { User } from "@sigilpanel/shared";
-import { useState } from "react";
 
 interface UserTableProps {
   users: User[];

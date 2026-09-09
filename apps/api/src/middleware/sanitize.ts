@@ -1,7 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import type { AuthContext } from "./auth";
 
-export const sanitizeMiddleware = createMiddleware<AuthContext>(async (c, next) => {
+export const sanitizeMiddleware = createMiddleware<AuthContext>(async (_c, next) => {
   await next();
 
   // Sanitize email fields in JSON responses (trim + lowercase)

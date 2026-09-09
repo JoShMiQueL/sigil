@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../middleware/rate-limit", () => ({
-  rateLimitMiddleware: async (c: any, next: any) => {
+  rateLimitMiddleware: async (_c: unknown, next: () => Promise<void>) => {
     await next();
   },
   checkRateLimit: async () => true,
