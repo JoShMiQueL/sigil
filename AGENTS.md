@@ -148,6 +148,22 @@ Example: `feat(shared): add Zod schemas for user auth [R1]`
 
 See `.specify/memory/constitution.md` section "Commit cadence" for the full rules.
 
+## CI (GitHub Actions)
+
+The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push and PR to `main`:
+
+1. **Lint & Typecheck** — `pnpm check` + `pnpm typecheck`
+2. **Unit & Integration Tests** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test`
+3. **E2E Tests** — `pnpm --filter @sigilpanel/db db:migrate` + Playwright (with `RATE_LIMIT_DISABLED=1`)
+
+To simulate the full CI locally without pushing to GitHub:
+
+```bash
+./scripts/ci-local.sh
+```
+
+This runs the same steps in the same order. Requires Docker running.
+
 ## E2E verification workflow
 
 **Verify E2E what can be verified at each step.** Do not wait until the end to test. If the API is running, test it with curl. If the panel has a page, open it in the browser and interact with it. If something cannot be verified yet, note it and move on.

@@ -11,6 +11,9 @@ build/
 coverage/
 .DS_Store
 
+# act binary (local CI simulation tool)
+bin/
+
 # Devin credentials (keep skills, ignore any auth artifacts)
 .devin/.credentials
 .devin/auth*
