@@ -150,19 +150,23 @@ See `.specify/memory/constitution.md` section "Commit cadence" for the full rule
 
 ## CI (GitHub Actions)
 
-The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push and PR to `main`:
+The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push and PR to `main`. The workflow calls `scripts/ci.sh` for each job — the script is the single source of truth, so local and CI always run the same checks.
 
-1. **Lint & Typecheck** — `pnpm check` + `pnpm typecheck`
-2. **Unit & Integration Tests** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test`
-3. **E2E Tests** — `pnpm --filter @sigilpanel/db db:migrate` + Playwright (with `RATE_LIMIT_DISABLED=1`)
+Jobs:
+1. `lint` — `pnpm check` + `pnpm typecheck`
+2. `unit` — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test`
+3. `e2e` — `pnpm --filter @sigilpanel/db db:migrate` + Playwright (with `RATE_LIMIT_DISABLED=1`)
 
-To simulate the full CI locally without pushing to GitHub:
+To run locally (same script, no GitHub needed):
 
 ```bash
-./scripts/ci-local.sh
+./scripts/ci.sh           # all jobs
+./scripts/ci.sh lint      # one job
+./scripts/ci.sh unit
+./scripts/ci.sh e2e
 ```
 
-This runs the same steps in the same order. Requires Docker running.
+Requires Docker running. When run locally, the script auto-starts dev services (PostgreSQL + Redis). When run in CI, the `CI` env var skips that step.
 
 ## E2E verification workflow
 
