@@ -1,7 +1,8 @@
-import type { User, UserCreate } from "@sigilpanel/shared";
+import type { ApiKey, ApiKeyScope, User, UserCreate } from "@sigilpanel/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { ApiKeyManager } from "./components/ApiKeyManager";
 import { CreateUserForm } from "./components/CreateUserForm";
 import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { LoginForm } from "./components/LoginForm";
@@ -111,6 +112,11 @@ function DashboardPage() {
       <p>
         <button type="button" onClick={() => router.navigate({ to: "/security" })}>
           Security Settings
+        </button>
+      </p>
+      <p>
+        <button type="button" onClick={() => router.navigate({ to: "/api-keys" })}>
+          API Keys
         </button>
       </p>
       <button
@@ -469,6 +475,86 @@ const securityRoute = createRoute({
   component: SecurityPage,
 });
 
+function ApiKeysPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  if (!user) return null;
+
+  const { data } = useQuery({
+    queryKey: ["api-keys"],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/api/api-keys`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch API keys");
+      return res.json() as Promise<{ keys: ApiKey[] }>;
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async ({ name, scopes }: { name: string; scopes: ApiKeyScope[] }) => {
+      const res = await fetch(`${API_URL}/api/api-keys`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name, scopes }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to create API key" };
+      }
+      return res.json() as Promise<{ key: string }>;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["api-keys"] }),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/api-keys/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to revoke API key" };
+      }
+      return {};
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["api-keys"] }),
+  });
+
+  return (
+    <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+      <h1>API Keys</h1>
+      <button type="button" onClick={() => router.navigate({ to: "/" })}>
+        Back to Dashboard
+      </button>
+      <ApiKeyManager
+        keys={data?.keys ?? []}
+        onCreate={async (name, scopes) => {
+          const result = await createMutation.mutateAsync({ name, scopes });
+          if ("error" in result) return { error: result.error };
+          return { key: result.key };
+        }}
+        onRevoke={async (id) => {
+          const result = await revokeMutation.mutateAsync(id);
+          return "error" in result ? result : {};
+        }}
+      />
+    </div>
+  );
+}
+
+const apiKeysRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/api-keys",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (!user) throw redirect({ to: "/login" });
+  },
+  component: ApiKeysPage,
+});
+
 export const routeTree = rootRoute.addChildren([
   loginRoute,
   dashboardRoute,
@@ -476,4 +562,5 @@ export const routeTree = rootRoute.addChildren([
   forgotPasswordRoute,
   resetPasswordRoute,
   securityRoute,
+  apiKeysRoute,
 ]);

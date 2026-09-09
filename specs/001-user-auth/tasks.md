@@ -222,17 +222,17 @@
 
 ### Implementation for User Story 5
 
-- [ ] T112 [US5] Implement API key service generate in `apps/api/src/services/api-key.service.ts` (create sigil_ key, SHA-256 hash, store hash+prefix)
-- [ ] T113 [US5] Implement API key service list in `apps/api/src/services/api-key.service.ts` (return keys without hash, only prefix)
-- [ ] T114 [US5] Implement API key service verify in `apps/api/src/services/api-key.service.ts` (hash incoming, lookup, update last_used_at)
-- [ ] T115 [US5] Implement API key service revoke in `apps/api/src/services/api-key.service.ts` (delete by id+user_id)
-- [ ] T116 [US5] Create POST /api/api-keys route in `apps/api/src/routes/api-keys.ts` (validates ApiKeyCreateSchema, returns full key once)
-- [ ] T117 [US5] Create GET /api/api-keys route in `apps/api/src/routes/api-keys.ts` (list current user's keys)
-- [ ] T118 [US5] Create DELETE /api/api-keys/:id route in `apps/api/src/routes/api-keys.ts` (revoke key)
-- [ ] T119 [US5] Update auth middleware to support API key Bearer auth in `apps/api/src/middleware/auth.ts` (extract, hash, verify, set ctx.apiKeyScopes)
-- [ ] T120 [US5] Create scope enforcement helper in `apps/api/src/middleware/require-scopes.ts` (check ctx.apiKeyScopes against required scopes)
-- [ ] T121 [US5] Create ApiKeyManager component in `apps/panel/src/components/ApiKeyManager.tsx` (create form, list, revoke, one-time key display)
-- [ ] T122 [US5] Create api-keys route page in `apps/panel/src/routes/api-keys.tsx` (requires auth, renders ApiKeyManager)
+- [X] T112 [US5] Implement API key service generate in `apps/api/src/services/api-key.service.ts` (create sigil_ key, SHA-256 hash, store hash+prefix)
+- [X] T113 [US5] Implement API key service list in `apps/api/src/services/api-key.service.ts` (return keys without hash, only prefix)
+- [X] T114 [US5] Implement API key service verify in `apps/api/src/services/api-key.service.ts` (hash incoming, lookup, update last_used_at)
+- [X] T115 [US5] Implement API key service revoke in `apps/api/src/services/api-key.service.ts` (delete by id+user_id)
+- [X] T116 [US5] Create POST /api/api-keys route in `apps/api/src/routes/api-keys.ts` (validates ApiKeyCreateSchema, returns full key once)
+- [X] T117 [US5] Create GET /api/api-keys route in `apps/api/src/routes/api-keys.ts` (list current user's keys)
+- [X] T118 [US5] Create DELETE /api/api-keys/:id route in `apps/api/src/routes/api-keys.ts` (revoke key)
+- [X] T119 [US5] Update auth middleware to support API key Bearer auth in `apps/api/src/middleware/auth.ts` (extract, hash, verify, set ctx.apiKeyScopes)
+- [X] T120 [US5] Create scope enforcement helper in `apps/api/src/middleware/require-scopes.ts` (check ctx.apiKeyScopes against required scopes)
+- [X] T121 [US5] Create ApiKeyManager component in `apps/panel/src/components/ApiKeyManager.tsx` (create form, list, revoke, one-time key display)
+- [X] T122 [US5] Create api-keys route page in `apps/panel/src/routes/api-keys.tsx` (requires auth, renders ApiKeyManager)
 
 **Checkpoint**: API keys can be created, used with scoped permissions, and revoked.
 

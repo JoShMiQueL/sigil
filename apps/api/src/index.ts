@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { type AuthContext, authMiddleware } from "./middleware/auth";
+import apiKeysRoutes from "./routes/api-keys";
 import authRoutes from "./routes/auth";
 import usersRoutes from "./routes/users";
 
@@ -22,6 +23,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 
 app.route("/api/auth", authRoutes);
 app.route("/api/admin/users", usersRoutes);
+app.route("/api/api-keys", apiKeysRoutes);
 
 export default app;
 
