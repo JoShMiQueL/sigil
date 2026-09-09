@@ -1,3 +1,7 @@
-// Auth schemas will be exported here as they are created.
-// See specs/001-user-auth/tasks.md T016-T022.
-export {};
+export * from "./auth/api-key";
+export * from "./auth/login";
+export * from "./auth/password-reset";
+export * from "./auth/permissions";
+export * from "./auth/session";
+export * from "./auth/totp";
+export * from "./auth/user";

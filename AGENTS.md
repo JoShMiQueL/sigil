@@ -130,6 +130,24 @@ This project uses neutral, descriptive names instead of Pterodactyl's branded vo
 - **Comment the "why", not the "what".** Keep only comments that earn their place.
 - **Errors surface typed.** No silent `catch {}` on critical paths.
 
+## Verification and commits
+
+Before any commit, the following MUST pass:
+
+```bash
+pnpm check        # Biome lint + format (always required)
+pnpm typecheck    # TypeScript type checking (required when code is in a functional state)
+pnpm test         # Tests (required when tests exist for the changed code)
+```
+
+Commit by logical change, not by Spec Kit phase. One commit = one coherent idea. Mark tasks as `[X]` in `tasks.md` in the same commit that completes them. Update `ROADMAP.md` status in the same commit that changes a spec entry's status.
+
+Commit message format: `<type>(<scope>): <description> [R<roadmap-id>]`
+
+Example: `feat(shared): add Zod schemas for user auth [R1]`
+
+See `.specify/memory/constitution.md` section "Commit cadence" for the full rules.
+
 ## Spec Kit workflow
 
 This project uses GitHub Spec Kit for spec-driven development. The project is decomposed into sub-features tracked in `ROADMAP.md` (the "spec of specs" pattern). Each sub-feature runs through its own specify → plan → tasks → implement cycle.

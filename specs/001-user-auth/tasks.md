@@ -39,21 +39,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Create `users` table schema in `packages/db/src/schema/users.ts` with all fields from data-model.md
-- [ ] T010 [P] Create `sessions` table schema in `packages/db/src/schema/sessions.ts` with all fields from data-model.md
-- [ ] T011 [P] Create `api_keys` table schema in `packages/db/src/schema/api-keys.ts` with all fields from data-model.md
-- [ ] T012 [P] Create `password_reset_tokens` table schema in `packages/db/src/schema/password-reset-tokens.ts` with all fields from data-model.md
-- [ ] T013 Export all schemas from `packages/db/src/index.ts` and generate initial Drizzle migration
-- [ ] T014 [P] Create Argon2id wrapper in `apps/api/src/lib/argon2.ts` with OWASP-recommended parameters (memory 19456 KiB, time 2, parallelism 1)
-- [ ] T015 [P] Create secure random token generator in `apps/api/src/lib/token.ts` (32-byte base64url tokens)
-- [ ] T016 [P] Create Zod schemas for User, UserCreate, UserUpdate, UserRole in `packages/shared/src/auth/user.ts`
-- [ ] T017 [P] Create Zod schemas for Session in `packages/shared/src/auth/session.ts`
-- [ ] T018 [P] Create Zod schemas for ApiKey, ApiKeyCreate, ApiKeyScopes in `packages/shared/src/auth/api-key.ts`
-- [ ] T019 [P] Create Zod schemas for LoginRequest, LoginResponse in `packages/shared/src/auth/login.ts`
-- [ ] T020 [P] Create Zod schemas for PasswordResetRequest, PasswordReset in `packages/shared/src/auth/password-reset.ts`
-- [ ] T021 [P] Create Zod schemas for TotpEnable, TotpVerify, TotpDisable in `packages/shared/src/auth/totp.ts`
-- [ ] T022 [P] Create permissions constants and Zod enums for roles and scopes in `packages/shared/src/auth/permissions.ts`
-- [ ] T023 Re-export all auth schemas from `packages/shared/src/auth/index.ts` and update `packages/shared/src/index.ts`
+- [X] T009 Create `users` table schema in `packages/db/src/schema/users.ts` with all fields from data-model.md
+- [X] T010 [P] Create `sessions` table schema in `packages/db/src/schema/sessions.ts` with all fields from data-model.md
+- [X] T011 [P] Create `api_keys` table schema in `packages/db/src/schema/api-keys.ts` with all fields from data-model.md
+- [X] T012 [P] Create `password_reset_tokens` table schema in `packages/db/src/schema/password-reset-tokens.ts` with all fields from data-model.md
+- [X] T013 Export all schemas from `packages/db/src/index.ts` and generate initial Drizzle migration
+- [X] T014 [P] Create Argon2id wrapper in `apps/api/src/lib/argon2.ts` with OWASP-recommended parameters (memory 19456 KiB, time 2, parallelism 1)
+- [X] T015 [P] Create secure random token generator in `apps/api/src/lib/token.ts` (32-byte base64url tokens)
+- [X] T016 [P] Create Zod schemas for User, UserCreate, UserUpdate, UserRole in `packages/shared/src/auth/user.ts`
+- [X] T017 [P] Create Zod schemas for Session in `packages/shared/src/auth/session.ts`
+- [X] T018 [P] Create Zod schemas for ApiKey, ApiKeyCreate, ApiKeyScopes in `packages/shared/src/auth/api-key.ts`
+- [X] T019 [P] Create Zod schemas for LoginRequest, LoginResponse in `packages/shared/src/auth/login.ts`
+- [X] T020 [P] Create Zod schemas for PasswordResetRequest, PasswordReset in `packages/shared/src/auth/password-reset.ts`
+- [X] T021 [P] Create Zod schemas for TotpEnable, TotpVerify, TotpDisable in `packages/shared/src/auth/totp.ts`
+- [X] T022 [P] Create permissions constants and Zod enums for roles and scopes in `packages/shared/src/auth/permissions.ts`
+- [X] T023 Re-export all auth schemas from `packages/shared/src/auth/index.ts` and update `packages/shared/src/index.ts`
 - [ ] T024 Install and configure better-auth with Hono adapter and Drizzle adapter in `apps/api/src/lib/auth.ts`
 - [ ] T025 Create auth middleware in `apps/api/src/middleware/auth.ts` supporting both session cookie and API key Bearer token
 - [ ] T026 [P] Create rate limit middleware in `apps/api/src/middleware/rate-limit.ts` using Redis sliding window (5 attempts/15min per email+IP)
