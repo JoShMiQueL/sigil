@@ -64,7 +64,8 @@ nodes.delete("/:id", async (c) => {
   const result = await deleteNode(id);
 
   if ("error" in result) {
-    return c.json({ error: result.error }, 404);
+    const status = result.code === "NODE_HAS_SERVERS" ? 409 : 404;
+    return c.json({ error: { code: result.code, message: result.error } }, status);
   }
 
   const user = c.get("user");

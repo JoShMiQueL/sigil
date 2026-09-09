@@ -92,17 +92,29 @@ pairing.post("/node/register", zValidator("json", PairingRequestSchema), async (
 // Daemon heartbeat route (requires node credentials)
 const heartbeatApp = new Hono<NodeAuthContext>();
 heartbeatApp.use("/node/heartbeat", nodeAuthMiddleware);
-heartbeatApp.post("/node/heartbeat", zValidator("json", HeartbeatPayloadSchema), async (c) => {
-  const nodeId = c.get("nodeId");
-  if (!nodeId) {
-    return c.json({ error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } }, 401);
-  }
+heartbeatApp.post(
+  "/node/heartbeat",
+  zValidator("json", HeartbeatPayloadSchema, (result, c) => {
+    if (!result.success) {
+      const nodeId = c.req.header("x-node-id") ?? "unknown";
+      console.warn(
+        `Malformed heartbeat rejected from node ${nodeId}:`,
+        result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+      );
+    }
+  }),
+  async (c) => {
+    const nodeId = c.get("nodeId");
+    if (!nodeId) {
+      return c.json({ error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } }, 401);
+    }
 
-  const payload = c.req.valid("json");
-  await processHeartbeat(nodeId, payload);
+    const payload = c.req.valid("json");
+    await processHeartbeat(nodeId, payload);
 
-  return c.body(null, 204);
-});
+    return c.body(null, 204);
+  },
+);
 
 export default pairing;
 export { adminPairing, heartbeatApp };

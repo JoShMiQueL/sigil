@@ -143,11 +143,11 @@
 ### Implementation for User Story 4
 
 - [X] T048 [US4] Implement node service in `apps/api/src/services/node.service.ts` (list, detail, update, delete with server guard, regenerate credentials)
-- [X] T049 [US4] Implement node admin routes in `apps/api/src/routes/nodes.ts` (GET /api/admin/nodes, GET /api/admin/nodes/:id, PATCH /api/admin/nodes/:id, DELETE /api/admin/nodes/:id, POST /api/admin/nodes/:id/regenerate-credentials)
+- [X] T049 [US4] Implement node admin routes in `apps/api/src/routes/nodes.ts` (GET /api/admin/nodes, GET /api/admin/nodes/:id, PATCH /api/admin/nodes/:id, DELETE /api/admin/nodes/:id, POST /api/admin/nodes/:id/credentials/regenerate, POST /api/admin/nodes/:id/credentials/revoke)
 - [X] T050 [US4] Register node routes in `apps/api/src/index.ts`
 - [X] T051 [P] [US4] Create node edit dialog in `apps/panel/src/components/NodeEditDialog.tsx` (edit display name, change region)
 - [X] T052 [US4] Add edit, regenerate credentials, and remove actions to node detail page in `apps/panel/src/routes/node-detail.tsx`
-- [X] T053 [P] [US4] E2E test for node management in `apps/panel/tests/e2e/node-management.spec.ts` (edit node, regenerate credentials, verify old creds fail, remove node)
+- [X] T053 [P] [US4] E2E test for node management in `apps/panel/tests/e2e/node-lifecycle.spec.ts` (edit node, regenerate credentials, verify old creds fail, remove node)
 
 **Checkpoint**: Full node lifecycle management is functional. Admins can edit, remove, and regenerate credentials.
 

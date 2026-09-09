@@ -1,5 +1,5 @@
 import { db, schema } from "@sigilpanel/db";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { encrypt } from "../lib/crypto";
 import { hashToken } from "../lib/token";
@@ -127,4 +127,14 @@ export async function consumePairingToken(
     .where(eq(schema.pairingTokens.id, tokenRow.id));
 
   return { ok: true, nodeId: nodeRow.id, secretId, secret };
+}
+
+// Edge case: expired pairing tokens should be automatically cleaned up.
+// Called periodically from the sweep interval in index.ts.
+export async function cleanupExpiredPairingTokens(): Promise<number> {
+  const result = await db
+    .delete(schema.pairingTokens)
+    .where(lt(schema.pairingTokens.expiresAt, new Date()));
+
+  return result.length;
 }

@@ -56,4 +56,16 @@ if (process.env.NODE_ENV !== "test") {
   import("./services/heartbeat.service").then(({ startHeartbeatSweep }) => {
     startHeartbeatSweep(30);
   });
+
+  // Start expired pairing token cleanup (every 5 min)
+  import("./services/pairing.service").then(({ cleanupExpiredPairingTokens }) => {
+    setInterval(
+      () => {
+        cleanupExpiredPairingTokens().catch((err) => {
+          console.error("Failed to cleanup expired pairing tokens:", err);
+        });
+      },
+      5 * 60 * 1000,
+    );
+  });
 }

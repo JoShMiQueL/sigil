@@ -83,12 +83,29 @@ export async function updateNode(id: string, input: NodeUpdate): Promise<Node | 
   return toNode(row, region?.name ?? "");
 }
 
-export async function deleteNode(id: string): Promise<{ ok: true } | { error: string }> {
+export async function deleteNode(
+  id: string,
+): Promise<{ ok: true } | { error: string; code: string }> {
   const [row] = await db.select().from(schema.nodes).where(eq(schema.nodes.id, id)).limit(1);
-  if (!row) return { error: "Node not found" };
+  if (!row) return { error: "Node not found", code: "NODE_NOT_FOUND" };
+
+  // FR-014: Prevent deletion if node has running servers.
+  // The servers table is introduced in R9. Until then, this guard
+  // always passes (0 servers). When R9 lands, replace this function
+  // with a real query against schema.servers.
+  const serverCount = await countServersOnNode(id);
+  if (serverCount > 0) {
+    return { error: "Cannot remove a node with active servers", code: "NODE_HAS_SERVERS" };
+  }
 
   await db.delete(schema.nodes).where(eq(schema.nodes.id, id));
   return { ok: true };
+}
+
+// Placeholder — returns 0 until R9 adds the servers table.
+// Replace with: db.select().from(schema.servers).where(eq(schema.servers.nodeId, nodeId)).count()
+async function countServersOnNode(_nodeId: string): Promise<number> {
+  return 0;
 }
 
 export async function regenerateCredentials(
