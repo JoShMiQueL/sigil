@@ -17,6 +17,7 @@
     "check": "biome check",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
     "dev:services": "docker compose -f infra/docker/docker-compose.dev.yml up -d",
     "dev:services:down": "docker compose -f infra/docker/docker-compose.dev.yml down"
   },

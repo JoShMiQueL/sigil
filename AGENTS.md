@@ -150,23 +150,23 @@ See `.specify/memory/constitution.md` section "Commit cadence" for the full rule
 
 ## CI (GitHub Actions)
 
-The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push and PR to `main`. The workflow calls `scripts/ci.sh` for each job — the script is the single source of truth, so local and CI always run the same checks.
+The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push and PR to `main`. It uses the same `pnpm` commands you run locally — no separate CI script to maintain.
 
 Jobs:
-1. `lint` — `pnpm check` + `pnpm typecheck`
-2. `unit` — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test`
-3. `e2e` — `pnpm --filter @sigilpanel/db db:migrate` + Playwright (with `RATE_LIMIT_DISABLED=1`)
+1. **Lint & Typecheck** — `pnpm check` + `pnpm typecheck`
+2. **Unit & Integration** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test`
+3. **E2E** — `pnpm --filter @sigilpanel/db db:migrate` + `pnpm test:e2e` (with `RATE_LIMIT_DISABLED=1`)
 
-To run locally (same script, no GitHub needed):
+To run the same checks locally:
 
 ```bash
-./scripts/ci.sh           # all jobs
-./scripts/ci.sh lint      # one job
-./scripts/ci.sh unit
-./scripts/ci.sh e2e
+pnpm check          # lint
+pnpm typecheck      # type checking
+pnpm test           # unit + integration (Testcontainers auto-starts PostgreSQL)
+pnpm test:e2e       # E2E (Playwright auto-starts API + panel, auto-seeds admin)
 ```
 
-Requires Docker running. When run locally, the script auto-starts dev services (PostgreSQL + Redis). When run in CI, the `CI` env var skips that step.
+Requires Docker running.
 
 ## E2E verification workflow
 

@@ -252,8 +252,7 @@
 - [X] T130 Run full test suite and fix any failures: `pnpm test`, `pnpm typecheck`, `pnpm lint`
 - [X] T131 Run quickstart.md validation scenarios and verify all pass
 - [X] T132 [P] Add panel layout with navigation sidebar in `apps/panel/src/components/Layout.tsx` (dashboard, users, security, api-keys, logout)
-- [X] T133 [P] Add GitHub Actions CI workflow in `.github/workflows/ci.yml` (lint, typecheck, unit/integration, E2E)
-- [X] T134 [P] Add local CI simulation script in `scripts/ci-local.sh` to run same steps without pushing
+- [X] T133 [P] Add GitHub Actions CI workflow in `.github/workflows/ci.yml` (lint, typecheck, unit/integration, E2E — uses same pnpm commands as local)
 
 ---
 
