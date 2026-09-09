@@ -73,10 +73,10 @@
 
 - [X] T028 [P] [US1] Unit test for Argon2id hash+verify in `apps/api/src/lib/argon2.spec.ts`
 - [X] T029 [P] [US1] Unit test for token generation in `apps/api/src/lib/token.spec.ts`
-- [ ] T030 [P] [US1] Integration test for login with valid credentials in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T031 [P] [US1] Integration test for login with invalid credentials in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T032 [P] [US1] Integration test for logout destroying session in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T033 [P] [US1] Integration test for /me endpoint with valid session in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
+- [X] T030 [P] [US1] Integration test for login with valid credentials in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
+- [X] T031 [P] [US1] Integration test for login with invalid credentials in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
+- [X] T032 [P] [US1] Integration test for logout destroying session in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
+- [X] T033 [P] [US1] Integration test for /me endpoint with valid session in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
 - [ ] T034 [P] [US1] E2E test for full login flow in `apps/panel/tests/e2e/login.spec.ts` (Playwright)
 
 ### Implementation for User Story 1
@@ -106,12 +106,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T047 [P] [US2] Integration test for user creation in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T048 [P] [US2] Integration test for user listing with pagination in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T049 [P] [US2] Integration test for user suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T050 [P] [US2] Integration test for preventing self-suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T051 [P] [US2] Integration test for preventing last-admin suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T052 [P] [US2] Integration test for suspended user login rejection in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
+- [X] T047 [P] [US2] Integration test for user creation in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
+- [X] T048 [P] [US2] Integration test for user listing with pagination in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
+- [X] T049 [P] [US2] Integration test for user suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
+- [X] T050 [P] [US2] Integration test for preventing self-suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
+- [X] T051 [P] [US2] Integration test for preventing last-admin suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
+- [X] T052 [P] [US2] Integration test for suspended user login rejection in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
 - [ ] T053 [P] [US2] E2E test for user creation flow in `apps/panel/tests/e2e/users.spec.ts` (Playwright)
 
 ### Implementation for User Story 2
@@ -142,11 +142,11 @@
 
 ### Tests for User Story 3
 
-- [ ] T067 [P] [US3] Unit test for reset token generation and hashing in `apps/api/src/services/password.spec.ts`
-- [ ] T068 [P] [US3] Integration test for forgot-password endpoint in `apps/api/src/routes/auth.spec.ts` (always returns 200, Testcontainers)
-- [ ] T069 [P] [US3] Integration test for reset-password with valid token in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
-- [ ] T070 [P] [US3] Integration test for reset-password with expired token in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
-- [ ] T071 [P] [US3] Integration test for session revocation on password change in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
+- [X] T067 [P] [US3] Unit test for reset token generation and hashing in `apps/api/src/services/password.spec.ts`
+- [X] T068 [P] [US3] Integration test for forgot-password endpoint in `apps/api/src/routes/auth.spec.ts` (always returns 200, Testcontainers)
+- [X] T069 [P] [US3] Integration test for reset-password with valid token in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
+- [X] T070 [P] [US3] Integration test for reset-password with expired token in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
+- [X] T071 [P] [US3] Integration test for session revocation on password change in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
 
 ### Implementation for User Story 3
 
@@ -174,12 +174,12 @@
 
 ### Tests for User Story 4
 
-- [ ] T083 [P] [US4] Unit test for TOTP secret encryption/decryption in `apps/api/src/lib/crypto.spec.ts`
-- [ ] T084 [P] [US4] Unit test for recovery code hash/verify in `apps/api/src/services/totp.spec.ts`
-- [ ] T085 [P] [US4] Integration test for 2FA enrollment flow in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
-- [ ] T086 [P] [US4] Integration test for 2FA login flow in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
-- [ ] T087 [P] [US4] Integration test for recovery code login in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
-- [ ] T088 [P] [US4] Integration test for 2FA disable in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
+- [X] T083 [P] [US4] Unit test for TOTP secret encryption/decryption in `apps/api/src/lib/crypto.spec.ts`
+- [X] T084 [P] [US4] Unit test for recovery code hash/verify in `apps/api/src/services/totp.spec.ts`
+- [X] T085 [P] [US4] Integration test for 2FA enrollment flow in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
+- [X] T086 [P] [US4] Integration test for 2FA login flow in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
+- [X] T087 [P] [US4] Integration test for recovery code login in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
+- [X] T088 [P] [US4] Integration test for 2FA disable in `apps/api/src/routes/auth.spec.ts` (Testcontainers)
 
 ### Implementation for User Story 4
 
@@ -213,12 +213,12 @@
 
 ### Tests for User Story 5
 
-- [ ] T106 [P] [US5] Unit test for API key generation and hashing in `apps/api/src/services/api-key.spec.ts`
-- [ ] T107 [P] [US5] Integration test for API key creation in `apps/api/src/routes/api-keys.spec.ts` (Testcontainers)
-- [ ] T108 [P] [US5] Integration test for API key listing in `apps/api/src/routes/api-keys.spec.ts` (Testcontainers)
-- [ ] T109 [P] [US5] Integration test for API key revocation in `apps/api/src/routes/api-keys.spec.ts` (Testcontainers)
-- [ ] T110 [P] [US5] Integration test for API key authentication in `apps/api/src/middleware/auth.spec.ts` (Testcontainers)
-- [ ] T111 [P] [US5] Integration test for API key scope enforcement in `apps/api/src/middleware/auth.spec.ts` (Testcontainers)
+- [X] T106 [P] [US5] Unit test for API key generation and hashing in `apps/api/src/services/api-key.spec.ts`
+- [X] T107 [P] [US5] Integration test for API key creation in `apps/api/src/routes/api-keys.spec.ts` (Testcontainers)
+- [X] T108 [P] [US5] Integration test for API key listing in `apps/api/src/routes/api-keys.spec.ts` (Testcontainers)
+- [X] T109 [P] [US5] Integration test for API key revocation in `apps/api/src/routes/api-keys.spec.ts` (Testcontainers)
+- [X] T110 [P] [US5] Integration test for API key authentication in `apps/api/src/middleware/auth.spec.ts` (Testcontainers)
+- [X] T111 [P] [US5] Integration test for API key scope enforcement in `apps/api/src/middleware/auth.spec.ts` (Testcontainers)
 
 ### Implementation for User Story 5
 
