@@ -22,14 +22,14 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create Hono app entry in `apps/api/src/index.ts` with basic routing skeleton
-- [ ] T002 [P] Configure Drizzle ORM client in `packages/db/src/index.ts` with PostgreSQL connection
-- [ ] T003 [P] Configure Vite + React entry in `apps/panel/src/main.tsx` with TanStack Router skeleton
-- [ ] T004 [P] Create shared package entry in `packages/shared/src/index.ts` re-exporting all schemas
-- [ ] T005 [P] Configure Vitest in `apps/api/vitest.config.ts` with Testcontainers setup
-- [ ] T006 [P] Configure Vitest in `apps/panel/vitest.config.ts` with jsdom environment
-- [ ] T007 [P] Create Docker Compose dev services file in `infra/docker/docker-compose.dev.yml` with PostgreSQL 18 and Redis 8
-- [ ] T008 [P] Configure ESLint and Prettier in root `eslint.config.js` and `.prettierrc` with TypeScript rules
+- [X] T001 Create Hono app entry in `apps/api/src/index.ts` with basic routing skeleton
+- [X] T002 [P] Configure Drizzle ORM client in `packages/db/src/index.ts` with PostgreSQL connection
+- [X] T003 [P] Configure Vite + React entry in `apps/panel/src/main.tsx` with TanStack Router skeleton
+- [X] T004 [P] Create shared package entry in `packages/shared/src/index.ts` re-exporting all schemas
+- [X] T005 [P] Configure Vitest in `apps/api/vitest.config.ts` with Testcontainers setup
+- [X] T006 [P] Configure Vitest in `apps/panel/vitest.config.ts` with jsdom environment
+- [X] T007 [P] Create Docker Compose dev services file in `infra/docker/docker-compose.dev.yml` with PostgreSQL 18 and Redis 8
+- [X] T008 [P] Configure Biome (linter + formatter) in root `biome.json` with TypeScript rules
 
 ---
 

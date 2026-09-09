@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@sigilpanel/shared": ["./packages/shared/src/index.ts"],
+      "@sigilpanel/db": ["./packages/db/src/index.ts"]
+    }
+  }
+}

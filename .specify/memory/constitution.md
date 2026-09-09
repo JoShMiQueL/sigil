@@ -111,11 +111,23 @@ docs(install): spell out nginx WebSocket configuration
 
 Scopes: `panel`, `api`, `daemon`, `shared`, `db`, `ui`, `templates`, `images`, `infra`, `ci`, `docs`.
 
+### Commit cadence
+
+- **Commit by logical change, not by phase.** A commit = one coherent idea. "Add Zod schemas for auth" is a commit. "Configure Drizzle" is another. It does not matter which Spec Kit phase they belong to.
+- **`pnpm check` MUST always pass before committing.** Lint and format are non-negotiable.
+- **`pnpm typecheck` MUST pass when the code is in a functional state.** If you are mid-refactor, do not commit. When the logical change is complete, typecheck must pass.
+- **`pnpm test` MUST pass when tests exist for the changed code.** If no tests apply to the change, this requirement does not apply.
+- **Mark tasks as `[X]` in tasks.md in the same commit** that completes them.
+- **Update `ROADMAP.md` status in the same commit** that marks a spec entry as `in-progress` or `done`.
+- **Commit message format**: `<type>(<scope>): <description> [R<roadmap-id>]`
+
+Example: `feat(shared): add Zod schemas for user auth [R1]`
+
 ### Pull Requests
 
 - One PR, one subject. A bug fix AND a refactor are two PRs.
 - Describe **why** the change is needed, not only what it does.
-- `pnpm lint && pnpm typecheck && pnpm test` MUST pass.
+- `pnpm check && pnpm typecheck && pnpm test` MUST pass.
 - If the change touches security, say so explicitly in the description.
 - If the change is visible in the UI, attach a screenshot.
 
@@ -136,4 +148,4 @@ Spec artifacts live in `.specify/`. The constitution supersedes all other practi
 - Versioning: MAJOR for principle removals/redefinitions, MINOR for new principles/sections, PATCH for clarifications.
 - Complexity MUST be justified against the principles. If a change violates a principle, the violation MUST be documented in the plan's Complexity Tracking table with a rationale.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-09 | **Last Amended**: 2026-09-09
+**Version**: 1.0.0 | **Created**: 2026-09-09
