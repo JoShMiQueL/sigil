@@ -3,3 +3,6 @@ packages:
   - "packages/*"
 onlyBuiltDependencies:
   - esbuild
+  - cpu-features
+  - protobufjs
+  - ssh2
