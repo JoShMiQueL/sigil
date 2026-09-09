@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { RegionCreateSchema } from "@sigilpanel/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
+import { logAudit } from "../services/audit.service";
 import { createRegion, deleteRegion, listRegions } from "../services/region.service";
 
 const regions = new Hono<AuthContext>();
@@ -25,6 +26,14 @@ regions.post("/", zValidator("json", RegionCreateSchema), async (c) => {
 
   try {
     const region = await createRegion(input);
+    const user = c.get("user");
+    await logAudit({
+      userId: user?.id,
+      action: "region_create",
+      targetType: "region",
+      targetId: region.id,
+      metadata: { name: region.name },
+    });
     return c.json(region, 201);
   } catch (err) {
     const cause = err instanceof Error && "cause" in err ? (err.cause as { code?: string }) : err;
@@ -55,6 +64,14 @@ regions.delete("/:id", async (c) => {
   if ("error" in result) {
     return c.json({ error: { code: "REGION_HAS_NODES", message: result.error } }, 409);
   }
+
+  const user = c.get("user");
+  await logAudit({
+    userId: user?.id,
+    action: "region_delete",
+    targetType: "region",
+    targetId: id,
+  });
 
   return c.body(null, 204);
 });

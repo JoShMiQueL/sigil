@@ -157,10 +157,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T054 Add audit log entries for all node management actions (region create/delete, pairing token generate, node register/edit/remove/regenerate) in respective service files
-- [ ] T055 [P] Update `ROADMAP.md` to mark R4 as done
-- [ ] T056 [P] Update `AGENTS.md` with node management section (new endpoints, new test files, new panel routes)
-- [ ] T057 Run quickstart.md validation scenarios and verify all pass
+- [X] T054 Add audit log entries for all node management actions (region create/delete, pairing token generate, node register/edit/remove/regenerate) in respective service files
+- [X] T055 [P] Update `ROADMAP.md` to mark R4 as done
+- [X] T056 [P] Update `AGENTS.md` with node management section (new endpoints, new test files, new panel routes)
+- [X] T057 Run quickstart.md validation scenarios and verify all pass
 
 ---
 

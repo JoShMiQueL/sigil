@@ -7,6 +7,7 @@ import {
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import { type NodeAuthContext, nodeAuthMiddleware } from "../middleware/node-auth";
+import { logAudit } from "../services/audit.service";
 import { processHeartbeat } from "../services/heartbeat.service";
 import {
   consumePairingToken,
@@ -33,6 +34,13 @@ adminPairing.post("/tokens", zValidator("json", PairingTokenCreateSchema), async
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
   const result = await generatePairingToken(input.regionId, user.id);
+  await logAudit({
+    userId: user.id,
+    action: "pairing_token_generate",
+    targetType: "region",
+    targetId: input.regionId,
+    metadata: { tokenId: result.id },
+  });
   return c.json(
     {
       id: result.id,
@@ -62,6 +70,14 @@ pairing.post("/node/register", zValidator("json", PairingRequestSchema), async (
   if ("error" in result) {
     return c.json({ error: { code: "PAIRING_TOKEN_INVALID", message: result.error } }, 401);
   }
+
+  await logAudit({
+    action: "node_register",
+    targetType: "node",
+    targetId: result.nodeId,
+    metadata: { hostname: input.hostname, ipAddress: input.ipAddress },
+    ipAddress: input.ipAddress,
+  });
 
   return c.json(
     {

@@ -12,7 +12,15 @@ export type AuditAction =
   | "api_key_create"
   | "api_key_revoke"
   | "password_reset_request"
-  | "password_reset_complete";
+  | "password_reset_complete"
+  | "region_create"
+  | "region_delete"
+  | "pairing_token_generate"
+  | "node_register"
+  | "node_update"
+  | "node_delete"
+  | "node_credential_regenerate"
+  | "node_credential_revoke";
 
 export async function logAudit(opts: {
   userId?: string;

@@ -234,9 +234,11 @@ pnpm test:e2e                                      # Playwright E2E tests
 apps/api/src/
 ├── lib/
 │   ├── argon2.spec.ts        # Argon2id hash/verify
+│   ├── credentials.spec.ts   # Node credential generation, HMAC signing
 │   ├── crypto.spec.ts        # AES-256-GCM encrypt/decrypt
 │   └── token.spec.ts         # Token generation
 ├── middleware/
+│   ├── node-auth.spec.ts     # Node HMAC auth (X-Node-Id/Signature/Timestamp)
 │   └── rate-limit.spec.ts    # Rate limiter (in-memory Redis mock)
 ├── services/
 │   ├── password.spec.ts      # Reset token gen/hash
@@ -245,17 +247,25 @@ apps/api/src/
 │   ├── auth.spec.ts          # Login, logout, /me, password reset, 2FA
 │   ├── users.spec.ts         # User CRUD, suspension, guards
 │   ├── api-keys.spec.ts      # API key create/list/revoke/auth
+│   ├── regions.spec.ts       # Region CRUD (US1)
+│   ├── pairing.spec.ts       # Pairing tokens, daemon registration (US2)
+│   ├── heartbeat.spec.ts     # Heartbeat processing, offline sweep (US3)
+│   ├── nodes.spec.ts         # Node CRUD, credential management (US4)
 │   └── test-cleanup.ts       # Test-only DB cleanup endpoint (E2E mode)
 └── test/
     ├── global-setup.ts       # Testcontainers PostgreSQL + migrations
     ├── setup.ts              # Env var propagation
-    └── helpers.ts            # DB cleanup, user factories, request helpers
+    └── helpers.ts            # DB cleanup, user/node/region factories, request helpers
 
 apps/panel/tests/e2e/
 ├── global-setup.ts           # Flush Redis + seed admin
 ├── helpers.ts                # cleanupDatabase() helper
 ├── login.spec.ts             # Admin login, invalid creds, logout
-└── users.spec.ts             # User creation, suspension
+├── users.spec.ts             # User creation, suspension
+├── regions.spec.ts           # Region create, delete, duplicate name (US1)
+├── pairing.spec.ts           # Pairing token generation, daemon registration (US2)
+├── heartbeat.spec.ts         # Heartbeat sends, online status verification (US3)
+└── node-lifecycle.spec.ts    # Node edit, regenerate creds, delete (US4)
 ```
 
 ## Spec Kit workflow

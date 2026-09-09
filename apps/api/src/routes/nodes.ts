@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { NodeUpdateSchema } from "@sigilpanel/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
+import { logAudit } from "../services/audit.service";
 import {
   deleteNode,
   getNodeById,
@@ -45,6 +46,16 @@ nodes.patch("/:id", zValidator("json", NodeUpdateSchema), async (c) => {
   if (!node) {
     return c.json({ error: "Node not found" }, 404);
   }
+
+  const user = c.get("user");
+  await logAudit({
+    userId: user?.id,
+    action: "node_update",
+    targetType: "node",
+    targetId: id,
+    metadata: input,
+  });
+
   return c.json(node);
 });
 
@@ -55,6 +66,14 @@ nodes.delete("/:id", async (c) => {
   if ("error" in result) {
     return c.json({ error: result.error }, 404);
   }
+
+  const user = c.get("user");
+  await logAudit({
+    userId: user?.id,
+    action: "node_delete",
+    targetType: "node",
+    targetId: id,
+  });
 
   return c.body(null, 204);
 });
@@ -67,6 +86,14 @@ nodes.post("/:id/credentials/regenerate", async (c) => {
     return c.json({ error: result.error }, 404);
   }
 
+  const user = c.get("user");
+  await logAudit({
+    userId: user?.id,
+    action: "node_credential_regenerate",
+    targetType: "node",
+    targetId: id,
+  });
+
   return c.json(result, 201);
 });
 
@@ -77,6 +104,14 @@ nodes.post("/:id/credentials/revoke", async (c) => {
   if ("error" in result) {
     return c.json({ error: result.error }, 404);
   }
+
+  const user = c.get("user");
+  await logAudit({
+    userId: user?.id,
+    action: "node_credential_revoke",
+    targetType: "node",
+    targetId: id,
+  });
 
   return c.body(null, 204);
 });

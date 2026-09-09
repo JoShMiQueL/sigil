@@ -40,13 +40,13 @@ pnpm dev                   # Start API (:3000) + panel (:5173)
    curl -X POST http://localhost:3000/api/node/register \
      -H "Content-Type: application/json" \
      -d '{
-       "pairing_token": "<token from step 3>",
+       "pairingToken": "<token from step 3>",
        "hostname": "node-01.example.com",
-       "ip_address": "203.0.113.10",
+       "ipAddress": "203.0.113.10",
        "capabilities": { "docker": true, "sftp": true }
      }'
    ```
-5. Verify the response contains `node_id`, `secret_id`, and `secret`
+5. Verify the response contains `nodeId`, `secretId`, and `secret`
 6. Verify the node appears in the node list with status "unknown"
 7. Try to register again with the same token — verify error "Pairing token already used"
 
@@ -63,10 +63,10 @@ pnpm dev                   # Start API (:3000) + panel (:5173)
      -H "X-Node-Timestamp: <unix_ts>" \
      -d '{
        "timestamp": <unix_ts>,
-       "cpu_usage": 42.5,
-       "memory_usage": 68.0,
-       "disk_usage": 35.2,
-       "container_count": 5
+       "cpuUsage": 42.5,
+       "memoryUsage": 68.0,
+       "diskUsage": 35.2,
+       "containerCount": 5
      }'
    ```
 3. Verify the node's status changes to "online" with resource usage displayed
