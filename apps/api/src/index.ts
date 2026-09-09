@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { type AuthContext, authMiddleware } from "./middleware/auth";
+import { cspMiddleware } from "./middleware/security-headers";
 import apiKeysRoutes from "./routes/api-keys";
 import authRoutes from "./routes/auth";
 import usersRoutes from "./routes/users";
@@ -11,6 +12,7 @@ const app = new Hono<AuthContext>();
 
 app.use(logger());
 app.use(secureHeaders());
+app.use(cspMiddleware);
 app.use(
   cors({
     origin: process.env.PANEL_URL ?? "http://localhost:5173",

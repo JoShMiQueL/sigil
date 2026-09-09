@@ -4,7 +4,10 @@ import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tans
 import { useState } from "react";
 import { ApiKeyManager } from "./components/ApiKeyManager";
 import { CreateUserForm } from "./components/CreateUserForm";
+import { ErrorState } from "./components/ErrorState";
 import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
+import { Layout } from "./components/Layout";
+import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
 import { ResetPasswordForm } from "./components/ResetPasswordForm";
 import { TotpSetup } from "./components/TotpSetup";
@@ -97,7 +100,7 @@ function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+    <Layout>
       <h1>SigilPanel Dashboard</h1>
       <p>
         Welcome, {user.username} ({user.role})
@@ -129,7 +132,7 @@ function DashboardPage() {
       >
         {isLoggingOut ? "Logging out..." : "Logout"}
       </button>
-    </div>
+    </Layout>
   );
 }
 
@@ -185,11 +188,8 @@ function UsersPage() {
   });
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+    <Layout>
       <h1>Users</h1>
-      <button type="button" onClick={() => router.navigate({ to: "/" })}>
-        Back to Dashboard
-      </button>
       <CreateUserForm
         onCreate={async (input) => {
           const result = await createMutation.mutateAsync(input);
@@ -197,7 +197,7 @@ function UsersPage() {
         }}
       />
       {isLoading ? (
-        <p>Loading users...</p>
+        <LoadingState message="Loading users..." />
       ) : data ? (
         <UserTable
           users={data.users}
@@ -208,7 +208,7 @@ function UsersPage() {
           onSuspend={(id) => suspendMutation.mutate(id)}
         />
       ) : null}
-    </div>
+    </Layout>
   );
 }
 
@@ -362,13 +362,10 @@ function SecurityPage() {
   });
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+    <Layout>
       <h1>Security Settings</h1>
-      <button type="button" onClick={() => router.navigate({ to: "/" })}>
-        Back to Dashboard
-      </button>
 
-      {error && <div role="alert">{error}</div>}
+      {error && <ErrorState message={error} />}
       {message && <div>{message}</div>}
 
       <h2>Two-Factor Authentication</h2>
@@ -418,7 +415,7 @@ function SecurityPage() {
           {enableMutation.isPending ? "Enabling..." : "Enable 2FA"}
         </button>
       )}
-    </div>
+    </Layout>
   );
 }
 
@@ -524,11 +521,8 @@ function ApiKeysPage() {
   });
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+    <Layout>
       <h1>API Keys</h1>
-      <button type="button" onClick={() => router.navigate({ to: "/" })}>
-        Back to Dashboard
-      </button>
       <ApiKeyManager
         keys={data?.keys ?? []}
         onCreate={async (name, scopes) => {
@@ -541,7 +535,7 @@ function ApiKeysPage() {
           return "error" in result ? result : {};
         }}
       />
-    </div>
+    </Layout>
   );
 }
 

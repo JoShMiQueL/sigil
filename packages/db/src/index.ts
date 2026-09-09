@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { apiKeys } from "./schema/api-keys";
+import { auditLogs } from "./schema/audit-logs";
 import { passwordResetTokens } from "./schema/password-reset-tokens";
 import { sessions } from "./schema/sessions";
 import { users } from "./schema/users";
@@ -10,6 +11,7 @@ export const schema = {
   sessions,
   apiKeys,
   passwordResetTokens,
+  auditLogs,
 };
 
 const connectionString =
