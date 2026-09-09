@@ -70,3 +70,16 @@ When working on a spec, you may discover that you need to change something in a 
 - **Update the roadmap first.** When scope shifts, update `ROADMAP.md` before updating sub-specs. The roadmap is the source of truth for how the epic is divided.
 - **Keep IDs immutable.** Once a sub-spec references a roadmap ID, that ID MUST NOT change. Add new entries at the end if needed.
 - **Fill in Sub-spec links.** When you create a sub-spec directory, fill in the `Sub-spec` column with the path.
+
+## Cross-cutting infrastructure
+
+Infrastructure that spans all specs, not tied to a single roadmap entry:
+
+| Infra | Status | Where to find it |
+|-------|--------|-------------------|
+| CI (GitHub Actions) | done | `.github/workflows/ci.yml`, `Makefile`, `AGENTS.md` |
+| Test isolation (E2E cleanup, test/prod guards) | done | `AGENTS.md`, `.specify/memory/constitution.md` § IV |
+| pnpm 11 + Turborepo monorepo | done | `pnpm-workspace.yaml`, `turbo.json`, `AGENTS.md` |
+| PostgreSQL + Redis dev services | done | `infra/docker/docker-compose.dev.yml`, `AGENTS.md` |
+
+When updating CI or test infrastructure, update `AGENTS.md` (commands) and `constitution.md` (principles) in the same commit. Specs reference these, they don't duplicate them.

@@ -136,15 +136,12 @@ curl -X POST http://localhost:3000/api/auth/login \
 
 ## Running Tests
 
+See `AGENTS.md` for the full test guide. Quick reference:
+
 ```bash
-# Unit tests (password hashing, token generation, schema validation)
-pnpm --filter @sigilpanel/api test
-
-# Integration tests (real PostgreSQL via Testcontainers)
-pnpm --filter @sigilpanel/api test -- --run integration
-
-# E2E tests (Playwright — login flow, user creation)
-pnpm --filter @sigilpanel/panel test:e2e
+make ci         # all checks (lint, typecheck, unit/integration, E2E)
+make test       # unit + integration only
+make test-e2e   # E2E only
 ```
 
 ## Expected Outcomes

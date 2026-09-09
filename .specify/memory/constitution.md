@@ -56,10 +56,18 @@ These rules block a PR without discussion. No exceptions, no "just this once".
 ### IV. Test Against Real Infrastructure (NON-NEGOTIABLE)
 
 - **Unit tests** (Vitest): for pure logic — permissions, template parsing, jailed filesystem, schema validation.
-- **Integration tests** (Testcontainers): for anything that touches Docker. The daemon MUST be tested against a real Docker daemon, never a `dockerode` mock. Mocks do not catch network, volume, or runtime errors.
+- **Integration tests** (Testcontainers): for anything that touches Docker or PostgreSQL. The daemon MUST be tested against a real Docker daemon, never a `dockerode` mock. Mocks do not catch network, volume, or runtime errors.
 - **E2E tests** (Playwright): for critical user journeys — sign-in, server creation, console interaction.
 
 Code touching file paths, permissions, or tokens MUST be covered by tests, including explicit attack cases (`../../etc/passwd`, a symlink to `/`, an archive containing `../`).
+
+**Test/prod isolation (NON-NEGOTIABLE):**
+
+- Test-only endpoints (e.g. DB cleanup) MUST be guarded by `NODE_ENV !== "production"` and MUST NEVER be reachable in production regardless of other env vars.
+- `RATE_LIMIT_DISABLED` and similar test flags MUST be no-ops when `NODE_ENV === "production"`.
+- E2E tests MUST be self-contained: each test creates what it needs and cleans up after itself. No test may depend on data from a previous test.
+- CI MUST use isolated service containers (PostgreSQL, Redis), not shared dev infrastructure.
+- See `AGENTS.md` for exact commands and the isolation model.
 
 ### V. Spec-Driven Development
 
@@ -117,6 +125,7 @@ Scopes: `panel`, `api`, `daemon`, `shared`, `db`, `ui`, `templates`, `images`, `
 - **`pnpm check` MUST always pass before committing.** Lint and format are non-negotiable.
 - **`pnpm typecheck` MUST pass when the code is in a functional state.** If you are mid-refactor, do not commit. When the logical change is complete, typecheck must pass.
 - **`pnpm test` MUST pass when tests exist for the changed code.** If no tests apply to the change, this requirement does not apply.
+- **`make ci` MUST pass before pushing.** This runs the same checks as GitHub Actions (lint, typecheck, unit/integration, E2E).
 - **Mark tasks as `[X]` in tasks.md in the same commit** that completes them.
 - **Update `ROADMAP.md` status in the same commit** that marks a spec entry as `in-progress` or `done`.
 - **Commit message format**: `<type>(<scope>): <description> [R<roadmap-id>]`
@@ -128,6 +137,7 @@ Example: `feat(shared): add Zod schemas for user auth [R1]`
 - One PR, one subject. A bug fix AND a refactor are two PRs.
 - Describe **why** the change is needed, not only what it does.
 - `pnpm check && pnpm typecheck && pnpm test` MUST pass.
+- `make ci` MUST pass (includes E2E).
 - If the change touches security, say so explicitly in the description.
 - If the change is visible in the UI, attach a screenshot.
 
