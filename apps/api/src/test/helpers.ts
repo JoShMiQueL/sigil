@@ -1,11 +1,13 @@
 import { db, schema } from "@sigilpanel/db";
 import { eq, sql } from "drizzle-orm";
 import { hashPassword } from "../lib/argon2";
+import { encrypt } from "../lib/crypto";
+import { computeSignature, generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { createResetToken } from "../services/password.service";
 
 export async function cleanupDatabase(): Promise<void> {
   await db.execute(
-    sql`TRUNCATE TABLE audit_logs, sessions, api_keys, password_reset_tokens, users CASCADE`,
+    sql`TRUNCATE TABLE node_credentials, pairing_tokens, nodes, regions, audit_logs, sessions, api_keys, password_reset_tokens, users CASCADE`,
   );
 }
 
@@ -111,4 +113,69 @@ export async function generateResetToken(userId: string): Promise<string> {
 export function generateTotpCode(secret: string): string {
   const { authenticator } = require("@otplib/preset-default");
   return authenticator.generate(secret);
+}
+
+// Create a region and return its id
+export async function createRegion(name = "test-region"): Promise<string> {
+  const [row] = await db
+    .insert(schema.regions)
+    .values({ name, description: "Test region" })
+    .returning();
+  return row.id;
+}
+
+// Create a node in a region and return its id
+export async function createNode(regionId: string, hostname = "node-01.test.local"): Promise<string> {
+  const [row] = await db
+    .insert(schema.nodes)
+    .values({
+      regionId,
+      hostname,
+      ipAddress: "203.0.113.10",
+      displayName: hostname,
+      capabilities: { docker: true, sftp: true },
+      status: "unknown",
+    })
+    .returning();
+  return row.id;
+}
+
+// Create node credentials and return { nodeId, secretId, secret }
+export async function createNodeCredentials(nodeId: string): Promise<{
+  nodeId: string;
+  secretId: string;
+  secret: string;
+}> {
+  const secretId = generateSecretId();
+  const secret = generateNodeSecret();
+  await db.insert(schema.nodeCredentials).values({
+    nodeId,
+    secretId,
+    secretEncrypted: encrypt(secret),
+  });
+  return { nodeId, secretId, secret };
+}
+
+// Revoke node credentials
+export async function revokeNodeCredentials(nodeId: string): Promise<void> {
+  await db
+    .update(schema.nodeCredentials)
+    .set({ revokedAt: new Date() })
+    .where(eq(schema.nodeCredentials.nodeId, nodeId));
+}
+
+// Build valid auth headers for a node
+export function buildNodeAuthHeaders(
+  secretId: string,
+  secret: string,
+  body: string,
+  timestamp?: number,
+): Record<string, string> {
+  const ts = timestamp ?? Math.floor(Date.now() / 1000);
+  const signature = computeSignature(secret, ts, body);
+  return {
+    "x-node-id": secretId,
+    "x-node-signature": signature,
+    "x-node-timestamp": String(ts),
+  };
 }
