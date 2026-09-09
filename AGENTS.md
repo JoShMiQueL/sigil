@@ -172,6 +172,62 @@ pnpm --filter @sigilpanel/api db:seed       # Seed admin user
 pnpm dev                   # Start API + panel
 ```
 
+## Automated tests
+
+All tests are fully automatic — no manual server startup required.
+
+### Unit + integration tests (`pnpm test`)
+
+- **Vitest** runs all `*.spec.ts` files under `apps/api/src/`.
+- **Testcontainers** automatically starts an isolated PostgreSQL Docker container, applies Drizzle migrations, and tears it down after the run. No dev database needed.
+- The API is imported as a Hono app in-process (no HTTP server started) thanks to the `NODE_ENV !== "test"` guard in `apps/api/src/index.ts`.
+- The rate limiter is mocked in integration tests to avoid Redis state interference.
+- Tests run sequentially (`fileParallelism: false`) because they share the Testcontainer database and clean up between tests.
+
+```bash
+pnpm test                                          # All workspace tests
+pnpm --filter @sigilpanel/api test                 # API tests only
+```
+
+### E2E tests (`pnpm --filter @sigilpanel/panel test:e2e`)
+
+- **Playwright** runs browser tests in `apps/panel/tests/e2e/`.
+- The Playwright config auto-starts the API and panel dev servers via `webServer` if they aren't already running, and stops them when done.
+- The API is started with `RATE_LIMIT_DISABLED=1` so login attempts are never throttled.
+- A `globalSetup` flushes Redis rate-limit keys before tests run, so prior runs don't interfere.
+- E2E tests use the **real dev database** (not Testcontainers), so the admin user must be seeded (`pnpm --filter @sigilpanel/api db:seed`).
+- System Chromium is used (`/usr/bin/chromium-browser`) to avoid Playwright browser dependency issues.
+
+```bash
+pnpm --filter @sigilpanel/panel test:e2e           # Playwright E2E tests
+```
+
+### Test structure
+
+```
+apps/api/src/
+├── lib/
+│   ├── argon2.spec.ts        # Argon2id hash/verify
+│   ├── crypto.spec.ts        # AES-256-GCM encrypt/decrypt
+│   └── token.spec.ts         # Token generation
+├── services/
+│   ├── password.spec.ts      # Reset token gen/hash
+│   └── totp.spec.ts          # TOTP + recovery codes
+├── routes/
+│   ├── auth.spec.ts          # Login, logout, /me, password reset, 2FA
+│   ├── users.spec.ts         # User CRUD, suspension, guards
+│   └── api-keys.spec.ts      # API key create/list/revoke/auth
+└── test/
+    ├── global-setup.ts       # Testcontainers PostgreSQL + migrations
+    ├── setup.ts              # Env var propagation
+    └── helpers.ts            # DB cleanup, user factories, request helpers
+
+apps/panel/tests/e2e/
+├── global-setup.ts           # Flush Redis rate-limit keys
+├── login.spec.ts             # Admin login, invalid creds, logout
+└── users.spec.ts             # User creation, suspension
+```
+
 ## Spec Kit workflow
 
 This project uses GitHub Spec Kit for spec-driven development. The project is decomposed into sub-features tracked in `ROADMAP.md` (the "spec of specs" pattern). Each sub-feature runs through its own specify → plan → tasks → implement cycle.

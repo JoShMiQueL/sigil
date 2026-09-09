@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-09
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: Parent roadmap: `ROADMAP.md` → entry **R1**. Authentication and user management — login, registration, roles, sessions
 

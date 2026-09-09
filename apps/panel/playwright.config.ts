@@ -7,6 +7,7 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   reporter: "list",
+  globalSetup: "./tests/e2e/global-setup.ts",
   use: {
     baseURL: "http://localhost:5173",
     trace: "on-first-retry",
@@ -18,7 +19,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "pnpm --filter @sigilpanel/api dev",
+      command: "RATE_LIMIT_DISABLED=1 pnpm --filter @sigilpanel/api dev",
       url: "http://localhost:3000/health",
       reuseExistingServer: true,
       timeout: 30000,

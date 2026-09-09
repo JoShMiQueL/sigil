@@ -7,7 +7,13 @@ vi.mock("../middleware/rate-limit", () => ({
 }));
 
 import app from "../index";
-import { apiRequest, cleanupDatabase, createAdmin, loginAndGetCookie, parseJson } from "../test/helpers";
+import {
+  apiRequest,
+  cleanupDatabase,
+  createAdmin,
+  loginAndGetCookie,
+  parseJson,
+} from "../test/helpers";
 
 describe("api-keys routes [US5: API keys]", () => {
   let adminCookie: string | null;

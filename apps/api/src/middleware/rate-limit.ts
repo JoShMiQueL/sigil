@@ -7,7 +7,14 @@ const WINDOW_SECONDS = 15 * 60;
 const MAX_ATTEMPTS = 5;
 const MAX_IP_ATTEMPTS = 10;
 
+const RATE_LIMIT_DISABLED = process.env.RATE_LIMIT_DISABLED === "1";
+
 export const rateLimitMiddleware = createMiddleware(async (c, next) => {
+  if (RATE_LIMIT_DISABLED) {
+    await next();
+    return;
+  }
+
   const ip = c.req.header("x-forwarded-for") ?? c.req.header("x-real-ip") ?? "unknown";
   const email = c.req.header("x-login-email") ?? "unknown";
 
