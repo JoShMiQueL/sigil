@@ -7,10 +7,4 @@ export default defineConfig({
     include: ["src/**/*.spec.ts"],
     passWithNoTests: true,
   },
-  resolve: {
-    alias: {
-      "@sigilpanel/shared": "../../packages/shared/src/index.ts",
-      "@sigilpanel/db": "../../packages/db/src/index.ts",
-    },
-  },
 });

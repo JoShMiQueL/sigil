@@ -71,8 +71,8 @@
 
 ### Tests for User Story 1
 
-- [ ] T028 [P] [US1] Unit test for Argon2id hash+verify in `apps/api/src/lib/argon2.spec.ts`
-- [ ] T029 [P] [US1] Unit test for token generation in `apps/api/src/lib/token.spec.ts`
+- [X] T028 [P] [US1] Unit test for Argon2id hash+verify in `apps/api/src/lib/argon2.spec.ts`
+- [X] T029 [P] [US1] Unit test for token generation in `apps/api/src/lib/token.spec.ts`
 - [ ] T030 [P] [US1] Integration test for login with valid credentials in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
 - [ ] T031 [P] [US1] Integration test for login with invalid credentials in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
 - [ ] T032 [P] [US1] Integration test for logout destroying session in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
@@ -81,18 +81,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T035 [US1] Implement auth service login method in `apps/api/src/services/auth.service.ts` (verify password, create session, set cookie)
-- [ ] T036 [US1] Implement auth service logout method in `apps/api/src/services/auth.service.ts` (delete session, clear cookie)
-- [ ] T037 [US1] Implement auth service getCurrentUser method in `apps/api/src/services/auth.service.ts` (read session, return user)
-- [ ] T038 [US1] Create POST /api/auth/login route in `apps/api/src/routes/auth.ts` (validates LoginRequestSchema, calls auth service)
-- [ ] T039 [US1] Create POST /api/auth/logout route in `apps/api/src/routes/auth.ts` (requires auth, calls auth service)
-- [ ] T040 [US1] Create GET /api/auth/me route in `apps/api/src/routes/auth.ts` (requires auth, returns current user)
-- [ ] T041 [US1] Create admin seed script in `apps/api/src/scripts/seed-admin.ts` (creates initial admin, prints credentials)
-- [ ] T042 [US1] Create LoginForm component in `apps/panel/src/components/LoginForm.tsx` (email, password, submit, error display)
+- [X] T035 [US1] Implement auth service login method in `apps/api/src/services/auth.service.ts` (verify password, create session, set cookie)
+- [X] T036 [US1] Implement auth service logout method in `apps/api/src/services/auth.service.ts` (delete session, clear cookie)
+- [X] T037 [US1] Implement auth service getCurrentUser method in `apps/api/src/services/auth.service.ts` (read session, return user)
+- [X] T038 [US1] Create POST /api/auth/login route in `apps/api/src/routes/auth.ts` (validates LoginRequestSchema, calls auth service)
+- [X] T039 [US1] Create POST /api/auth/logout route in `apps/api/src/routes/auth.ts` (requires auth, calls auth service)
+- [X] T040 [US1] Create GET /api/auth/me route in `apps/api/src/routes/auth.ts` (requires auth, returns current user)
+- [X] T041 [US1] Create admin seed script in `apps/api/src/scripts/seed-admin.ts` (creates initial admin, prints credentials)
+- [X] T042 [US1] Create LoginForm component in `apps/panel/src/components/LoginForm.tsx` (email, password, submit, error display)
 - [ ] T043 [US1] Create login route page in `apps/panel/src/routes/login.tsx` (renders LoginForm, redirects on success)
-- [ ] T044 [US1] Create useAuth hook in `apps/panel/src/hooks/useAuth.ts` (login, logout, current user state via TanStack Query)
+- [X] T044 [US1] Create useAuth hook in `apps/panel/src/hooks/useAuth.ts` (login, logout, current user state via TanStack Query)
 - [ ] T045 [US1] Create dashboard route page in `apps/panel/src/routes/dashboard.tsx` (requires auth, shows placeholder stats, logout button)
-- [ ] T046 [US1] Configure TanStack Router with auth guard in `apps/panel/src/router.tsx` (redirect to /login if unauthenticated)
+- [X] T046 [US1] Configure TanStack Router with auth guard in `apps/panel/src/router.tsx` (redirect to /login if unauthenticated)
 
 **Checkpoint**: Admin can log in, see dashboard, and log out. MVP is functional.
 
