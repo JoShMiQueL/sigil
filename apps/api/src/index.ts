@@ -24,8 +24,8 @@ app.use(authMiddleware);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-// Test-only cleanup endpoint — only registered in E2E test mode
-if (process.env.RATE_LIMIT_DISABLED === "1") {
+// Test-only cleanup endpoint — NEVER available in production
+if (process.env.NODE_ENV !== "production") {
   app.route("/test", testCleanupRoutes);
 }
 

@@ -20,7 +20,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "RATE_LIMIT_DISABLED=1 pnpm --filter @sigilpanel/api dev",
+      command: "RATE_LIMIT_DISABLED=1 NODE_ENV=development pnpm --filter @sigilpanel/api dev",
       url: "http://localhost:3000/health",
       reuseExistingServer: true,
       timeout: 30000,
