@@ -249,8 +249,8 @@
 - [X] T127 [P] Add error response standardization in `apps/api/src/lib/errors.ts` (consistent JSON error format)
 - [X] T128 [P] Add loading and error states to all panel pages in `apps/panel/src/components/LoadingState.tsx` and `apps/panel/src/components/ErrorState.tsx`
 - [X] T129 [P] Add form validation with Zod schemas in panel forms (login, create user, forgot password, reset password, 2FA, API keys)
-- [ ] T130 Run full test suite and fix any failures: `pnpm test`, `pnpm typecheck`, `pnpm lint`
-- [ ] T131 Run quickstart.md validation scenarios and verify all pass
+- [X] T130 Run full test suite and fix any failures: `pnpm test`, `pnpm typecheck`, `pnpm lint`
+- [X] T131 Run quickstart.md validation scenarios and verify all pass
 - [X] T132 [P] Add panel layout with navigation sidebar in `apps/panel/src/components/Layout.tsx` (dashboard, users, security, api-keys, logout)
 
 ---

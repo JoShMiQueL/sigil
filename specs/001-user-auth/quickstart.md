@@ -38,7 +38,7 @@ pnpm --filter @sigilpanel/api dev
 # Login with seeded admin
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@sigil.local","password":"<seeded_password>"}'
+  -d '{"email":"admin@sigilpanel.local","password":"admin12345"}'
 
 # Expected: 200 with {"status":"ok","user":{...}}
 # Cookie file should contain session token
@@ -58,7 +58,7 @@ curl -b cookies.txt -X POST http://localhost:3000/api/auth/logout
 # Login as admin (get cookie)
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@sigil.local","password":"<seeded_password>"}'
+  -d '{"email":"admin@sigilpanel.local","password":"admin12345"}'
 
 # Create a user
 curl -b cookies.txt -X POST http://localhost:3000/api/admin/users \
@@ -95,7 +95,7 @@ curl -b cookies.txt -X PATCH http://localhost:3000/api/admin/users/<admin_id> \
 # Login as admin
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@sigil.local","password":"<seeded_password>"}'
+  -d '{"email":"admin@sigilpanel.local","password":"admin12345"}'
 
 # Create API key
 curl -b cookies.txt -X POST http://localhost:3000/api/api-keys \
@@ -123,14 +123,14 @@ curl -H "Authorization: Bearer sigil_..." http://localhost:3000/api/auth/me
 for i in 1 2 3 4 5; do
   curl -X POST http://localhost:3000/api/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"email":"admin@sigil.local","password":"wrong"}'
+    -d '{"email":"admin@sigilpanel.local","password":"wrong"}'
 done
 # Expected: first 4 return 401, 5th returns 429
 
 # 6th attempt should also be rate limited
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@sigil.local","password":"wrong"}'
+  -d '{"email":"admin@sigilpanel.local","password":"wrong"}'
 # Expected: 429
 ```
 
