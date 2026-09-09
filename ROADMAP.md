@@ -10,11 +10,11 @@ SigilPanel is a self-hosted platform for managing game servers across multiple n
 | R2  | Images                   | Dockerfiles and runtime images, build pipeline                  | In: image Dockerfiles, build, publish to registry. Deferred: template install scripts.                  | —                  | planned   | —                      |
 | R3  | Setup Wizard             | First-run panel setup: create admin, configure URL/SMTP         | In: wizard UI, config persistence. Deferred: node pairing, daemon install.                             | R1                 | planned   | —                      |
 | R4  | Node Management          | Register daemons, pairing tokens, regions, health check         | In: nodes, regions, pairing, heartbeat. Deferred: Docker, server lifecycle.                            | R1                 | done      | specs/002-node-management/   |
-| R5  | Audit Log                | Record of all admin and user actions                             | In: audit entries, query, filter. Deferred: external SIEM.                                              | R1                 | planned   | —                      |
+| R5  | Audit Log                | Record of all admin and user actions                             | In: audit entries, query, filter. Deferred: external SIEM.                                              | R1, R17            | planned   | —                      |
 | R6  | Daemon Core              | Docker lifecycle, filesystem jail, container isolation          | In: Docker API, jails, security hardening. Deferred: SFTP, backups, file manager UI.                    | R4                 | planned   | —                      |
 | R7  | Allocations              | IP/port management per node, assignment to servers              | In: allocations, ports, IP pools. Deferred: server creation.                                            | R4                 | planned   | —                      |
 | R8  | Templates & Groups       | Game catalog, template schema, PTDL_v2 egg import              | In: templates, groups, variables, import/export. Deferred: image build, server install.                | R2, R4             | planned   | —                      |
-| R9  | Server Lifecycle         | Create/start/stop/restart/delete servers                        | In: server CRUD, power actions, state machine. Deferred: console, files, backups.                      | R4, R6, R7, R8     | planned   | —                      |
+| R9  | Server Lifecycle         | Create/start/stop/restart/delete servers                        | In: server CRUD, power actions, state machine. Deferred: console, files, backups.                      | R4, R6, R7, R8, R17 | planned   | —                      |
 | R10 | Live Console             | WebSocket browser→daemon, console streaming, stats              | In: WS console, CPU/RAM/disk stats. Deferred: file manager, SFTP.                                       | R9                 | planned   | —                      |
 | R11 | File Manager             | Browse, edit, upload, download, SFTP                            | In: file browser, editor, upload, SFTP. Deferred: backups, archives.                                    | R9                 | planned   | —                      |
 | R12 | Backups                  | Create, restore, local + S3 storage                             | In: backup create/restore, storage backends. Deferred: scheduling.                                      | R9                 | planned   | —                      |
@@ -22,6 +22,7 @@ SigilPanel is a self-hosted platform for managing game servers across multiple n
 | R14 | Databases                | Provision MySQL/PostgreSQL DBs for servers                       | In: DB provisioning, credentials, rotation. Deferred: backups.                                          | R9                 | planned   | —                      |
 | R15 | Mounts                   | Shared host→container directories                               | In: mount create/list/delete, path validation. Deferred: backups.                                      | R9                 | planned   | —                      |
 | R16 | Schedules & Tasks        | Cron-like scheduled operations on servers                        | In: schedules, tasks, execution. Deferred: backups.                                                      | R9                 | planned   | —                      |
+| R17 | Real-time Panel          | SSE infrastructure, replace polling, reactive panel              | In: SSE endpoints, panel hooks, auto-reconnect, retrofit R1/R4. Deferred: WS console (R10), daemon→panel push. | R1                 | planned   | —                      |
 
 ## Execution layers
 
@@ -30,7 +31,7 @@ The dependencies above define natural layers. Within a layer, entries can be spe
 | Layer | Entries  | Description                          |
 |-------|----------|--------------------------------------|
 | 0     | R1       | Foundation: auth                     |
-| 1     | R2, R3, R4, R5 | Building blocks: images, setup, nodes, audit |
+| 1     | R2, R3, R4, R5, R17 | Building blocks: images, setup, nodes, audit, real-time |
 | 2     | R6, R7, R8 | Node capabilities: daemon, allocations, templates |
 | 3     | R9       | Core feature: server lifecycle       |
 | 4     | R10-R16  | Server features: console, files, backups, members, databases, mounts, schedules |
@@ -44,6 +45,8 @@ R1 (auth) → R4 (nodes) → R6 (daemon) → R8 (templates) → R7 (allocations)
 ```
 
 R2 (images) runs in parallel — for development, the daemon and server lifecycle can test with public images (`alpine`, `eclipse-temurin`). Production requires our own images.
+
+R17 (real-time panel) runs in parallel from R1 — establishes SSE infrastructure and retrofits polling in R1/R4. All future features (R5, R9, R10) use SSE for panel updates instead of polling.
 
 ## Handling cross-spec changes
 

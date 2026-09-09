@@ -52,17 +52,30 @@ sigilpanel/
 Browser
   │  HTTPS (REST)                    ┌──────────────────────────────┐
   ├─────────────────────────────────▶│  API (Hono)                  │
-  │                                  │  PostgreSQL + Redis           │
-  │  WSS console/stats               └──────────────┬───────────────┘
-  │  (short JWT signed by the API)                  │ REST (node token)
-  │                                                 ▼
-  └────────────────────────────────▶┌──────────────────────────────┐
-                                    │  DAEMON (Go)                 │
-                                    │  SFTP :2022                  │
-                                    │  Docker Engine API → containers
-                                    └──────────────────────────────┘
+  │  (actions: CRUD, login, power)   │  PostgreSQL + Redis           │
+  │                                  └──────────────┬───────────────┘
+  │  SSE (server→browser)                           │ REST (node token)
+  │  (state: node health, counts,                                  │
+  │   audit log, server status)                                     ▼
+  │                                  ┌──────────────────────────────┐
+  │  WSS console/SFTP                │  DAEMON (Go)                 │
+  │  (short JWT signed by the API)    │  SFTP :2022                  │
+  │  (browser→daemon direct)          │  Docker Engine API → containers
+  └────────────────────────────────▶└──────────────────────────────┘
                                            /var/lib/sigilpanel/volumes/<uuid>
 ```
+
+### Protocol selection (Constitution Principle VI)
+
+| Protocol | Direction | Use for |
+|----------|-----------|---------|
+| **HTTP** | Request/response | Actions: CRUD, login, token generation, power actions, initial page load |
+| **SSE** | Server → browser | State: node health/metrics, region counts, audit log, server status, user list |
+| **WebSocket** | Browser ↔ daemon | Interactive: live console (stdin/stdout), SFTP, terminal |
+
+- **No polling for state.** `refetchInterval` for state data is a bug. Use SSE.
+- **Auto-reconnect** with exponential backoff. No page reloads on network blips.
+- **HTTP for actions.** SSE/WS are not for commands.
 
 - The **API** holds the database, authentication, and business logic. Never talks to Docker.
 - The **daemon** runs on each node, drives Docker and the filesystem. Never touches the database.

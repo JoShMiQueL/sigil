@@ -1,15 +1,16 @@
 <!--
 Sync Impact Report
-- Version change: 0.0.0 (template) → 1.1.0
+- Version change: 0.0.0 (template) → 1.2.0
   - 1.0.0: Initial constitution with principles I-VI
   - 1.1.0: Principle IV updated — MCP-first verification methodology added
+  - 1.2.0: Principle VI rewritten — Real-time Protocol Selection (HTTP/SSE/WS matrix)
 - Added principles:
   - I. Control Plane / Execution Plane Separation
   - II. Shared Contracts as Source of Truth
   - III. Security-First Container Isolation (NON-NEGOTIABLE)
   - IV. Test Against Real Infrastructure (NON-NEGOTIABLE) — updated v1.1: MCP-first verification order
   - V. Spec-Driven Development
-  - VI. Browser-Direct Realtime
+  - VI. Real-time Protocol Selection — updated v1.2: HTTP/SSE/WS matrix, no-polling rule, auto-reconnect
 - Added sections:
   - Technology Stack Constraints
   - Development Workflow
@@ -17,11 +18,18 @@ Sync Impact Report
   - Principle IV now includes chrome-devtools MCP as the primary interactive verification tool
   - Verification order is now NON-NEGOTIABLE: MCP-first, Playwright-last
   - Playwright repositioned as regression codification, not primary bug discovery
+- v1.2 changes:
+  - Principle VI expanded from "Browser-Direct Realtime" to "Real-time Protocol Selection"
+  - Added HTTP/SSE/WebSocket protocol matrix with clear use-case boundaries
+  - Added 6 rules: HTTP for actions, SSE for panel updates, WS for console/SFTP, no polling, auto-reconnect, graceful degradation
+  - Polling for state data is now explicitly a bug
 - Templates requiring updates:
   - .specify/templates/plan-template.md — ✅ compatible (Constitution Check section is generic)
   - .specify/templates/spec-template.md — ✅ compatible (user stories + requirements align with principles)
   - .specify/templates/tasks-template.md — ✅ compatible (phase structure supports independent story delivery)
-- Follow-up TODOs: none
+- Follow-up TODOs:
+  - R17 spec must reference Principle VI protocol matrix
+  - R1/R4 specs must note polling as tech debt to be retrofitted by R17
 -->
 
 # SigilPanel Constitution
@@ -86,11 +94,26 @@ The workflow is: constitution → specify → plan → tasks → implement. Skip
 
 Rationale: AI-generated code is only as good as the specification it receives. Vague prompts produce vague code. A durable spec keeps the team and every coding agent aligned as the work evolves.
 
-### VI. Browser-Direct Realtime
+### VI. Real-time Protocol Selection
 
-Live console, stats, and SFTP traffic flow directly from the browser to the daemon via WebSocket, authenticated with a short-lived JWT signed by the panel. The panel is never in the live data path.
+The panel is a reactive application. No page reloads, no polling for state that should be pushed. Three protocols, each with a clear role:
 
-Rationale: with 50 consoles open, proxying through the panel creates a bottleneck and adds latency. The panel signs the token; the daemon verifies it; the browser talks direct. The panel's job is authorization, not relay.
+| Protocol | Direction | Use for | Examples |
+|----------|-----------|---------|----------|
+| **HTTP** | Request/response | Discrete actions with a discrete response | CRUD, login, token generation, power actions, initial page load |
+| **SSE** | Server → browser | State changes, metrics, streams where the browser only listens | Node status/metrics, region counts, audit log, server state, user list changes |
+| **WebSocket** | Browser ↔ daemon | Bidirectional real-time where the browser sends and receives | Live console (stdin/stdout), SFTP, terminal interaction |
+
+**Rules:**
+
+1. **HTTP for actions.** If the user triggers it (create, delete, edit, power action), it's HTTP. SSE and WebSocket are not for commands.
+2. **SSE for panel updates.** Any data the panel displays that can change server-side (node health, server status, audit entries, counts) MUST use SSE, not polling. The panel subscribes once; the server pushes deltas.
+3. **WebSocket for console/SFTP.** Live console and SFTP flow browser→daemon direct via WebSocket, authenticated with a short-lived JWT signed by the panel. The panel is never in the live data path.
+4. **No polling for state.** `refetchInterval`, `setInterval` + fetch, or manual refresh for state data is a bug. Use SSE. The only exception is initial page load (HTTP fetch for first paint, then SSE for updates).
+5. **Auto-reconnect.** SSE and WebSocket connections MUST auto-reconnect with exponential backoff. A network blip should not require a page reload. On reconnect, the client resyncs state via HTTP then re-subscribes.
+6. **Graceful degradation.** If SSE fails, the UI shows a "reconnecting" indicator, not a blank page. If WebSocket fails, console shows "disconnected" but the rest of the panel keeps working.
+
+Rationale: polling creates stale data and wasted requests. SSE is simpler than WebSocket for server→client (no framing, automatic reconnection, HTTP fallback). WebSocket is overkill for one-way updates but essential for bidirectional console/SFTP. The browser→daemon direct path (Principle I) keeps the panel out of the live data stream.
 
 ## Technology Stack Constraints
 
@@ -167,4 +190,4 @@ Spec artifacts live in `.specify/`. The constitution supersedes all other practi
 - Versioning: MAJOR for principle removals/redefinitions, MINOR for new principles/sections, PATCH for clarifications.
 - Complexity MUST be justified against the principles. If a change violates a principle, the violation MUST be documented in the plan's Complexity Tracking table with a rationale.
 
-**Version**: 1.1.0 | **Created**: 2026-09-09
+**Version**: 1.2.0 | **Created**: 2026-09-09
