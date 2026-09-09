@@ -1,6 +1,6 @@
 import { db, schema } from "@sigilpanel/db";
 import type { Node, NodeUpdate } from "@sigilpanel/shared";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { encrypt } from "../lib/crypto";
 
@@ -96,6 +96,14 @@ export async function regenerateCredentials(
 ): Promise<{ secretId: string; secret: string } | { error: string }> {
   const [row] = await db.select().from(schema.nodes).where(eq(schema.nodes.id, nodeId)).limit(1);
   if (!row) return { error: "Node not found" };
+
+  // Revoke all existing credentials for this node before issuing new ones
+  await db
+    .update(schema.nodeCredentials)
+    .set({ revokedAt: new Date() })
+    .where(
+      and(eq(schema.nodeCredentials.nodeId, nodeId), isNull(schema.nodeCredentials.revokedAt)),
+    );
 
   const secretId = generateSecretId();
   const secret = generateNodeSecret();

@@ -175,25 +175,72 @@ The `Makefile` targets mirror the workflow steps exactly. Requires Docker runnin
 
 **Verify E2E what can be verified at each step.** Do not wait until the end to test. If the API is running, test it with curl. If the panel has a page, open it in the browser and interact with it. If something cannot be verified yet, note it and move on.
 
-Two tools for E2E verification:
+### MCP-first verification methodology
 
-1. **chrome-devtools MCP (agentic, during development)** — Control Chromium directly: navigate, click, fill forms, take screenshots, evaluate scripts, inspect snapshots. Use this to verify the panel works as a user would, in real time, while building. This is for interactive verification, not for tests that stay in the repo.
+The verification flow is **MCP-first, Playwright-last**. This means:
 
-2. **Playwright (automated, in the repo)** — Write E2E tests in `apps/panel/tests/e2e/` that run in CI. These are permanent regression tests. Use this for the T034-style tasks and any E2E test that needs to be repeatable.
+1. **Build the feature** (API + panel code).
+2. **Verify with chrome-devtools MCP** — act as a real user: navigate, click, fill forms, send API calls from the browser, inspect snapshots. Catch bugs that unit/integration tests miss (UI rendering, real HTTP roundtrips, state transitions, polling, visual indicators).
+3. **Fix anything broken** found during MCP verification.
+4. **Only then write Playwright E2E tests** — these are permanent regression tests that codify the already-verified behavior. They should not be the primary discovery mechanism for bugs.
 
-When to use which:
-- Building a feature: use chrome-devtools MCP to verify it works as a user.
-- Completing a test task (T034, etc.): write a Playwright test.
-- Both: verify interactively first, then write the Playwright test.
+**Why MCP-first?** Integration tests verify the API in isolation. Playwright tests verify the UI but are slow to write and hard to debug interactively. chrome-devtools MCP lets you click through the real UI in real time, catching issues like "regenerate credentials doesn't invalidate old ones" or "the region node count doesn't refresh" that unit tests structurally cannot find because they don't exercise the full user flow.
 
-To start dev services for E2E verification:
+### Tools
+
+1. **chrome-devtools MCP (primary, during development)** — Control Chromium directly: navigate, click, fill forms, take screenshots, evaluate scripts, inspect snapshots. Use this to verify the panel works as a user would, in real time, while building. This is the primary verification tool — use it BEFORE writing Playwright tests.
+
+2. **Playwright (secondary, regression)** — Write E2E tests in `apps/panel/tests/e2e/` that run in CI. These codify behavior already verified via MCP. They are permanent regression tests, not the primary discovery mechanism.
+
+### Verification flow per feature
+
+```
+1. Implement API endpoint + service
+2. Run pnpm test (unit/integration) — must pass
+3. Start dev services (pnpm dev:services + db:migrate + db:seed + pnpm dev)
+4. Open chrome-devtools MCP → navigate to panel
+5. Exercise the full user flow as a real user would:
+   - Login, navigate to the relevant page
+   - Create/edit/delete resources through the UI
+   - Send API calls from the browser console (evaluate_script) for daemon-side actions
+   - Verify visual indicators, polling, state transitions
+   - Check that error cases produce the right UI feedback
+6. Fix any bugs found
+7. Re-verify with MCP
+8. Write Playwright E2E test codifying the verified flow
+9. Run pnpm test:e2e — must pass
+10. Commit
+```
+
+### Starting dev services for MCP verification
+
 ```bash
 pnpm dev:services          # PostgreSQL + Redis via Docker Compose
 pnpm --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
 pnpm --filter @sigilpanel/db db:migrate   # Run migrations
 pnpm --filter @sigilpanel/api db:seed       # Seed admin user
-pnpm dev                   # Start API + panel
+RATE_LIMIT_DISABLED=1 pnpm --filter @sigilpanel/api dev &  # API on :3000
+pnpm --filter @sigilpanel/panel dev &        # Panel on :5173
 ```
+
+Or simply:
+
+```bash
+pnpm dev:services
+pnpm --filter @sigilpanel/db db:migrate
+pnpm --filter @sigilpanel/api db:seed
+pnpm dev
+```
+
+### MCP verification checklist
+
+When verifying a feature with chrome-devtools MCP, cover at minimum:
+
+- **Happy path**: the normal user flow end-to-end (login → navigate → action → verify result)
+- **Error paths**: duplicate names, invalid inputs, permission denied, not-found
+- **State transitions**: status changes, polling refreshes, data propagation between views
+- **Security-sensitive flows**: credential regeneration invalidates old creds, revocation blocks auth, deleted resources can't be accessed
+- **Visual indicators**: status colors, disabled buttons, error messages, success messages
 
 ## Automated tests
 

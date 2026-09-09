@@ -1,16 +1,22 @@
 <!--
 Sync Impact Report
-- Version change: 0.0.0 (template) → 1.0.0
+- Version change: 0.0.0 (template) → 1.1.0
+  - 1.0.0: Initial constitution with principles I-VI
+  - 1.1.0: Principle IV updated — MCP-first verification methodology added
 - Added principles:
   - I. Control Plane / Execution Plane Separation
   - II. Shared Contracts as Source of Truth
   - III. Security-First Container Isolation (NON-NEGOTIABLE)
-  - IV. Test Against Real Infrastructure (NON-NEGOTIABLE)
+  - IV. Test Against Real Infrastructure (NON-NEGOTIABLE) — updated v1.1: MCP-first verification order
   - V. Spec-Driven Development
   - VI. Browser-Direct Realtime
 - Added sections:
   - Technology Stack Constraints
   - Development Workflow
+- v1.1 changes:
+  - Principle IV now includes chrome-devtools MCP as the primary interactive verification tool
+  - Verification order is now NON-NEGOTIABLE: MCP-first, Playwright-last
+  - Playwright repositioned as regression codification, not primary bug discovery
 - Templates requiring updates:
   - .specify/templates/plan-template.md — ✅ compatible (Constitution Check section is generic)
   - .specify/templates/spec-template.md — ✅ compatible (user stories + requirements align with principles)
@@ -57,7 +63,10 @@ These rules block a PR without discussion. No exceptions, no "just this once".
 
 - **Unit tests** (Vitest): for pure logic — permissions, template parsing, jailed filesystem, schema validation.
 - **Integration tests** (Testcontainers): for anything that touches Docker or PostgreSQL. The daemon MUST be tested against a real Docker daemon, never a `dockerode` mock. Mocks do not catch network, volume, or runtime errors.
-- **E2E tests** (Playwright): for critical user journeys — sign-in, server creation, console interaction.
+- **MCP verification** (chrome-devtools): for interactive user-flow verification during development. Before writing Playwright tests, the agent MUST exercise the feature as a real user via chrome-devtools MCP — navigate, click, fill forms, verify state transitions, check error paths. This catches bugs that unit/integration tests structurally cannot (UI rendering, real HTTP roundtrips, polling, visual indicators, full user flows).
+- **E2E tests** (Playwright): for permanent regression coverage of critical user journeys — sign-in, server creation, console interaction. These codify behavior already verified via MCP; they are NOT the primary bug-discovery mechanism.
+
+**Verification order (NON-NEGOTIABLE):** MCP-first, Playwright-last. The agent verifies interactively with chrome-devtools MCP BEFORE writing Playwright tests. Playwright tests codify already-verified behavior. Writing a Playwright test for unverified behavior is a waste — verify first, codify second.
 
 Code touching file paths, permissions, or tokens MUST be covered by tests, including explicit attack cases (`../../etc/passwd`, a symlink to `/`, an archive containing `../`).
 
@@ -158,4 +167,4 @@ Spec artifacts live in `.specify/`. The constitution supersedes all other practi
 - Versioning: MAJOR for principle removals/redefinitions, MINOR for new principles/sections, PATCH for clarifications.
 - Complexity MUST be justified against the principles. If a change violates a principle, the violation MUST be documented in the plan's Complexity Tracking table with a rationale.
 
-**Version**: 1.0.0 | **Created**: 2026-09-09
+**Version**: 1.1.0 | **Created**: 2026-09-09

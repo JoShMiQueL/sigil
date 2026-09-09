@@ -131,6 +131,47 @@ describe("node management routes [US4: node lifecycle]", () => {
     expect(hbRes.status).toBe(401);
   });
 
+  it("T051b: old credentials invalid after regeneration (FR-015)", async () => {
+    const oldCreds = await createNodeCredentials(nodeId);
+
+    // Regenerate — should revoke old creds and issue new ones
+    const regRes = await apiRequest(app, `/api/admin/nodes/${nodeId}/credentials/regenerate`, {
+      method: "POST",
+      cookie: adminCookie,
+    });
+    expect(regRes.status).toBe(201);
+    const newCreds = await parseJson(regRes);
+    expect(newCreds.secretId).not.toBe(oldCreds.secretId);
+
+    // Old credentials must now fail
+    const { buildNodeAuthHeaders } = await import("../test/helpers");
+    const ts = Math.floor(Date.now() / 1000);
+    const body = JSON.stringify({
+      timestamp: ts,
+      cpuUsage: 10,
+      memoryUsage: 20,
+      diskUsage: 30,
+      containerCount: 1,
+    });
+    const oldHeaders = buildNodeAuthHeaders(oldCreds.secretId, oldCreds.secret, body, ts);
+
+    const oldHbRes = await app.request("/api/node/heartbeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...oldHeaders },
+      body,
+    });
+    expect(oldHbRes.status).toBe(401);
+
+    // New credentials must work
+    const newHeaders = buildNodeAuthHeaders(newCreds.secretId, newCreds.secret, body, ts);
+    const newHbRes = await app.request("/api/node/heartbeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...newHeaders },
+      body,
+    });
+    expect(newHbRes.status).toBe(204);
+  });
+
   it("T052: non-admin cannot manage nodes", async () => {
     const patchRes = await apiRequest(app, `/api/admin/nodes/${nodeId}`, {
       method: "PATCH",
