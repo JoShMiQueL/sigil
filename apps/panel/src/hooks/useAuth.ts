@@ -13,6 +13,12 @@ interface User {
   updatedAt: string;
 }
 
+interface LoginResult {
+  error?: string;
+  twoFactorRequired?: boolean;
+  userId?: string;
+}
+
 async function fetchMe(): Promise<User | null> {
   const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
   if (res.status === 401) return null;
@@ -21,7 +27,7 @@ async function fetchMe(): Promise<User | null> {
   return data.user as User;
 }
 
-async function loginRequest(email: string, password: string): Promise<{ error?: string }> {
+async function loginRequest(email: string, password: string): Promise<LoginResult> {
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -29,9 +35,30 @@ async function loginRequest(email: string, password: string): Promise<{ error?: 
     body: JSON.stringify({ email, password }),
   });
 
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data.error ?? "Login failed" };
+  }
+
+  if (data.status === "2fa_required") {
+    return { twoFactorRequired: true, userId: data.userId };
+  }
+
+  return {};
+}
+
+async function verify2faRequest(userId: string, code: string): Promise<{ error?: string }> {
+  const res = await fetch(`${API_URL}/api/auth/login/2fa`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ userId, code }),
+  });
+
   if (!res.ok) {
     const data = await res.json();
-    return { error: data.error ?? "Login failed" };
+    return { error: data.error ?? "2FA verification failed" };
   }
 
   return {};
@@ -58,6 +85,12 @@ export function useAuth() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
   });
 
+  const verify2faMutation = useMutation({
+    mutationFn: ({ userId, code }: { userId: string; code: string }) =>
+      verify2faRequest(userId, code),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
+  });
+
   const logoutMutation = useMutation({
     mutationFn: logoutRequest,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["auth", "me"] }),
@@ -67,6 +100,7 @@ export function useAuth() {
     user: user ?? null,
     isLoading,
     login: loginMutation.mutateAsync,
+    verify2fa: verify2faMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
     isLoggingOut: logoutMutation.isPending,

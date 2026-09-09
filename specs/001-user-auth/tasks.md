@@ -183,23 +183,23 @@
 
 ### Implementation for User Story 4
 
-- [ ] T089 [US4] Create AES-256-GCM crypto wrapper in `apps/api/src/lib/crypto.ts` (encrypt/decrypt TOTP secrets with APP_SECRET)
-- [ ] T090 [US4] Install and configure @otplib/preset-default for TOTP generation/verification in `apps/api/src/lib/totp.ts`
-- [ ] T091 [US4] Implement TOTP service enable in `apps/api/src/services/totp.service.ts` (generate secret, encrypt, generate recovery codes, return QR URI)
-- [ ] T092 [US4] Implement TOTP service verify in `apps/api/src/services/totp.service.ts` (verify code, set totp_enabled=true)
-- [ ] T093 [US4] Implement TOTP service disable in `apps/api/src/services/totp.service.ts` (require password, clear secret and recovery codes)
-- [ ] T094 [US4] Implement TOTP service verifyCode in `apps/api/src/services/totp.service.ts` (for login 2FA step)
-- [ ] T095 [US4] Implement TOTP service verifyRecoveryCode in `apps/api/src/services/totp.service.ts` (consume one recovery code)
-- [ ] T096 [US4] Update auth service login to return 2fa_required challenge when 2FA enabled in `apps/api/src/services/auth.service.ts`
-- [ ] T097 [US4] Implement auth service verify2fa method in `apps/api/src/services/auth.service.ts` (verify TOTP or recovery code, create session)
-- [ ] T098 [US4] Create POST /api/auth/login/2fa route in `apps/api/src/routes/auth.ts`
-- [ ] T099 [US4] Create POST /api/auth/2fa/enable route in `apps/api/src/routes/auth.ts` (requires auth)
-- [ ] T100 [US4] Create POST /api/auth/2fa/verify route in `apps/api/src/routes/auth.ts` (requires auth, activates 2FA)
-- [ ] T101 [US4] Create POST /api/auth/2fa/disable route in `apps/api/src/routes/auth.ts` (requires auth + password)
-- [ ] T102 [US4] Create TotpSetup component in `apps/panel/src/components/TotpSetup.tsx` (QR code, code input, recovery codes display)
-- [ ] T103 [US4] Create TwoFactorPrompt component in `apps/panel/src/components/TwoFactorPrompt.tsx` (code input, recovery code option)
-- [ ] T104 [US4] Create security settings route page in `apps/panel/src/routes/security.tsx` (enable/disable 2FA)
-- [ ] T105 [US4] Update login flow to handle 2fa_required status in `apps/panel/src/hooks/useAuth.ts`
+- [X] T089 [US4] Create AES-256-GCM crypto wrapper in `apps/api/src/lib/crypto.ts` (encrypt/decrypt TOTP secrets with APP_SECRET)
+- [X] T090 [US4] Install and configure @otplib/preset-default for TOTP generation/verification in `apps/api/src/lib/totp.ts`
+- [X] T091 [US4] Implement TOTP service enable in `apps/api/src/services/totp.service.ts` (generate secret, encrypt, generate recovery codes, return QR URI)
+- [X] T092 [US4] Implement TOTP service verify in `apps/api/src/services/totp.service.ts` (verify code, set totp_enabled=true)
+- [X] T093 [US4] Implement TOTP service disable in `apps/api/src/services/totp.service.ts` (require password, clear secret and recovery codes)
+- [X] T094 [US4] Implement TOTP service verifyCode in `apps/api/src/services/totp.service.ts` (for login 2FA step)
+- [X] T095 [US4] Implement TOTP service verifyRecoveryCode in `apps/api/src/services/totp.service.ts` (consume one recovery code)
+- [X] T096 [US4] Update auth service login to return 2fa_required challenge when 2FA enabled in `apps/api/src/services/auth.service.ts`
+- [X] T097 [US4] Implement auth service verify2fa method in `apps/api/src/services/auth.service.ts` (verify TOTP or recovery code, create session)
+- [X] T098 [US4] Create POST /api/auth/login/2fa route in `apps/api/src/routes/auth.ts`
+- [X] T099 [US4] Create POST /api/auth/2fa/enable route in `apps/api/src/routes/auth.ts` (requires auth)
+- [X] T100 [US4] Create POST /api/auth/2fa/verify route in `apps/api/src/routes/auth.ts` (requires auth, activates 2FA)
+- [X] T101 [US4] Create POST /api/auth/2fa/disable route in `apps/api/src/routes/auth.ts` (requires auth + password)
+- [X] T102 [US4] Create TotpSetup component in `apps/panel/src/components/TotpSetup.tsx` (QR code, code input, recovery codes display)
+- [X] T103 [US4] Create TwoFactorPrompt component in `apps/panel/src/components/TwoFactorPrompt.tsx` (code input, recovery code option)
+- [X] T104 [US4] Create security settings route page in `apps/panel/src/routes/security.tsx` (enable/disable 2FA)
+- [X] T105 [US4] Update login flow to handle 2fa_required status in `apps/panel/src/hooks/useAuth.ts`
 
 **Checkpoint**: 2FA enrollment and verification works with standard authenticator apps.
 

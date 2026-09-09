@@ -6,10 +6,20 @@ import { CreateUserForm } from "./components/CreateUserForm";
 import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { LoginForm } from "./components/LoginForm";
 import { ResetPasswordForm } from "./components/ResetPasswordForm";
+import { TotpSetup } from "./components/TotpSetup";
+import { TwoFactorPrompt } from "./components/TwoFactorPrompt";
 import { UserTable } from "./components/UserTable";
 import { useAuth } from "./hooks/useAuth";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
+async function fetchUser(): Promise<User | null> {
+  const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
+  if (res.status === 401) return null;
+  if (!res.ok) throw new Error("Failed to fetch user");
+  const data = await res.json();
+  return data.user as User;
+}
 
 function Root() {
   return <Outlet />;
@@ -20,11 +30,35 @@ const rootRoute = createRootRoute({
 });
 
 function LoginPage() {
-  const { login, user } = useAuth();
+  const { login, verify2fa } = useAuth();
   const router = useRouter();
+  const [twoFactorUserId, setTwoFactorUserId] = useState<string | null>(null);
 
-  if (user) {
-    throw redirect({ to: "/" });
+  if (twoFactorUserId) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        <TwoFactorPrompt
+          userId={twoFactorUserId}
+          onVerify={async (userId, code) => {
+            const result = await verify2fa({ userId, code });
+            if ("error" in result && result.error) {
+              return { error: result.error };
+            }
+            setTwoFactorUserId(null);
+            router.navigate({ to: "/" });
+            return {};
+          }}
+        />
+      </div>
+    );
   }
 
   return (
@@ -43,6 +77,10 @@ function LoginPage() {
           if ("error" in result && result.error) {
             return { error: result.error };
           }
+          if ("twoFactorRequired" in result && result.twoFactorRequired && result.userId) {
+            setTwoFactorUserId(result.userId);
+            return {};
+          }
           router.navigate({ to: "/" });
           return {};
         }}
@@ -55,9 +93,7 @@ function DashboardPage() {
   const { user, logout, isLoggingOut } = useAuth();
   const router = useRouter();
 
-  if (!user) {
-    throw redirect({ to: "/login" });
-  }
+  if (!user) return null;
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
@@ -72,6 +108,11 @@ function DashboardPage() {
           </button>
         </p>
       )}
+      <p>
+        <button type="button" onClick={() => router.navigate({ to: "/security" })}>
+          Security Settings
+        </button>
+      </p>
       <button
         type="button"
         onClick={async () => {
@@ -91,13 +132,6 @@ function UsersPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-
-  if (!user) {
-    throw redirect({ to: "/login" });
-  }
-  if (user.role !== "admin") {
-    throw redirect({ to: "/" });
-  }
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page],
@@ -171,24 +205,6 @@ function UsersPage() {
     </div>
   );
 }
-
-const loginRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/login",
-  component: LoginPage,
-});
-
-const dashboardRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: DashboardPage,
-});
-
-const usersRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/users",
-  component: UsersPage,
-});
 
 function ForgotPasswordPage() {
   const router = useRouter();
@@ -268,6 +284,169 @@ function ResetPasswordPage() {
   );
 }
 
+interface TotpEnableResponse {
+  secret: string;
+  qrUri: string;
+  recoveryCodes: string[];
+}
+
+function SecurityPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [totpData, setTotpData] = useState<TotpEnableResponse | null>(null);
+  const [disablePassword, setDisablePassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  if (!user) return null;
+
+  const enableMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${API_URL}/api/auth/2fa/enable`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to enable 2FA");
+      return res.json() as Promise<TotpEnableResponse>;
+    },
+    onSuccess: (data) => setTotpData(data),
+  });
+
+  const verifyMutation = useMutation({
+    mutationFn: async (code: string) => {
+      const res = await fetch(`${API_URL}/api/auth/2fa/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Verification failed" };
+      }
+      return {};
+    },
+    onSuccess: () => {
+      setTotpData(null);
+      setMessage("2FA enabled successfully");
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
+
+  const disableMutation = useMutation({
+    mutationFn: async (password: string) => {
+      const res = await fetch(`${API_URL}/api/auth/2fa/disable`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to disable 2FA" };
+      }
+      return {};
+    },
+    onSuccess: () => {
+      setMessage("2FA disabled");
+      setDisablePassword("");
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    },
+  });
+
+  return (
+    <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+      <h1>Security Settings</h1>
+      <button type="button" onClick={() => router.navigate({ to: "/" })}>
+        Back to Dashboard
+      </button>
+
+      {error && <div role="alert">{error}</div>}
+      {message && <div>{message}</div>}
+
+      <h2>Two-Factor Authentication</h2>
+      {user.totpEnabled ? (
+        <div>
+          <p>2FA is currently enabled.</p>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setError(null);
+              const result = await disableMutation.mutateAsync(disablePassword);
+              if ("error" in result && result.error) {
+                setError(result.error);
+              }
+            }}
+          >
+            <label>
+              Password (required to disable):
+              <input
+                type="password"
+                value={disablePassword}
+                onChange={(e) => setDisablePassword(e.target.value)}
+                required
+              />
+            </label>
+            <button type="submit" disabled={disableMutation.isPending}>
+              {disableMutation.isPending ? "Disabling..." : "Disable 2FA"}
+            </button>
+          </form>
+        </div>
+      ) : totpData ? (
+        <TotpSetup
+          qrUri={totpData.qrUri}
+          secret={totpData.secret}
+          recoveryCodes={totpData.recoveryCodes}
+          onVerify={async (code) => {
+            const result = await verifyMutation.mutateAsync(code);
+            return "error" in result ? result : {};
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => enableMutation.mutate()}
+          disabled={enableMutation.isPending}
+        >
+          {enableMutation.isPending ? "Enabling..." : "Enable 2FA"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (user) throw redirect({ to: "/" });
+  },
+  component: LoginPage,
+});
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (!user) throw redirect({ to: "/login" });
+  },
+  component: DashboardPage,
+});
+
+const usersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/users",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (!user) throw redirect({ to: "/login" });
+    if (user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: UsersPage,
+});
+
 const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/forgot-password",
@@ -280,10 +459,21 @@ const resetPasswordRoute = createRoute({
   component: ResetPasswordPage,
 });
 
+const securityRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/security",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (!user) throw redirect({ to: "/login" });
+  },
+  component: SecurityPage,
+});
+
 export const routeTree = rootRoute.addChildren([
   loginRoute,
   dashboardRoute,
   usersRoute,
   forgotPasswordRoute,
   resetPasswordRoute,
+  securityRoute,
 ]);

@@ -25,7 +25,9 @@ export async function login(
   ipAddress: string,
   userAgent: string | undefined,
   c: Context,
-): Promise<{ user: User } | { error: "invalid_credentials" | "suspended" | "2fa_required" }> {
+): Promise<
+  { user: User } | { error: "invalid_credentials" | "suspended" | "2fa_required"; userId?: string }
+> {
   const [userRow] = await db
     .select()
     .from(schema.users)
@@ -46,11 +48,18 @@ export async function login(
   }
 
   if (userRow.totpEnabled) {
-    const challenge = generateToken(16);
-    // Store challenge in Redis for TOTP verification (implemented in US4)
-    return { error: "2fa_required" };
+    return { error: "2fa_required", userId: userRow.id };
   }
 
+  return createSession(userRow, ipAddress, userAgent, c);
+}
+
+async function createSession(
+  userRow: typeof schema.users.$inferSelect,
+  ipAddress: string,
+  userAgent: string | undefined,
+  c: Context,
+): Promise<{ user: User }> {
   const token = generateToken(32);
   const expiresAt = new Date(Date.now() + 60 * 60 * 24 * 1000);
 
@@ -71,6 +80,35 @@ export async function login(
   });
 
   return { user: toUser(userRow) };
+}
+
+export async function verify2fa(
+  userId: string,
+  code: string,
+  ipAddress: string,
+  userAgent: string | undefined,
+  c: Context,
+): Promise<{ user: User } | { error: string }> {
+  const { verifyTotpForLogin, verifyRecoveryCodeForLogin } = await import("./totp.service");
+
+  const [userRow] = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1);
+
+  if (!userRow || !userRow.totpEnabled) {
+    return { error: "2FA not enabled" };
+  }
+
+  const totpValid = await verifyTotpForLogin(userId, code);
+  const recoveryValid = !totpValid && (await verifyRecoveryCodeForLogin(userId, code));
+
+  if (!totpValid && !recoveryValid) {
+    return { error: "Invalid 2FA code" };
+  }
+
+  return createSession(userRow, ipAddress, userAgent, c);
 }
 
 export async function logout(c: Context): Promise<void> {
