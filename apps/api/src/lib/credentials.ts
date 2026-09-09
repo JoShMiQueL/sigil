@@ -12,9 +12,7 @@ export function generateNodeSecret(): string {
 }
 
 export function computeSignature(secret: string, timestamp: number, body: string): string {
-  return createHmac("sha256", secret)
-    .update(`${timestamp}${body}`)
-    .digest("hex");
+  return createHmac("sha256", secret).update(`${timestamp}${body}`).digest("hex");
 }
 
 export function verifySignature(

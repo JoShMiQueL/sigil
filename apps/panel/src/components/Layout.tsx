@@ -15,6 +15,7 @@ export function Layout({ children }: LayoutProps) {
   const navItems: Array<{ label: string; to: string; show: boolean }> = [
     { label: "Dashboard", to: "/", show: true },
     { label: "Users", to: "/users", show: user.role === "admin" },
+    { label: "Nodes", to: "/nodes", show: user.role === "admin" },
     { label: "Security", to: "/security", show: true },
     { label: "API Keys", to: "/api-keys", show: true },
   ];

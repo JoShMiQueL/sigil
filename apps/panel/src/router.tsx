@@ -1,14 +1,16 @@
-import type { ApiKey, ApiKeyScope, User, UserCreate } from "@sigilpanel/shared";
+import type { ApiKey, ApiKeyScope, RegionWithCounts, User, UserCreate } from "@sigilpanel/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { ApiKeyManager } from "./components/ApiKeyManager";
+import { CreateRegionForm } from "./components/CreateRegionForm";
 import { CreateUserForm } from "./components/CreateUserForm";
 import { ErrorState } from "./components/ErrorState";
 import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { Layout } from "./components/Layout";
 import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
+import { RegionList } from "./components/RegionList";
 import { ResetPasswordForm } from "./components/ResetPasswordForm";
 import { TotpSetup } from "./components/TotpSetup";
 import { TwoFactorPrompt } from "./components/TwoFactorPrompt";
@@ -109,6 +111,13 @@ function DashboardPage() {
         <p>
           <button type="button" onClick={() => router.navigate({ to: "/users" })}>
             Manage Users
+          </button>
+        </p>
+      )}
+      {user.role === "admin" && (
+        <p>
+          <button type="button" onClick={() => router.navigate({ to: "/nodes" })}>
+            Manage Nodes
           </button>
         </p>
       )}
@@ -545,10 +554,90 @@ const apiKeysRoute = createRoute({
   component: ApiKeysPage,
 });
 
+function NodesPage() {
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["regions"],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/regions`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch regions");
+      return res.json() as Promise<RegionWithCounts[]>;
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (input: { name: string; description?: string }) => {
+      const res = await fetch(`${API_URL}/api/admin/regions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error?.message ?? "Failed to create region" };
+      }
+      return {};
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["regions"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/admin/regions/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error?.message ?? "Failed to delete region" };
+      }
+      return {};
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["regions"] }),
+  });
+
+  return (
+    <Layout>
+      <h1>Nodes</h1>
+      <CreateRegionForm
+        onCreate={async (input) => {
+          const result = await createMutation.mutateAsync(input);
+          return result;
+        }}
+      />
+      {isLoading ? (
+        <LoadingState message="Loading regions..." />
+      ) : data ? (
+        <RegionList
+          regions={data}
+          onDelete={async (id) => {
+            const result = await deleteMutation.mutateAsync(id);
+            return result;
+          }}
+        />
+      ) : null}
+    </Layout>
+  );
+}
+
+const nodesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/nodes",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (!user) throw redirect({ to: "/login" });
+    if (user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: NodesPage,
+});
+
 export const routeTree = rootRoute.addChildren([
   loginRoute,
   dashboardRoute,
   usersRoute,
+  nodesRoute,
   forgotPasswordRoute,
   resetPasswordRoute,
   securityRoute,

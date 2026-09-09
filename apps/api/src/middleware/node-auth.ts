@@ -1,8 +1,8 @@
 import { db, schema } from "@sigilpanel/db";
 import { and, eq, isNull } from "drizzle-orm";
 import { createMiddleware } from "hono/factory";
-import { decrypt } from "../lib/crypto";
 import { isTimestampValid, verifySignature } from "../lib/credentials";
+import { decrypt } from "../lib/crypto";
 
 export type NodeAuthContext = {
   Variables: {
@@ -40,14 +40,13 @@ export const nodeAuthMiddleware = createMiddleware<NodeAuthContext>(async (c, ne
   const [credential] = await db
     .select()
     .from(schema.nodeCredentials)
-    .where(and(eq(schema.nodeCredentials.secretId, secretId), isNull(schema.nodeCredentials.revokedAt)))
+    .where(
+      and(eq(schema.nodeCredentials.secretId, secretId), isNull(schema.nodeCredentials.revokedAt)),
+    )
     .limit(1);
 
   if (!credential) {
-    return c.json(
-      { error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } },
-      401,
-    );
+    return c.json({ error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } }, 401);
   }
 
   const body = await c.req.text();
@@ -55,17 +54,11 @@ export const nodeAuthMiddleware = createMiddleware<NodeAuthContext>(async (c, ne
   try {
     secret = decrypt(credential.secretEncrypted);
   } catch {
-    return c.json(
-      { error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } },
-      401,
-    );
+    return c.json({ error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } }, 401);
   }
 
   if (!verifySignature(secret, signature, timestamp, body)) {
-    return c.json(
-      { error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } },
-      401,
-    );
+    return c.json({ error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } }, 401);
   }
 
   c.set("nodeId", credential.nodeId);

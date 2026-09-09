@@ -6,6 +6,7 @@ import { type AuthContext, authMiddleware } from "./middleware/auth";
 import { cspMiddleware } from "./middleware/security-headers";
 import apiKeysRoutes from "./routes/api-keys";
 import authRoutes from "./routes/auth";
+import regionsRoutes from "./routes/regions";
 import testCleanupRoutes from "./routes/test-cleanup";
 import usersRoutes from "./routes/users";
 
@@ -31,6 +32,7 @@ if (process.env.NODE_ENV !== "production") {
 
 app.route("/api/auth", authRoutes);
 app.route("/api/admin/users", usersRoutes);
+app.route("/api/admin/regions", regionsRoutes);
 app.route("/api/api-keys", apiKeysRoutes);
 
 export default app;

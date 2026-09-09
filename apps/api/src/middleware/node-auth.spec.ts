@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { nodeAuthMiddleware, type NodeAuthContext } from "./node-auth";
 import {
   buildNodeAuthHeaders,
   cleanupDatabase,
@@ -9,6 +8,7 @@ import {
   createRegion,
   revokeNodeCredentials,
 } from "../test/helpers";
+import { type NodeAuthContext, nodeAuthMiddleware } from "./node-auth";
 
 // Minimal test app that uses node-auth middleware
 function createTestApp() {

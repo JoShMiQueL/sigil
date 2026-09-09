@@ -22,7 +22,7 @@
 
 **Purpose**: Create node-specific package structure for shared schemas
 
-- [ ] T001 Create `packages/shared/src/node/` directory with index file re-exporting all node schemas
+- [X] T001 Create `packages/shared/src/node/` directory with index file re-exporting all node schemas
 
 ---
 
@@ -32,22 +32,22 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Create `regions` table schema in `packages/db/src/schema/regions.ts` with all fields from data-model.md
-- [ ] T003 [P] Create `nodes` table schema in `packages/db/src/schema/nodes.ts` with all fields from data-model.md
-- [ ] T004 [P] Create `pairing_tokens` table schema in `packages/db/src/schema/pairing-tokens.ts` with all fields from data-model.md
-- [ ] T005 [P] Create `node_credentials` table schema in `packages/db/src/schema/node-credentials.ts` with all fields from data-model.md
-- [ ] T006 Export all new schemas from `packages/db/src/schema/index.ts` and `packages/db/src/index.ts`, then generate Drizzle migration
-- [ ] T007 [P] Create Zod schemas for Region, RegionCreate, RegionUpdate in `packages/shared/src/node/region.ts`
-- [ ] T008 [P] Create Zod schemas for Node, NodeUpdate, NodeStatus, NodeCapabilities in `packages/shared/src/node/node.ts`
-- [ ] T009 [P] Create Zod schemas for PairingToken, PairingTokenCreate, PairingRequest, PairingTokenDisplay in `packages/shared/src/node/pairing.ts`
-- [ ] T010 [P] Create Zod schema for HeartbeatPayload in `packages/shared/src/node/heartbeat.ts`
-- [ ] T011 [P] Create Zod schemas for NodeCredential, NodeAuthHeaders in `packages/shared/src/node/credentials.ts`
-- [ ] T012 Re-export all node schemas from `packages/shared/src/node/index.ts` and update `packages/shared/src/index.ts`
-- [ ] T013 [P] Create HMAC-SHA256 credential generation and verification library in `apps/api/src/lib/credentials.ts` (generate secret, verify signature with ±60s timestamp window)
-- [ ] T014 [P] Create unit test for credential generation and HMAC verification in `apps/api/src/lib/credentials.spec.ts`
-- [ ] T015 Create node authentication middleware in `apps/api/src/middleware/node-auth.ts` (verify X-Node-Id, X-Node-Signature, X-Node-Timestamp headers against active credentials)
-- [ ] T016 [P] Create unit test for node-auth middleware in `apps/api/src/middleware/node-auth.spec.ts` (valid signature, invalid signature, revoked credentials, timestamp out of window)
-- [ ] T017 Update test-cleanup endpoint in `apps/api/src/routes/test-cleanup.ts` to also delete from `node_credentials`, `pairing_tokens`, `nodes`, `regions` (in FK order)
+- [X] T002 [P] Create `regions` table schema in `packages/db/src/schema/regions.ts` with all fields from data-model.md
+- [X] T003 [P] Create `nodes` table schema in `packages/db/src/schema/nodes.ts` with all fields from data-model.md
+- [X] T004 [P] Create `pairing_tokens` table schema in `packages/db/src/schema/pairing-tokens.ts` with all fields from data-model.md
+- [X] T005 [P] Create `node_credentials` table schema in `packages/db/src/schema/node-credentials.ts` with all fields from data-model.md
+- [X] T006 Export all new schemas from `packages/db/src/schema/index.ts` and `packages/db/src/index.ts`, then generate Drizzle migration
+- [X] T007 [P] Create Zod schemas for Region, RegionCreate, RegionUpdate in `packages/shared/src/node/region.ts`
+- [X] T008 [P] Create Zod schemas for Node, NodeUpdate, NodeStatus, NodeCapabilities in `packages/shared/src/node/node.ts`
+- [X] T009 [P] Create Zod schemas for PairingToken, PairingTokenCreate, PairingRequest, PairingTokenDisplay in `packages/shared/src/node/pairing.ts`
+- [X] T010 [P] Create Zod schema for HeartbeatPayload in `packages/shared/src/node/heartbeat.ts`
+- [X] T011 [P] Create Zod schemas for NodeCredential, NodeAuthHeaders in `packages/shared/src/node/credentials.ts`
+- [X] T012 Re-export all node schemas from `packages/shared/src/node/index.ts` and update `packages/shared/src/index.ts`
+- [X] T013 [P] Create HMAC-SHA256 credential generation and verification library in `apps/api/src/lib/credentials.ts` (generate secret, verify signature with ±60s timestamp window)
+- [X] T014 [P] Create unit test for credential generation and HMAC verification in `apps/api/src/lib/credentials.spec.ts`
+- [X] T015 Create node authentication middleware in `apps/api/src/middleware/node-auth.ts` (verify X-Node-Id, X-Node-Signature, X-Node-Timestamp headers against active credentials)
+- [X] T016 [P] Create unit test for node-auth middleware in `apps/api/src/middleware/node-auth.spec.ts` (valid signature, invalid signature, revoked credentials, timestamp out of window)
+- [X] T017 Update test-cleanup endpoint in `apps/api/src/routes/test-cleanup.ts` to also delete from `node_credentials`, `pairing_tokens`, `nodes`, `regions` (in FK order)
 
 **Checkpoint**: Foundation ready — DB schema, shared schemas, credential lib, and node auth middleware are all in place. User story implementation can now begin.
 
@@ -61,18 +61,18 @@
 
 ### Tests for User Story 1
 
-- [ ] T018 [P] [US1] Integration test for region CRUD (create, list, delete, duplicate name error, delete with nodes error) in `apps/api/src/routes/regions.spec.ts` (Testcontainers PostgreSQL)
+- [X] T018 [P] [US1] Integration test for region CRUD (create, list, delete, duplicate name error, delete with nodes error) in `apps/api/src/routes/regions.spec.ts` (Testcontainers PostgreSQL)
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement region service in `apps/api/src/services/region.service.ts` (create, list with node/server counts, delete with guard)
-- [ ] T020 [US1] Implement region routes in `apps/api/src/routes/regions.ts` (GET /api/admin/regions, POST /api/admin/regions, DELETE /api/admin/regions/:id)
-- [ ] T021 [US1] Register region routes in `apps/api/src/index.ts`
-- [ ] T022 [P] [US1] Create region list component in `apps/panel/src/components/RegionList.tsx` (shows regions with node/server counts, delete button)
-- [ ] T023 [P] [US1] Create create region form in `apps/panel/src/components/CreateRegionForm.tsx` (name + description dialog)
-- [ ] T024 [US1] Create nodes route in `apps/panel/src/routes/nodes.tsx` (renders RegionList + CreateRegionForm, shows empty node table placeholder)
-- [ ] T025 [US1] Add "Nodes" link to panel navigation in `apps/panel/src/components/` (sidebar/nav)
-- [ ] T026 [P] [US1] E2E test for region management in `apps/panel/tests/e2e/regions.spec.ts` (create region, verify in list, delete region, duplicate name error)
+- [X] T019 [US1] Implement region service in `apps/api/src/services/region.service.ts` (create, list with node/server counts, delete with guard)
+- [X] T020 [US1] Implement region routes in `apps/api/src/routes/regions.ts` (GET /api/admin/regions, POST /api/admin/regions, DELETE /api/admin/regions/:id)
+- [X] T021 [US1] Register region routes in `apps/api/src/index.ts`
+- [X] T022 [P] [US1] Create region list component in `apps/panel/src/components/RegionList.tsx` (shows regions with node/server counts, delete button)
+- [X] T023 [P] [US1] Create create region form in `apps/panel/src/components/CreateRegionForm.tsx` (name + description dialog)
+- [X] T024 [US1] Create nodes route in `apps/panel/src/routes/nodes.tsx` (renders RegionList + CreateRegionForm, shows empty node table placeholder)
+- [X] T025 [US1] Add "Nodes" link to panel navigation in `apps/panel/src/components/` (sidebar/nav)
+- [X] T026 [P] [US1] E2E test for region management in `apps/panel/tests/e2e/regions.spec.ts` (create region, verify in list, delete region, duplicate name error)
 
 **Checkpoint**: Region management is fully functional. An admin can create, list, and delete regions.
 

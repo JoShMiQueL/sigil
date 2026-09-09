@@ -1,8 +1,8 @@
 import { db, schema } from "@sigilpanel/db";
 import { eq, sql } from "drizzle-orm";
 import { hashPassword } from "../lib/argon2";
-import { encrypt } from "../lib/crypto";
 import { computeSignature, generateNodeSecret, generateSecretId } from "../lib/credentials";
+import { encrypt } from "../lib/crypto";
 import { createResetToken } from "../services/password.service";
 
 export async function cleanupDatabase(): Promise<void> {
@@ -125,7 +125,10 @@ export async function createRegion(name = "test-region"): Promise<string> {
 }
 
 // Create a node in a region and return its id
-export async function createNode(regionId: string, hostname = "node-01.test.local"): Promise<string> {
+export async function createNode(
+  regionId: string,
+  hostname = "node-01.test.local",
+): Promise<string> {
   const [row] = await db
     .insert(schema.nodes)
     .values({
