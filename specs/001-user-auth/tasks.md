@@ -54,10 +54,10 @@
 - [X] T021 [P] Create Zod schemas for TotpEnable, TotpVerify, TotpDisable in `packages/shared/src/auth/totp.ts`
 - [X] T022 [P] Create permissions constants and Zod enums for roles and scopes in `packages/shared/src/auth/permissions.ts`
 - [X] T023 Re-export all auth schemas from `packages/shared/src/auth/index.ts` and update `packages/shared/src/index.ts`
-- [ ] T024 Install and configure better-auth with Hono adapter and Drizzle adapter in `apps/api/src/lib/auth.ts`
-- [ ] T025 Create auth middleware in `apps/api/src/middleware/auth.ts` supporting both session cookie and API key Bearer token
-- [ ] T026 [P] Create rate limit middleware in `apps/api/src/middleware/rate-limit.ts` using Redis sliding window (5 attempts/15min per email+IP)
-- [ ] T027 Create Hono app with global error handler, Zod validation, and middleware chain in `apps/api/src/index.ts`
+- [X] T024 Install and configure better-auth with Hono adapter and Drizzle adapter in `apps/api/src/lib/auth.ts`
+- [X] T025 Create auth middleware in `apps/api/src/middleware/auth.ts` supporting both session cookie and API key Bearer token
+- [X] T026 [P] Create rate limit middleware in `apps/api/src/middleware/rate-limit.ts` using Redis sliding window (5 attempts/15min per email+IP)
+- [X] T027 Create Hono app with global error handler, Zod validation, and middleware chain in `apps/api/src/index.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

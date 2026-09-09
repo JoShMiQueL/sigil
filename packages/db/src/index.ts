@@ -1,9 +1,9 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as apiKeys from "./schema/api-keys";
-import * as passwordResetTokens from "./schema/password-reset-tokens";
-import * as sessions from "./schema/sessions";
-import * as users from "./schema/users";
+import { apiKeys } from "./schema/api-keys";
+import { passwordResetTokens } from "./schema/password-reset-tokens";
+import { sessions } from "./schema/sessions";
+import { users } from "./schema/users";
 
 export const schema = {
   users,

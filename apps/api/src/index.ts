@@ -2,8 +2,9 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
+import { type AuthContext, authMiddleware } from "./middleware/auth";
 
-const app = new Hono();
+const app = new Hono<AuthContext>();
 
 app.use(logger());
 app.use(secureHeaders());
@@ -13,6 +14,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(authMiddleware);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
