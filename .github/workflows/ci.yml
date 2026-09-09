@@ -43,7 +43,33 @@ jobs:
   e2e:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: sigilpanel
+          POSTGRES_PASSWORD: sigilpanel
+          POSTGRES_DB: sigilpanel
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sigilpanel"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://sigilpanel:sigilpanel@localhost:5432/sigilpanel
+      REDIS_URL: redis://localhost:6379
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4

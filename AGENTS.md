@@ -154,19 +154,22 @@ The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on
 
 Jobs:
 1. **Lint & Typecheck** — `pnpm check` + `pnpm typecheck`
-2. **Unit & Integration** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test`
-3. **E2E** — `pnpm --filter @sigilpanel/db db:migrate` + `pnpm test:e2e` (with `RATE_LIMIT_DISABLED=1`)
+2. **Unit & Integration** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test` (Testcontainers auto-starts PostgreSQL, no external services needed)
+3. **E2E** — service containers (PostgreSQL + Redis) + `pnpm --filter @sigilpanel/db db:migrate` + `pnpm test:e2e` (with `RATE_LIMIT_DISABLED=1`)
+
+The E2E job uses GitHub Actions service containers for PostgreSQL and Redis, not the dev Docker compose. The Playwright config detects `CI` env var and uses Playwright's bundled Chromium instead of system Chromium.
 
 To run the same checks locally:
 
 ```bash
-pnpm check          # lint
-pnpm typecheck      # type checking
-pnpm test           # unit + integration (Testcontainers auto-starts PostgreSQL)
-pnpm test:e2e       # E2E (Playwright auto-starts API + panel, auto-seeds admin)
+make ci         # all checks (lint, typecheck, test, e2e)
+make check      # lint only
+make typecheck  # type checking only
+make test       # unit + integration only
+make test-e2e   # E2E only (needs Docker running for dev services)
 ```
 
-Requires Docker running.
+The `Makefile` targets mirror the workflow steps exactly. Requires Docker running.
 
 ## E2E verification workflow
 
