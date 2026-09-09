@@ -19,19 +19,9 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
-      - id: cache
-        uses: actions/cache/restore@v5
-        with:
-          path: ~/.local/share/pnpm/store
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm install --frozen-lockfile
+          cache: true
       - run: pnpm check
       - run: pnpm typecheck
-      - uses: actions/cache/save@v5
-        if: always() && steps.cache.outputs.cache-hit != 'true'
-        with:
-          path: ~/.local/share/pnpm/store
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
   unit-integration:
     name: Unit & Integration Tests
@@ -42,11 +32,7 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
-      - uses: actions/cache/restore@v5
-        with:
-          path: ~/.local/share/pnpm/store
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm install --frozen-lockfile
+          cache: true
       - run: pnpm --filter @sigilpanel/db db:generate
       - run: pnpm test
 
@@ -86,11 +72,7 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
-      - uses: actions/cache/restore@v5
-        with:
-          path: ~/.local/share/pnpm/store
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm install --frozen-lockfile
+          cache: true
       - run: pnpm --filter @sigilpanel/db db:generate
       - run: pnpm --filter @sigilpanel/db db:migrate
       - name: Install Playwright browsers
