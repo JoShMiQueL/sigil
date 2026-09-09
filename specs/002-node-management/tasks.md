@@ -112,19 +112,19 @@
 
 ### Tests for User Story 3
 
-- [ ] T037 [P] [US3] Integration test for heartbeat processing in `apps/api/src/routes/heartbeat.spec.ts` (valid heartbeat updates status to online, invalid auth rejected, timestamp out of window rejected)
-- [ ] T038 [P] [US3] Integration test for heartbeat timeout in `apps/api/src/routes/heartbeat.spec.ts` (node marked offline after timeout, node recovers on new heartbeat)
+- [X] T037 [P] [US3] Integration test for heartbeat processing in `apps/api/src/routes/heartbeat.spec.ts` (valid heartbeat updates status to online, invalid auth rejected, timestamp out of window rejected)
+- [X] T038 [P] [US3] Integration test for heartbeat timeout in `apps/api/src/routes/heartbeat.spec.ts` (node marked offline after timeout, node recovers on new heartbeat)
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Implement heartbeat service in `apps/api/src/services/heartbeat.service.ts` (process heartbeat, update node status + resource usage, timeout sweep)
-- [ ] T040 [US3] Implement heartbeat route in `apps/api/src/routes/pairing.ts` (POST /api/node/heartbeat — requires node-auth middleware)
-- [ ] T041 [US3] Start heartbeat timeout sweep interval in `apps/api/src/index.ts` (30s sweep, marks nodes offline if last_heartbeat_at > 90s ago)
-- [ ] T042 [P] [US3] Create node detail page in `apps/panel/src/routes/node-detail.tsx` (shows node info + resource usage)
-- [ ] T043 [P] [US3] Create node detail panel component in `apps/panel/src/components/NodeDetailPanel.tsx` (CPU/memory/disk bars, container count, last heartbeat time)
-- [ ] T044 [US3] Add 15s polling to node table in `apps/panel/src/components/NodeTable.tsx` (refresh node list when page is active, show online/offline/unknown indicators)
-- [ ] T045 [US3] Add node row click navigation to node detail page in `apps/panel/src/components/NodeTable.tsx`
-- [ ] T046 [P] [US3] E2E test for heartbeat flow in `apps/panel/tests/e2e/heartbeat.spec.ts` (register node, send heartbeat via API, verify online status + resource data in UI)
+- [X] T039 [US3] Implement heartbeat service in `apps/api/src/services/heartbeat.service.ts` (process heartbeat, update node status + resource usage, timeout sweep)
+- [X] T040 [US3] Implement heartbeat route in `apps/api/src/routes/pairing.ts` (POST /api/node/heartbeat — requires node-auth middleware)
+- [X] T041 [US3] Start heartbeat timeout sweep interval in `apps/api/src/index.ts` (30s sweep, marks nodes offline if last_heartbeat_at > 90s ago)
+- [X] T042 [P] [US3] Create node detail page in `apps/panel/src/routes/node-detail.tsx` (shows node info + resource usage)
+- [X] T043 [P] [US3] Create node detail panel component in `apps/panel/src/components/NodeDetailPanel.tsx` (CPU/memory/disk bars, container count, last heartbeat time)
+- [X] T044 [US3] Add 15s polling to node table in `apps/panel/src/components/NodeTable.tsx` (refresh node list when page is active, show online/offline/unknown indicators)
+- [X] T045 [US3] Add node row click navigation to node detail page in `apps/panel/src/components/NodeTable.tsx`
+- [X] T046 [P] [US3] E2E test for heartbeat flow in `apps/panel/tests/e2e/heartbeat.spec.ts` (register node, send heartbeat via API, verify online status + resource data in UI)
 
 **Checkpoint**: Health monitoring is functional. Admins can see node status and resource usage in real time.
 

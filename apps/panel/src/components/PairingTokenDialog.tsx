@@ -59,23 +59,37 @@ export function PairingTokenDialog({ regions, onGenerate }: PairingTokenDialogPr
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(0,0,0,0.5)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         zIndex: 100,
       }}
-      onClick={handleClose}
     >
+      <button
+        type="button"
+        aria-label="Close dialog"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(0,0,0,0.5)",
+          border: "none",
+          padding: 0,
+          cursor: "default",
+        }}
+        onClick={handleClose}
+      />
       <div
         style={{
+          position: "relative",
           background: "white",
           padding: "2rem",
           borderRadius: "8px",
           maxWidth: "500px",
           width: "100%",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         <h3>Generate Pairing Token</h3>
         {error && <p style={{ color: "#c00" }}>{error}</p>}

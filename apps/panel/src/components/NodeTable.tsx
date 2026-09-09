@@ -48,6 +48,10 @@ export function NodeTable({ nodes, onRowClick }: NodeTableProps) {
           <tr
             key={node.id}
             onClick={() => onRowClick?.(node)}
+            onKeyUp={(e) => {
+              if (e.key === "Enter") onRowClick?.(node);
+            }}
+            tabIndex={onRowClick ? 0 : undefined}
             style={{ cursor: onRowClick ? "pointer" : "default" }}
           >
             <td style={{ padding: "0.5rem", borderBottom: "1px solid #eee" }}>

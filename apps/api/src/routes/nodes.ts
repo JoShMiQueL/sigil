@@ -1,5 +1,3 @@
-import { zValidator } from "@hono/zod-validator";
-import { NodeUpdateSchema } from "@sigilpanel/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import { getNodeById, listNodes } from "../services/node.service";

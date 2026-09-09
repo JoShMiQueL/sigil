@@ -1,7 +1,13 @@
 import { zValidator } from "@hono/zod-validator";
-import { PairingRequestSchema, PairingTokenCreateSchema } from "@sigilpanel/shared";
+import {
+  HeartbeatPayloadSchema,
+  PairingRequestSchema,
+  PairingTokenCreateSchema,
+} from "@sigilpanel/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
+import { type NodeAuthContext, nodeAuthMiddleware } from "../middleware/node-auth";
+import { processHeartbeat } from "../services/heartbeat.service";
 import {
   consumePairingToken,
   generatePairingToken,
@@ -67,5 +73,20 @@ pairing.post("/node/register", zValidator("json", PairingRequestSchema), async (
   );
 });
 
+// Daemon heartbeat route (requires node credentials)
+const heartbeatApp = new Hono<NodeAuthContext>();
+heartbeatApp.use("/node/heartbeat", nodeAuthMiddleware);
+heartbeatApp.post("/node/heartbeat", zValidator("json", HeartbeatPayloadSchema), async (c) => {
+  const nodeId = c.get("nodeId");
+  if (!nodeId) {
+    return c.json({ error: { code: "NODE_AUTH_FAILED", message: "Invalid credentials" } }, 401);
+  }
+
+  const payload = c.req.valid("json");
+  await processHeartbeat(nodeId, payload);
+
+  return c.body(null, 204);
+});
+
 export default pairing;
-export { adminPairing };
+export { adminPairing, heartbeatApp };

@@ -98,7 +98,7 @@ describe("pairing routes [US2: node pairing]", () => {
       cookie: adminCookie,
       body: { regionId },
     });
-    const tokenBody = await parseJson(tokenRes);
+    await parseJson(tokenRes);
 
     // Wait for token to expire (15 min TTL — we can't wait that long in tests)
     // Instead, we'll test with a manually expired token by checking the code path

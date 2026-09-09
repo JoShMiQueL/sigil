@@ -7,7 +7,7 @@ import { cspMiddleware } from "./middleware/security-headers";
 import apiKeysRoutes from "./routes/api-keys";
 import authRoutes from "./routes/auth";
 import nodesRoutes from "./routes/nodes";
-import { adminPairing, default as pairingRoutes } from "./routes/pairing";
+import { adminPairing, heartbeatApp, default as pairingRoutes } from "./routes/pairing";
 import regionsRoutes from "./routes/regions";
 import testCleanupRoutes from "./routes/test-cleanup";
 import usersRoutes from "./routes/users";
@@ -38,6 +38,7 @@ app.route("/api/admin/regions", regionsRoutes);
 app.route("/api/admin/nodes", nodesRoutes);
 app.route("/api/admin/pairing", adminPairing);
 app.route("/api", pairingRoutes);
+app.route("/api", heartbeatApp);
 app.route("/api/api-keys", apiKeysRoutes);
 
 export default app;
@@ -49,5 +50,10 @@ if (process.env.NODE_ENV !== "test") {
     serve({ fetch: app.fetch, port }, (info) => {
       console.log(`API server running on http://localhost:${info.port}`);
     });
+  });
+
+  // Start heartbeat timeout sweep (every 30s)
+  import("./services/heartbeat.service").then(({ startHeartbeatSweep }) => {
+    startHeartbeatSweep(30);
   });
 }
