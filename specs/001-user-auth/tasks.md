@@ -89,9 +89,9 @@
 - [X] T040 [US1] Create GET /api/auth/me route in `apps/api/src/routes/auth.ts` (requires auth, returns current user)
 - [X] T041 [US1] Create admin seed script in `apps/api/src/scripts/seed-admin.ts` (creates initial admin, prints credentials)
 - [X] T042 [US1] Create LoginForm component in `apps/panel/src/components/LoginForm.tsx` (email, password, submit, error display)
-- [ ] T043 [US1] Create login route page in `apps/panel/src/routes/login.tsx` (renders LoginForm, redirects on success)
+- [X] T043 [US1] Create login route page in `apps/panel/src/routes/login.tsx` (renders LoginForm, redirects on success)
 - [X] T044 [US1] Create useAuth hook in `apps/panel/src/hooks/useAuth.ts` (login, logout, current user state via TanStack Query)
-- [ ] T045 [US1] Create dashboard route page in `apps/panel/src/routes/dashboard.tsx` (requires auth, shows placeholder stats, logout button)
+- [X] T045 [US1] Create dashboard route page in `apps/panel/src/routes/dashboard.tsx` (requires auth, shows placeholder stats, logout button)
 - [X] T046 [US1] Configure TanStack Router with auth guard in `apps/panel/src/router.tsx` (redirect to /login if unauthenticated)
 
 **Checkpoint**: Admin can log in, see dashboard, and log out. MVP is functional.

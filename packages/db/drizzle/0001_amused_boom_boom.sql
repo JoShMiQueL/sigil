@@ -1,0 +1,1 @@
+ALTER TABLE "sessions" ALTER COLUMN "ip_address" SET DATA TYPE text;

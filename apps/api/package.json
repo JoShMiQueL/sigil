@@ -9,25 +9,27 @@
     "lint": "biome lint src/",
     "format": "biome format --write src/",
     "typecheck": "tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "db:seed": "tsx src/scripts/seed-admin.ts"
   },
   "dependencies": {
-    "@sigilpanel/shared": "workspace:*",
+    "@hono/node-server": "^2.1.1",
+    "@hono/zod-validator": "^0.7.0",
+    "@node-rs/argon2": "^2.1.0",
+    "@otplib/preset-default": "^12.0.1",
     "@sigilpanel/db": "workspace:*",
-    "hono": "^4.13.7",
+    "@sigilpanel/shared": "workspace:*",
     "better-auth": "^1.7.2",
     "drizzle-orm": "^0.45.2",
-    "@node-rs/argon2": "^2.1.0",
-    "@hono/zod-validator": "^0.7.0",
+    "hono": "^4.13.7",
     "ioredis": "^5.8.0",
     "nodemailer": "^9.0.5",
-    "@otplib/preset-default": "^12.0.1",
     "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/nodemailer": "^7.0.2",
+    "testcontainers": "^12.0.4",
     "tsx": "^4.19.0",
-    "vitest": "^5.0.0",
-    "testcontainers": "^12.0.4"
+    "vitest": "^5.0.0"
   }
 }

@@ -22,3 +22,13 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 app.route("/api/auth", authRoutes);
 
 export default app;
+
+const port = Number(process.env.PORT ?? 3000);
+
+if (process.env.NODE_ENV !== "test") {
+  import("@hono/node-server").then(({ serve }) => {
+    serve({ fetch: app.fetch, port }, (info) => {
+      console.log(`API server running on http://localhost:${info.port}`);
+    });
+  });
+}

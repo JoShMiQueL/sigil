@@ -148,6 +148,30 @@ Example: `feat(shared): add Zod schemas for user auth [R1]`
 
 See `.specify/memory/constitution.md` section "Commit cadence" for the full rules.
 
+## E2E verification workflow
+
+**Verify E2E what can be verified at each step.** Do not wait until the end to test. If the API is running, test it with curl. If the panel has a page, open it in the browser and interact with it. If something cannot be verified yet, note it and move on.
+
+Two tools for E2E verification:
+
+1. **chrome-devtools MCP (agentic, during development)** — Control Chromium directly: navigate, click, fill forms, take screenshots, evaluate scripts, inspect snapshots. Use this to verify the panel works as a user would, in real time, while building. This is for interactive verification, not for tests that stay in the repo.
+
+2. **Playwright (automated, in the repo)** — Write E2E tests in `apps/panel/tests/e2e/` that run in CI. These are permanent regression tests. Use this for the T034-style tasks and any E2E test that needs to be repeatable.
+
+When to use which:
+- Building a feature: use chrome-devtools MCP to verify it works as a user.
+- Completing a test task (T034, etc.): write a Playwright test.
+- Both: verify interactively first, then write the Playwright test.
+
+To start dev services for E2E verification:
+```bash
+pnpm dev:services          # PostgreSQL + Redis via Docker Compose
+pnpm --filter @sigilpanel/api db:generate  # Generate Drizzle migrations
+pnpm --filter @sigilpanel/api db:migrate   # Run migrations
+pnpm --filter @sigilpanel/api db:seed       # Seed admin user
+pnpm dev                   # Start API + panel
+```
+
 ## Spec Kit workflow
 
 This project uses GitHub Spec Kit for spec-driven development. The project is decomposed into sub-features tracked in `ROADMAP.md` (the "spec of specs" pattern). Each sub-feature runs through its own specify → plan → tasks → implement cycle.
