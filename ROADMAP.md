@@ -22,7 +22,7 @@ SigilPanel is a self-hosted platform for managing game servers across multiple n
 | R14 | Databases                | Provision MySQL/PostgreSQL DBs for servers                       | In: DB provisioning, credentials, rotation. Deferred: backups.                                          | R9                 | planned   | —                      |
 | R15 | Mounts                   | Shared host→container directories                               | In: mount create/list/delete, path validation. Deferred: backups.                                      | R9                 | planned   | —                      |
 | R16 | Schedules & Tasks        | Cron-like scheduled operations on servers                        | In: schedules, tasks, execution. Deferred: backups.                                                      | R9                 | planned   | —                      |
-| R17 | Real-time Panel          | SSE infrastructure, replace polling, reactive panel              | In: SSE endpoints, panel hooks, auto-reconnect, retrofit R1/R4. Deferred: WS console (R10), daemon→panel push. | R1                 | planned   | —                      |
+| R17 | Real-time Panel          | SSE infrastructure, replace polling, reactive panel              | In: SSE endpoints, panel hooks, auto-reconnect, retrofit R1/R4. Deferred: WS console (R10), daemon→panel push. | R1                 | planned   | specs/003-real-time-panel/ |
 
 ## Execution layers
 
