@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+*.log
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+coverage/
+.DS_Store
+
+# Devin credentials (keep skills, ignore any auth artifacts)
+.devin/.credentials
+.devin/auth*
