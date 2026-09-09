@@ -4,6 +4,7 @@ import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { type AuthContext, authMiddleware } from "./middleware/auth";
 import authRoutes from "./routes/auth";
+import usersRoutes from "./routes/users";
 
 const app = new Hono<AuthContext>();
 
@@ -20,6 +21,7 @@ app.use(authMiddleware);
 app.get("/health", (c) => c.json({ status: "ok" }));
 
 app.route("/api/auth", authRoutes);
+app.route("/api/admin/users", usersRoutes);
 
 export default app;
 

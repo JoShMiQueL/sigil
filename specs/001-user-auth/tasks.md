@@ -116,19 +116,19 @@
 
 ### Implementation for User Story 2
 
-- [ ] T054 [US2] Implement user service create method in `apps/api/src/services/user.service.ts` (validate, hash password, insert)
-- [ ] T055 [US2] Implement user service list method in `apps/api/src/services/user.service.ts` (paginated, searchable)
-- [ ] T056 [US2] Implement user service getById method in `apps/api/src/services/user.service.ts`
-- [ ] T057 [US2] Implement user service update method in `apps/api/src/services/user.service.ts` (status, role, email, username)
-- [ ] T058 [US2] Implement user service suspend method in `apps/api/src/services/user.service.ts` (with self/last-admin guards)
-- [ ] T059 [US2] Create POST /api/admin/users route in `apps/api/src/routes/users.ts` (admin-only, validates UserCreateSchema)
-- [ ] T060 [US2] Create GET /api/admin/users route in `apps/api/src/routes/users.ts` (admin-only, pagination)
-- [ ] T061 [US2] Create GET /api/admin/users/:id route in `apps/api/src/routes/users.ts` (admin-only)
-- [ ] T062 [US2] Create PATCH /api/admin/users/:id route in `apps/api/src/routes/users.ts` (admin-only, validates UserUpdateSchema)
-- [ ] T063 [US2] Create UserTable component in `apps/panel/src/components/UserTable.tsx` (paginated list with status badges)
-- [ ] T064 [US2] Create CreateUserForm component in `apps/panel/src/components/CreateUserForm.tsx` (email, username, password, role)
-- [ ] T065 [US2] Create users route page in `apps/panel/src/routes/users.tsx` (admin-only, renders UserTable + CreateUserForm)
-- [ ] T066 [US2] Add admin role guard to TanStack Router in `apps/panel/src/router.tsx` (redirect non-admins from /users)
+- [X] T054 [US2] Implement user service create method in `apps/api/src/services/user.service.ts` (validate, hash password, insert)
+- [X] T055 [US2] Implement user service list method in `apps/api/src/services/user.service.ts` (paginated, searchable)
+- [X] T056 [US2] Implement user service getById method in `apps/api/src/services/user.service.ts`
+- [X] T057 [US2] Implement user service update method in `apps/api/src/services/user.service.ts` (status, role, email, username)
+- [X] T058 [US2] Implement user service suspend method in `apps/api/src/services/user.service.ts` (with self/last-admin guards)
+- [X] T059 [US2] Create POST /api/admin/users route in `apps/api/src/routes/users.ts` (admin-only, validates UserCreateSchema)
+- [X] T060 [US2] Create GET /api/admin/users route in `apps/api/src/routes/users.ts` (admin-only, pagination)
+- [X] T061 [US2] Create GET /api/admin/users/:id route in `apps/api/src/routes/users.ts` (admin-only)
+- [X] T062 [US2] Create PATCH /api/admin/users/:id route in `apps/api/src/routes/users.ts` (admin-only, validates UserUpdateSchema)
+- [X] T063 [US2] Create UserTable component in `apps/panel/src/components/UserTable.tsx` (paginated list with status badges)
+- [X] T064 [US2] Create CreateUserForm component in `apps/panel/src/components/CreateUserForm.tsx` (email, username, password, role)
+- [X] T065 [US2] Create users route page in `apps/panel/src/routes/users.tsx` (admin-only, renders UserTable + CreateUserForm)
+- [X] T066 [US2] Add admin role guard to TanStack Router in `apps/panel/src/router.tsx` (redirect non-admins from /users)
 
 **Checkpoint**: Admin can manage users. Users can log in with credentials given by admin.
 

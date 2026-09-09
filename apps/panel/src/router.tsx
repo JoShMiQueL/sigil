@@ -1,6 +1,13 @@
+import type { User, UserCreate } from "@sigilpanel/shared";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
+import { CreateUserForm } from "./components/CreateUserForm";
 import { LoginForm } from "./components/LoginForm";
+import { UserTable } from "./components/UserTable";
 import { useAuth } from "./hooks/useAuth";
+
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 function Root() {
   return <Outlet />;
@@ -11,7 +18,7 @@ const rootRoute = createRootRoute({
 });
 
 function LoginPage() {
-  const { login, user, isLoggingIn } = useAuth();
+  const { login, user } = useAuth();
   const router = useRouter();
 
   if (user) {
@@ -56,6 +63,13 @@ function DashboardPage() {
       <p>
         Welcome, {user.username} ({user.role})
       </p>
+      {user.role === "admin" && (
+        <p>
+          <button type="button" onClick={() => router.navigate({ to: "/users" })}>
+            Manage Users
+          </button>
+        </p>
+      )}
       <button
         type="button"
         onClick={async () => {
@@ -66,6 +80,92 @@ function DashboardPage() {
       >
         {isLoggingOut ? "Logging out..." : "Logout"}
       </button>
+    </div>
+  );
+}
+
+function UsersPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+
+  if (!user) {
+    throw redirect({ to: "/login" });
+  }
+  if (user.role !== "admin") {
+    throw redirect({ to: "/" });
+  }
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["users", page],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/users?page=${page}&limit=20`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch users");
+      return res.json() as Promise<{ users: User[]; total: number }>;
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (input: UserCreate) => {
+      const res = await fetch(`${API_URL}/api/admin/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to create user" };
+      }
+      return {};
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
+  });
+
+  const suspendMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/admin/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status: "suspended" }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to suspend user" };
+      }
+      return {};
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
+  });
+
+  return (
+    <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+      <h1>Users</h1>
+      <button type="button" onClick={() => router.navigate({ to: "/" })}>
+        Back to Dashboard
+      </button>
+      <CreateUserForm
+        onCreate={async (input) => {
+          const result = await createMutation.mutateAsync(input);
+          return result;
+        }}
+      />
+      {isLoading ? (
+        <p>Loading users...</p>
+      ) : data ? (
+        <UserTable
+          users={data.users}
+          total={data.total}
+          page={page}
+          limit={20}
+          onPageChange={setPage}
+          onSuspend={(id) => suspendMutation.mutate(id)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -82,4 +182,10 @@ const dashboardRoute = createRoute({
   component: DashboardPage,
 });
 
-export const routeTree = rootRoute.addChildren([loginRoute, dashboardRoute]);
+const usersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/users",
+  component: UsersPage,
+});
+
+export const routeTree = rootRoute.addChildren([loginRoute, dashboardRoute, usersRoute]);
