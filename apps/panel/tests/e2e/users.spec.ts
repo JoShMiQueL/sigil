@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
+import { cleanupDatabase } from "./helpers";
 
 test.describe("US2: User creation flow [T053]", () => {
+  test.afterEach(async () => {
+    await cleanupDatabase();
+  });
+
   test.beforeEach(async ({ page }) => {
     // Login as admin
     await page.goto("/login");
@@ -32,14 +37,21 @@ test.describe("US2: User creation flow [T053]", () => {
     await page.click("button:has-text('Users')");
     await page.waitForURL("/users");
 
-    // Find a suspend button and click it
-    const suspendButton = page.locator("button:has-text('Suspend')").first();
-    if (await suspendButton.isVisible()) {
-      await suspendButton.click();
-      // Wait for the page to update
-      await page.waitForTimeout(1000);
-      // The suspended user should show "suspended" status
-      await expect(page.locator("text=suspended").first()).toBeVisible({ timeout: 5000 });
-    }
+    // Create a user first (self-contained — doesn't depend on previous test)
+    const uniqueEmail = `e2e-suspend-${Date.now()}@test.local`;
+    await page.fill('form:has(h2:has-text("Create User")) input[type="email"]', uniqueEmail);
+    await page.fill(
+      'form:has(h2:has-text("Create User")) input[type="text"]',
+      `e2euser${Date.now()}`,
+    );
+    await page.fill('form:has(h2:has-text("Create User")) input[type="password"]', "e2epass123");
+    await page.click('form:has(h2:has-text("Create User")) button[type="submit"]');
+    await expect(page.locator(`text=${uniqueEmail}`)).toBeVisible({ timeout: 5000 });
+
+    // Now suspend the user (target the row with the created user, not the admin)
+    const userRow = page.locator(`tr:has-text("${uniqueEmail}")`);
+    await userRow.locator("button:has-text('Suspend')").click();
+    await page.waitForTimeout(1000);
+    await expect(userRow.locator("text=suspended")).toBeVisible({ timeout: 5000 });
   });
 });

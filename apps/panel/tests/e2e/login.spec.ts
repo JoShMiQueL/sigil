@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
+import { cleanupDatabase } from "./helpers";
 
 test.describe("US1: Login flow [T034]", () => {
+  test.afterEach(async () => {
+    await cleanupDatabase();
+  });
+
   test("admin can login and see dashboard", async ({ page }) => {
     await page.goto("/login");
 

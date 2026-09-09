@@ -6,6 +6,7 @@ import { type AuthContext, authMiddleware } from "./middleware/auth";
 import { cspMiddleware } from "./middleware/security-headers";
 import apiKeysRoutes from "./routes/api-keys";
 import authRoutes from "./routes/auth";
+import testCleanupRoutes from "./routes/test-cleanup";
 import usersRoutes from "./routes/users";
 
 const app = new Hono<AuthContext>();
@@ -22,6 +23,11 @@ app.use(
 app.use(authMiddleware);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
+
+// Test-only cleanup endpoint — only registered in E2E test mode
+if (process.env.RATE_LIMIT_DISABLED === "1") {
+  app.route("/test", testCleanupRoutes);
+}
 
 app.route("/api/auth", authRoutes);
 app.route("/api/admin/users", usersRoutes);
