@@ -19,16 +19,16 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
-      - uses: actions/cache/restore@v4
+      - id: cache
+        uses: actions/cache/restore@v5
         with:
           path: ~/.local/share/pnpm/store
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm typecheck
-      - uses: actions/cache/save@v4
-        if: always()
-        continue-on-error: true
+      - uses: actions/cache/save@v5
+        if: always() && steps.cache.outputs.cache-hit != 'true'
         with:
           path: ~/.local/share/pnpm/store
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -42,7 +42,7 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         with:
           path: ~/.local/share/pnpm/store
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -86,7 +86,7 @@ jobs:
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         with:
           path: ~/.local/share/pnpm/store
           key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
