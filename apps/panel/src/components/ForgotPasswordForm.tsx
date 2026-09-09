@@ -1,3 +1,4 @@
+import { PasswordResetRequestSchema } from "@sigilpanel/shared";
 import { useState } from "react";
 
 interface ForgotPasswordFormProps {
@@ -7,14 +8,23 @@ interface ForgotPasswordFormProps {
 export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    const parsed = PasswordResetRequestSchema.safeParse({ email });
+    if (!parsed.success) {
+      setFieldError(parsed.error.issues[0]?.message ?? "Invalid email");
+      return;
+    }
+    setFieldError(null);
+
     setLoading(true);
-    const result = await onSubmit(email);
+    const result = await onSubmit(parsed.data.email);
     setLoading(false);
     if (result.error) {
       setError(result.error);
@@ -47,6 +57,7 @@ export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
           autoComplete="email"
         />
       </label>
+      {fieldError && <div style={{ color: "red", fontSize: "0.85em" }}>{fieldError}</div>}
       <button type="submit" disabled={loading}>
         {loading ? "Sending..." : "Send Reset Link"}
       </button>

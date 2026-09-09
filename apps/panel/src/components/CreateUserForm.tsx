@@ -1,4 +1,4 @@
-import type { UserCreate } from "@sigilpanel/shared";
+import { type UserCreate, UserCreateSchema } from "@sigilpanel/shared";
 import { useState } from "react";
 
 interface CreateUserFormProps {
@@ -11,13 +11,27 @@ export function CreateUserForm({ onCreate }: CreateUserFormProps) {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"admin" | "user">("user");
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    const parsed = UserCreateSchema.safeParse({ email, username, password, role });
+    if (!parsed.success) {
+      const errors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0]?.toString() ?? "form";
+        errors[field] = issue.message;
+      }
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
+
     setLoading(true);
-    const result = await onCreate({ email, username, password, role });
+    const result = await onCreate(parsed.data);
     setLoading(false);
     if (result.error) {
       setError(result.error);
@@ -37,6 +51,9 @@ export function CreateUserForm({ onCreate }: CreateUserFormProps) {
         Email
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       </label>
+      {fieldErrors.email && (
+        <div style={{ color: "red", fontSize: "0.85em" }}>{fieldErrors.email}</div>
+      )}
       <label>
         Username
         <input
@@ -47,6 +64,9 @@ export function CreateUserForm({ onCreate }: CreateUserFormProps) {
           minLength={3}
         />
       </label>
+      {fieldErrors.username && (
+        <div style={{ color: "red", fontSize: "0.85em" }}>{fieldErrors.username}</div>
+      )}
       <label>
         Password
         <input
@@ -57,6 +77,9 @@ export function CreateUserForm({ onCreate }: CreateUserFormProps) {
           minLength={8}
         />
       </label>
+      {fieldErrors.password && (
+        <div style={{ color: "red", fontSize: "0.85em" }}>{fieldErrors.password}</div>
+      )}
       <label>
         Role
         <select value={role} onChange={(e) => setRole(e.target.value as "admin" | "user")}>

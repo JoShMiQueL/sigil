@@ -1,3 +1,4 @@
+import { LoginRequestSchema } from "@sigilpanel/shared";
 import { useState } from "react";
 
 interface LoginFormProps {
@@ -8,13 +9,27 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    const parsed = LoginRequestSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      const errors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0]?.toString() ?? "form";
+        errors[field] = issue.message;
+      }
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
+
     setLoading(true);
-    const result = await onSubmit(email, password);
+    const result = await onSubmit(parsed.data.email, parsed.data.password);
     setLoading(false);
     if (result.error) {
       setError(result.error);
@@ -35,6 +50,9 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           autoComplete="email"
         />
       </label>
+      {fieldErrors.email && (
+        <div style={{ color: "red", fontSize: "0.85em" }}>{fieldErrors.email}</div>
+      )}
       <label>
         Password
         <input
@@ -45,6 +63,9 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           autoComplete="current-password"
         />
       </label>
+      {fieldErrors.password && (
+        <div style={{ color: "red", fontSize: "0.85em" }}>{fieldErrors.password}</div>
+      )}
       <button type="submit" disabled={loading}>
         {loading ? "Signing in..." : "Sign in"}
       </button>
