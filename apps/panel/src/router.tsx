@@ -21,12 +21,18 @@ import { NodesPage } from "./routes/nodes";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-async function fetchUser(): Promise<User | null> {
-  const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
-  if (res.status === 401) return null;
-  if (!res.ok) throw new Error("Failed to fetch user");
-  const data = await res.json();
-  return data.user as User;
+async function fetchUser(): Promise<User | null | undefined> {
+  try {
+    const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
+    if (res.status === 401) return null;
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user as User;
+  } catch {
+    // Network error (API down) — don't redirect, let the page render.
+    // The SSE reconnect indicator will show the connection state.
+    return undefined;
+  }
 }
 
 function Root() {
@@ -439,6 +445,7 @@ const loginRoute = createRoute({
   beforeLoad: async () => {
     const user = await fetchUser();
     if (user) throw redirect({ to: "/" });
+    // undefined = network error, stay on login page
   },
   component: LoginPage,
 });
@@ -448,7 +455,7 @@ const dashboardRoute = createRoute({
   path: "/",
   beforeLoad: async () => {
     const user = await fetchUser();
-    if (!user) throw redirect({ to: "/login" });
+    if (user === null) throw redirect({ to: "/login" });
   },
   component: DashboardPage,
 });
@@ -458,8 +465,8 @@ const usersRoute = createRoute({
   path: "/users",
   beforeLoad: async () => {
     const user = await fetchUser();
-    if (!user) throw redirect({ to: "/login" });
-    if (user.role !== "admin") throw redirect({ to: "/" });
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
   },
   component: UsersPage,
 });
@@ -481,7 +488,7 @@ const securityRoute = createRoute({
   path: "/security",
   beforeLoad: async () => {
     const user = await fetchUser();
-    if (!user) throw redirect({ to: "/login" });
+    if (user === null) throw redirect({ to: "/login" });
   },
   component: SecurityPage,
 });
@@ -557,7 +564,7 @@ const apiKeysRoute = createRoute({
   path: "/api-keys",
   beforeLoad: async () => {
     const user = await fetchUser();
-    if (!user) throw redirect({ to: "/login" });
+    if (user === null) throw redirect({ to: "/login" });
   },
   component: ApiKeysPage,
 });
@@ -567,8 +574,8 @@ const nodesRoute = createRoute({
   path: "/nodes",
   beforeLoad: async () => {
     const user = await fetchUser();
-    if (!user) throw redirect({ to: "/login" });
-    if (user.role !== "admin") throw redirect({ to: "/" });
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
   },
   component: NodesPage,
 });
@@ -578,8 +585,8 @@ const nodeDetailRoute = createRoute({
   path: "/nodes/$nodeId",
   beforeLoad: async () => {
     const user = await fetchUser();
-    if (!user) throw redirect({ to: "/login" });
-    if (user.role !== "admin") throw redirect({ to: "/" });
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
   },
   component: NodeDetailPage,
 });

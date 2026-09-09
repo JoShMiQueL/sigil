@@ -20,11 +20,17 @@ interface LoginResult {
 }
 
 async function fetchMe(): Promise<User | null> {
-  const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
-  if (res.status === 401) return null;
-  if (!res.ok) throw new Error("Failed to fetch user");
-  const data = await res.json();
-  return data.user as User;
+  try {
+    const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
+    if (res.status === 401) return null;
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user as User;
+  } catch {
+    // Network error (API down) — return null, don't throw.
+    // The SSE reconnect indicator handles the UI state.
+    return null;
+  }
 }
 
 async function loginRequest(email: string, password: string): Promise<LoginResult> {

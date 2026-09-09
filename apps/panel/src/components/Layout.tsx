@@ -13,7 +13,14 @@ export function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const { connectionState } = useSSE();
 
-  if (!user) return <>{children}</>;
+  if (!user) {
+    return (
+      <>
+        <ReconnectingIndicator state={connectionState} />
+        {children}
+      </>
+    );
+  }
 
   const navItems: Array<{ label: string; to: string; show: boolean }> = [
     { label: "Dashboard", to: "/", show: true },
