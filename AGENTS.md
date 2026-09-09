@@ -175,6 +175,37 @@ The `Makefile` targets mirror the workflow steps exactly. Requires Docker runnin
 
 **Verify E2E what can be verified at each step.** Do not wait until the end to test. If the API is running, test it with curl. If the panel has a page, open it in the browser and interact with it. If something cannot be verified yet, note it and move on.
 
+### Prerequisites: chrome-devtools MCP
+
+The MCP-first methodology requires the `chrome-devtools` MCP server. If it is not already configured, install it:
+
+```bash
+npx chrome-devtools-mcp@latest install
+```
+
+Or manually add it to your MCP config (`~/.config/devin/mcp.json` or equivalent):
+
+```json
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest"]
+    }
+  }
+}
+```
+
+Verify it is available by listing tools:
+
+```
+mcp_list_tools("chrome-devtools")
+```
+
+You should see: `navigate_page`, `take_snapshot`, `click`, `fill`, `fill_form`, `evaluate_script`, `take_screenshot`, `wait_for`, `handle_dialog`, `list_pages`, etc.
+
+**Requirements**: Chromium/Chrome installed on the system. The MCP server launches a headless browser instance automatically.
+
 ### MCP-first verification methodology
 
 The verification flow is **MCP-first, Playwright-last**. This means:
