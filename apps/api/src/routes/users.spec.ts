@@ -4,6 +4,8 @@ vi.mock("../middleware/rate-limit", () => ({
   rateLimitMiddleware: async (c: any, next: any) => {
     await next();
   },
+  checkRateLimit: async () => true,
+  recordFailedAttempt: async () => {},
 }));
 
 import app from "../index";

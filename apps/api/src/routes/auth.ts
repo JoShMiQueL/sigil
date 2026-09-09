@@ -13,21 +13,30 @@ import { Hono } from "hono";
 import { passwordResetEmail } from "../emails/password-reset";
 import { sendEmail } from "../lib/email";
 import type { AuthContext } from "../middleware/auth";
-import { rateLimitMiddleware } from "../middleware/rate-limit";
+import { checkRateLimit, recordFailedAttempt } from "../middleware/rate-limit";
 import { login, logout, verify2fa } from "../services/auth.service";
 import { createResetToken, resetPassword } from "../services/password.service";
 import { disableTotp, enableTotp, verifyAndActivateTotp } from "../services/totp.service";
 
 const auth = new Hono<AuthContext>();
 
-auth.post("/login", rateLimitMiddleware, zValidator("json", LoginRequestSchema), async (c) => {
+auth.post("/login", zValidator("json", LoginRequestSchema), async (c) => {
   const { email, password } = c.req.valid("json");
   const ipAddress = c.req.header("x-forwarded-for") ?? c.req.header("x-real-ip") ?? "unknown";
   const userAgent = c.req.header("user-agent");
 
+  // Check rate limit using the real email from the body
+  const allowed = await checkRateLimit(ipAddress, email);
+  if (!allowed) {
+    return c.json({ error: "Too many attempts. Try again in 15 minutes." }, 429);
+  }
+
   const result = await login(email, password, ipAddress, userAgent, c);
 
   if ("error" in result) {
+    // Record failed attempt for rate limiting
+    await recordFailedAttempt(ipAddress, email);
+
     if (result.error === "2fa_required") {
       return c.json({ status: "2fa_required", userId: result.userId }, 200);
     }
