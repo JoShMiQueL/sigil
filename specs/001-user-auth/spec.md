@@ -161,4 +161,4 @@ A user can create API keys to automate interactions with the panel. Each key has
 - Session expiration defaults to 24 hours of inactivity, configurable in panel settings.
 - API keys are prefixed with `sigil_` for identification.
 - Recovery codes are 10 single-use codes, each 24 characters, displayed once at 2FA enrollment.
-- **Tech debt (R17):** The panel currently uses HTTP for all data fetching. User list and session state will benefit from SSE (Server-Sent Events) when R17 (Real-time Panel) is implemented. Per Constitution Principle VI, polling for state data is a bug — this is a known, documented exception that R17 will resolve.
+- **Resolved (R17):** The panel now uses SSE (Server-Sent Events) for real-time user list updates. Polling has been replaced by SSE subscriptions via `useSSE` in `UsersPage`. See R17 (Real-time Panel) for details.

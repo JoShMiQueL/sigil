@@ -139,18 +139,18 @@
 
 **Purpose**: Final verification, E2E tests, documentation sync.
 
-- [ ] T042 [P] Verify zero `refetchInterval` in panel source (`grep -r "refetchInterval" apps/panel/src/` returns no results except degraded-mode fallback in `useSSE.ts`)
-- [ ] T043 [P] Verify zero `setInterval` + fetch polling in panel source (`grep -r "setInterval" apps/panel/src/` returns only SSE heartbeat and degraded-mode fallback)
-- [ ] T044 Run `pnpm check` and `pnpm typecheck` — must pass with zero errors
-- [ ] T045 Run `pnpm test` — all unit and integration tests must pass
-- [ ] T046 MCP verification: Start dev services, open browser via chrome-devtools MCP, verify Scenario 1 from `specs/003-real-time-panel/quickstart.md` (node appears, status changes, metrics update — all without page reload)
-- [ ] T047 MCP verification: Verify Scenario 2 from quickstart.md (stop API, see reconnecting indicator, restart API, verify resync without page reload)
-- [ ] T048 MCP verification: Verify Scenario 3 from quickstart.md (grep panel source for polling — zero results)
-- [ ] T049 Create Playwright E2E test in `apps/panel/tests/e2e/real-time.spec.ts` (login, navigate to nodes, register node via API, verify node appears in DOM without reload, send heartbeat, verify status changes in DOM)
-- [ ] T050 Run `pnpm test:e2e` — Playwright suite must pass
-- [ ] T051 Update `specs/003-real-time-panel/spec.md` — mark all functional requirements as implemented
-- [ ] T052 Update `ROADMAP.md` — mark R17 status as `done`
-- [ ] T053 Update `specs/001-user-auth/spec.md` and `specs/002-node-management/spec.md` — remove tech debt notes (polling replaced by SSE)
+- [X] T042 [P] Verify zero `refetchInterval` in panel source (`grep -r "refetchInterval" apps/panel/src/` returns no results except degraded-mode fallback in `useSSE.ts`)
+- [X] T043 [P] Verify zero `setInterval` + fetch polling in panel source (`grep -r "setInterval" apps/panel/src/` returns only SSE heartbeat and degraded-mode fallback)
+- [X] T044 Run `pnpm check` and `pnpm typecheck` — must pass with zero errors
+- [X] T045 Run `pnpm test` — all unit and integration tests must pass
+- [X] T046 MCP verification: Start dev services, open browser via chrome-devtools MCP, verify Scenario 1 from `specs/003-real-time-panel/quickstart.md` (node appears, status changes, metrics update — all without page reload)
+- [X] T047 MCP verification: Verify Scenario 2 from quickstart.md (stop API, see reconnecting indicator, restart API, verify resync without page reload)
+- [X] T048 MCP verification: Verify Scenario 3 from quickstart.md (grep panel source for polling — zero results)
+- [X] T049 Create Playwright E2E test in `apps/panel/tests/e2e/real-time.spec.ts` (login, navigate to nodes, register node via API, verify node appears in DOM without reload, send heartbeat, verify status changes in DOM)
+- [X] T050 Run `pnpm test:e2e` — Playwright suite must pass
+- [X] T051 Update `specs/003-real-time-panel/spec.md` — mark all functional requirements as implemented
+- [X] T052 Update `ROADMAP.md` — mark R17 status as `done`
+- [X] T053 Update `specs/001-user-auth/spec.md` and `specs/002-node-management/spec.md` — remove tech debt notes (polling replaced by SSE)
 
 **Checkpoint**: R17 complete. All tests pass. Real-time panel verified via MCP and Playwright. Specs and roadmap synchronized.
 

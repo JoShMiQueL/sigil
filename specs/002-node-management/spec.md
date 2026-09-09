@@ -141,4 +141,4 @@ An administrator can view, edit, and remove nodes. Editing allows changing the n
 - Existing authentication from R1 (admin sessions, API keys) is reused for admin actions. Daemon-to-panel authentication is a new credential type specific to nodes.
 - The admin panel already has a layout with navigation (from R1). Node management adds a new section to the existing navigation.
 - Audit logging infrastructure from R1 is reused for node management actions.
-- **Tech debt (R17):** The panel currently uses HTTP polling (15s interval) for node status and metrics. This will be replaced by SSE (Server-Sent Events) when R17 (Real-time Panel) is implemented. Per Constitution Principle VI, polling for state data is a bug — this is a known, documented exception that R17 will resolve.
+- **Resolved (R17):** The panel now uses SSE (Server-Sent Events) for real-time node status and metrics. HTTP polling (15s interval) has been replaced by SSE subscriptions via `useSSE` in `NodesPage` and `NodeDetailPage`. See R17 (Real-time Panel) for details.
