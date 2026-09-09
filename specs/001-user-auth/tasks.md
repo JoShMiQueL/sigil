@@ -150,17 +150,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T072 [US3] Implement password service createResetToken in `apps/api/src/services/password.service.ts` (invalidate old tokens, create new, hash SHA-256)
-- [ ] T073 [US3] Implement password service verifyResetToken in `apps/api/src/services/password.service.ts` (check hash, expiry, used_at)
-- [ ] T074 [US3] Implement password service resetPassword in `apps/api/src/services/password.service.ts` (verify token, hash new password, revoke all sessions, mark token used)
-- [ ] T075 [US3] Create email template for password reset in `apps/api/src/emails/password-reset.ts` (with reset link)
-- [ ] T076 [US3] Configure nodemailer SMTP client in `apps/api/src/lib/email.ts` (env-configurable)
-- [ ] T077 [US3] Create POST /api/auth/forgot-password route in `apps/api/src/routes/auth.ts` (always 200, sends email if user exists)
-- [ ] T078 [US3] Create POST /api/auth/reset-password route in `apps/api/src/routes/auth.ts` (validates PasswordResetSchema)
-- [ ] T079 [US3] Create ForgotPasswordForm component in `apps/panel/src/components/ForgotPasswordForm.tsx`
-- [ ] T080 [US3] Create ResetPasswordForm component in `apps/panel/src/components/ResetPasswordForm.tsx` (token from URL param)
-- [ ] T081 [US3] Create forgot-password route page in `apps/panel/src/routes/forgot-password.tsx`
-- [ ] T082 [US3] Create reset-password route page in `apps/panel/src/routes/reset-password.tsx`
+- [X] T072 [US3] Implement password service createResetToken in `apps/api/src/services/password.service.ts` (invalidate old tokens, create new, hash SHA-256)
+- [X] T073 [US3] Implement password service verifyResetToken in `apps/api/src/services/password.service.ts` (check hash, expiry, used_at)
+- [X] T074 [US3] Implement password service resetPassword in `apps/api/src/services/password.service.ts` (verify token, hash new password, revoke all sessions, mark token used)
+- [X] T075 [US3] Create email template for password reset in `apps/api/src/emails/password-reset.ts` (with reset link)
+- [X] T076 [US3] Configure nodemailer SMTP client in `apps/api/src/lib/email.ts` (env-configurable)
+- [X] T077 [US3] Create POST /api/auth/forgot-password route in `apps/api/src/routes/auth.ts` (always 200, sends email if user exists)
+- [X] T078 [US3] Create POST /api/auth/reset-password route in `apps/api/src/routes/auth.ts` (validates PasswordResetSchema)
+- [X] T079 [US3] Create ForgotPasswordForm component in `apps/panel/src/components/ForgotPasswordForm.tsx`
+- [X] T080 [US3] Create ResetPasswordForm component in `apps/panel/src/components/ResetPasswordForm.tsx` (token from URL param)
+- [X] T081 [US3] Create forgot-password route page in `apps/panel/src/routes/forgot-password.tsx`
+- [X] T082 [US3] Create reset-password route page in `apps/panel/src/routes/reset-password.tsx`
 
 **Checkpoint**: Password reset flow works end-to-end (requires SMTP configuration).
 

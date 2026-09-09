@@ -3,7 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { CreateUserForm } from "./components/CreateUserForm";
+import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { LoginForm } from "./components/LoginForm";
+import { ResetPasswordForm } from "./components/ResetPasswordForm";
 import { UserTable } from "./components/UserTable";
 import { useAuth } from "./hooks/useAuth";
 
@@ -188,4 +190,100 @@ const usersRoute = createRoute({
   component: UsersPage,
 });
 
-export const routeTree = rootRoute.addChildren([loginRoute, dashboardRoute, usersRoute]);
+function ForgotPasswordPage() {
+  const router = useRouter();
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <ForgotPasswordForm
+        onSubmit={async (email) => {
+          const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email }),
+          });
+          if (!res.ok) {
+            return { error: "Failed to send reset email" };
+          }
+          router.navigate({ to: "/login" });
+          return {};
+        }}
+      />
+    </div>
+  );
+}
+
+function ResetPasswordPage() {
+  const token = new URLSearchParams(window.location.search).get("token") ?? "";
+  const router = useRouter();
+
+  if (!token) {
+    return (
+      <div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+        <h1>Invalid Reset Link</h1>
+        <p>No reset token found in the URL.</p>
+        <button type="button" onClick={() => router.navigate({ to: "/login" })}>
+          Go to Login
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <ResetPasswordForm
+        token={token}
+        onSubmit={async (t, password) => {
+          const res = await fetch(`${API_URL}/api/auth/reset-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ token: t, password }),
+          });
+          if (!res.ok) {
+            const data = await res.json();
+            return { error: data.error ?? "Failed to reset password" };
+          }
+          return {};
+        }}
+      />
+    </div>
+  );
+}
+
+const forgotPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/forgot-password",
+  component: ForgotPasswordPage,
+});
+
+const resetPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/reset-password",
+  component: ResetPasswordPage,
+});
+
+export const routeTree = rootRoute.addChildren([
+  loginRoute,
+  dashboardRoute,
+  usersRoute,
+  forgotPasswordRoute,
+  resetPasswordRoute,
+]);
