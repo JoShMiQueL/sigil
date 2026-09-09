@@ -127,9 +127,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T039 [US4] Add silent ignore for unhandled event types in `apps/panel/src/hooks/useSSE.ts` (events with no registered handler or invalidations are silently dropped, no console error)
-- [ ] T040 [US4] Verify multiplexing in `apps/api/src/routes/sse.spec.ts` — multiple event types (node.update, region.update, user.update) delivered over single SSE connection, routed to correct handlers
-- [ ] T041 [P] [US4] Add unit test for `useSSE` event dispatch in `apps/panel/src/hooks/useSSE.spec.ts` (multiple handlers for different event types, unhandled event silently ignored, handler receives correct payload)
+- [X] T039 [US4] Add silent ignore for unhandled event types in `apps/panel/src/hooks/useSSE.ts` (events with no registered handler or invalidations are silently dropped, no console error)
+- [X] T040 [US4] Verify multiplexing in `apps/api/src/routes/sse.spec.ts` — multiple event types (node.update, region.update, user.update) delivered over single SSE connection, routed to correct handlers
+- [X] T041 [P] [US4] Add unit test for `useSSE` event dispatch in `apps/panel/src/hooks/useSSE.spec.tsx` (multiple handlers for different event types, unhandled event silently ignored, handler receives correct payload)
 
 **Checkpoint**: SSE infrastructure is reusable. Future features subscribe via event name + handler. No new endpoint or connection needed.
 
