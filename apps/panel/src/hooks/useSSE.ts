@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-export type SSEConnectionState = "connecting" | "connected" | "reconnecting" | "disconnected";
+export type SSEConnectionState =
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "degraded"
+  | "disconnected";
 
 export interface UseSSEOptions {
   invalidations?: Partial<Record<SSEEventType, string[][]>>;
@@ -19,16 +24,20 @@ export interface UseSSEReturn {
 
 const BACKOFF_SEQUENCE = [1000, 2000, 4000, 8000, 30000];
 const MAX_ATTEMPTS = 5;
+const DEGRADED_POLL_INTERVAL = 30000;
 
 type Listener = (payload: unknown) => void;
+type InvalidateFn = () => void;
 
 let eventSource: EventSource | null = null;
 let attempt = 0;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let degradedPollTimer: ReturnType<typeof setInterval> | null = null;
 let connectionState: SSEConnectionState = "connecting";
 
 const listenersByType = new Map<SSEEventType, Set<Listener>>();
 const stateListeners = new Set<(state: SSEConnectionState) => void>();
+const invalidateFns = new Set<InvalidateFn>();
 
 function setState(state: SSEConnectionState): void {
   connectionState = state;
@@ -62,6 +71,38 @@ function removeListener(type: SSEEventType, listener: Listener): void {
   listenersByType.get(type)?.delete(listener);
 }
 
+function resyncAll(): void {
+  for (const fn of invalidateFns) {
+    try {
+      fn();
+    } catch (err) {
+      console.error("SSE resync invalidation error:", err);
+    }
+  }
+}
+
+function startDegradedPolling(): void {
+  if (degradedPollTimer) return;
+  degradedPollTimer = setInterval(resyncAll, DEGRADED_POLL_INTERVAL);
+  resyncAll();
+}
+
+function stopDegradedPolling(): void {
+  if (degradedPollTimer) {
+    clearInterval(degradedPollTimer);
+    degradedPollTimer = null;
+  }
+}
+
+async function checkSessionExpired(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
+    return res.status === 401;
+  } catch {
+    return false;
+  }
+}
+
 function connect(): void {
   if (eventSource) {
     eventSource.close();
@@ -73,7 +114,9 @@ function connect(): void {
 
   es.onopen = () => {
     attempt = 0;
+    stopDegradedPolling();
     setState("connected");
+    resyncAll();
   };
 
   es.onerror = () => {
@@ -81,7 +124,17 @@ function connect(): void {
     eventSource = null;
 
     if (attempt >= MAX_ATTEMPTS) {
-      setState("disconnected");
+      checkSessionExpired().then((expired) => {
+        if (expired) {
+          stopDegradedPolling();
+          setState("disconnected");
+          window.location.href = "/login";
+        } else {
+          startDegradedPolling();
+          setState("degraded");
+          reconnectTimer = setTimeout(connect, BACKOFF_SEQUENCE[BACKOFF_SEQUENCE.length - 1]);
+        }
+      });
       return;
     }
 
@@ -121,6 +174,7 @@ function ensureConnection(): void {
 
 function reconnectAll(): void {
   attempt = 0;
+  stopDegradedPolling();
   if (reconnectTimer) {
     clearTimeout(reconnectTimer);
     reconnectTimer = null;
@@ -142,18 +196,22 @@ export function useSSE(options: UseSSEOptions = {}): UseSSEReturn {
     stateListeners.add(stateListener);
 
     const registeredListeners: Array<[SSEEventType, Listener]> = [];
+    const registeredInvalidateFns: InvalidateFn[] = [];
 
     if (optionsRef.current.invalidations) {
       for (const [type, keys] of Object.entries(optionsRef.current.invalidations) as Array<
         [SSEEventType, string[][]]
       >) {
-        const listener: Listener = () => {
+        const invalidateFn: InvalidateFn = () => {
           for (const key of keys) {
             queryClient.invalidateQueries({ queryKey: key });
           }
         };
+        const listener: Listener = invalidateFn;
         addListener(type, listener);
         registeredListeners.push([type, listener]);
+        invalidateFns.add(invalidateFn);
+        registeredInvalidateFns.push(invalidateFn);
       }
     }
 
@@ -172,6 +230,9 @@ export function useSSE(options: UseSSEOptions = {}): UseSSEReturn {
       stateListeners.delete(stateListener);
       for (const [type, listener] of registeredListeners) {
         removeListener(type, listener);
+      }
+      for (const fn of registeredInvalidateFns) {
+        invalidateFns.delete(fn);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

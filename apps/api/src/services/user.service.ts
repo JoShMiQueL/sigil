@@ -2,6 +2,7 @@ import { db, schema } from "@sigilpanel/db";
 import type { User, UserCreate, UserUpdate } from "@sigilpanel/shared";
 import { and, count, eq, ilike, or } from "drizzle-orm";
 import { hashPassword } from "../lib/argon2";
+import { emit } from "./sse.service";
 
 function toUser(row: typeof schema.users.$inferSelect): User {
   return {
@@ -30,7 +31,9 @@ export async function createUser(input: UserCreate): Promise<User> {
     })
     .returning();
 
-  return toUser(row);
+  const user = toUser(row);
+  emit("user.update", user);
+  return user;
 }
 
 export async function listUsers(opts: {
@@ -78,7 +81,10 @@ export async function updateUser(id: string, input: UserUpdate): Promise<User | 
     .where(eq(schema.users.id, id))
     .returning();
 
-  return row ? toUser(row) : null;
+  if (!row) return null;
+  const user = toUser(row);
+  emit("user.update", user);
+  return user;
 }
 
 export async function suspendUser(
@@ -116,5 +122,8 @@ export async function suspendUser(
     .where(eq(schema.users.id, targetId))
     .returning();
 
-  return row ? { user: toUser(row) } : { error: "Failed to suspend user" };
+  if (!row) return { error: "Failed to suspend user" };
+  const user = toUser(row);
+  emit("user.update", user);
+  return { user };
 }

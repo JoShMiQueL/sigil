@@ -7,12 +7,19 @@ interface ReconnectingIndicatorProps {
 export function ReconnectingIndicator({ state }: ReconnectingIndicatorProps) {
   if (state === "connected" || state === "connecting") return null;
 
-  const message =
-    state === "reconnecting"
-      ? "Reconnecting to real-time updates..."
-      : "Real-time updates disconnected. Refresh the page to retry.";
+  let message: string;
+  let color: string;
 
-  const color = state === "reconnecting" ? "#c80" : "#c00";
+  if (state === "reconnecting") {
+    message = "Reconnecting to real-time updates...";
+    color = "#c80";
+  } else if (state === "degraded") {
+    message = "Degraded mode — real-time updates paused, using HTTP polling";
+    color = "#c80";
+  } else {
+    message = "Real-time updates disconnected. Refresh the page to retry.";
+    color = "#c00";
+  }
 
   return (
     <div

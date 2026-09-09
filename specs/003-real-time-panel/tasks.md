@@ -85,14 +85,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Add exponential backoff reconnection to `useSSE` hook in `apps/panel/src/hooks/useSSE.ts` (1s, 2s, 4s, 8s, max 30s, reset on successful connect)
-- [ ] T024 [US2] Add HTTP resync after reconnect in `apps/panel/src/hooks/useSSE.ts` (on reconnect, invalidate all subscribed query keys to trigger HTTP refetch before resuming SSE)
-- [ ] T025 [US2] Add 401 detection in `useSSE` hook in `apps/panel/src/hooks/useSSE.ts` (on SSE error, check if session expired via fetch to `/api/auth/me`, redirect to `/login` if 401)
-- [ ] T026 [US2] Wire `ReconnectingIndicator` to `useSSE` connection state in `apps/panel/src/components/ReconnectingIndicator.tsx` (show "reconnecting" with backoff attempt count, show "disconnected" on 401)
-- [ ] T027 [US2] Add degraded mode fallback in `apps/panel/src/hooks/useSSE.ts` (after 5 failed reconnect attempts, switch to HTTP polling at 30s interval for subscribed query keys, show "degraded mode" indicator, continue background SSE reconnection attempts)
-- [ ] T028 [US2] Update `ReconnectingIndicator` in `apps/panel/src/components/ReconnectingIndicator.tsx` to show "degraded mode — real-time paused" when fallback polling is active
-- [ ] T029 [P] [US2] Add unit test for reconnection backoff logic in `apps/panel/src/hooks/useSSE.spec.ts` (verify backoff sequence, reset on success, max 30s cap)
-- [ ] T030 [P] [US2] Add integration test for SSE reconnection in `apps/api/src/routes/sse.spec.ts` (client disconnects and reconnects, receives missed events via HTTP resync)
+- [X] T023 [US2] Add exponential backoff reconnection to `useSSE` hook in `apps/panel/src/hooks/useSSE.ts` (1s, 2s, 4s, 8s, max 30s, reset on successful connect)
+- [X] T024 [US2] Add HTTP resync after reconnect in `apps/panel/src/hooks/useSSE.ts` (on reconnect, invalidate all subscribed query keys to trigger HTTP refetch before resuming SSE)
+- [X] T025 [US2] Add 401 detection in `useSSE` hook in `apps/panel/src/hooks/useSSE.ts` (on SSE error, check if session expired via fetch to `/api/auth/me`, redirect to `/login` if 401)
+- [X] T026 [US2] Wire `ReconnectingIndicator` to `useSSE` connection state in `apps/panel/src/components/ReconnectingIndicator.tsx` (show "reconnecting" with backoff attempt count, show "disconnected" on 401)
+- [X] T027 [US2] Add degraded mode fallback in `apps/panel/src/hooks/useSSE.ts` (after 5 failed reconnect attempts, switch to HTTP polling at 30s interval for subscribed query keys, show "degraded mode" indicator, continue background SSE reconnection attempts)
+- [X] T028 [US2] Update `ReconnectingIndicator` in `apps/panel/src/components/ReconnectingIndicator.tsx` to show "degraded mode — real-time paused" when fallback polling is active
+- [X] T029 [P] [US2] Add unit test for reconnection backoff logic in `apps/panel/src/hooks/useSSE.spec.ts` (verify backoff sequence, reset on success, max 30s cap)
+- [X] T030 [P] [US2] Add integration test for SSE reconnection in `apps/api/src/routes/sse.spec.ts` (client disconnects and reconnects, receives missed events via HTTP resync)
 
 **Checkpoint**: Panel auto-reconnects with backoff, resyncs via HTTP, handles session expiry, falls back to polling in degraded mode. No page reloads on network blips.
 
@@ -106,14 +106,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Emit `region.update` from `createRegion` in `apps/api/src/services/region.service.ts` (call `sseService.emit` after creation)
-- [ ] T032 [P] [US3] Emit `region.update` (deleted) from `deleteRegion` in `apps/api/src/services/region.service.ts` (call `sseService.emit` after deletion)
-- [ ] T033 [P] [US3] Emit `user.update` from user CRUD operations in `apps/api/src/routes/users.ts` (call `sseService.emit` on create, suspend, unsuspend, role change, delete)
-- [ ] T034 [US3] Retrofit `useRegions` hook in `apps/panel/src/hooks/useRegions.ts` — add SSE subscription for `region.update` via `useSSE` (invalidate `["regions"]` query key)
-- [ ] T035 [US3] Retrofit user queries in `apps/panel/src/router.tsx` — add SSE subscription for `user.update` via `useSSE` (invalidate `["users"]` and `["user", id]` query keys)
-- [ ] T036 [US3] Add `useSSE` call to users page section in `apps/panel/src/router.tsx` (subscribe to user events, wire invalidations)
-- [ ] T037 [P] [US3] Add integration test for region SSE events in `apps/api/src/routes/sse.spec.ts` (region create/delete triggers region.update on SSE stream)
-- [ ] T038 [P] [US3] Add integration test for user SSE events in `apps/api/src/routes/sse.spec.ts` (user create/suspend/delete triggers user.update on SSE stream)
+- [X] T031 [P] [US3] Emit `region.update` from `createRegion` in `apps/api/src/services/region.service.ts` (call `sseService.emit` after creation)
+- [X] T032 [P] [US3] Emit `region.update` (deleted) from `deleteRegion` in `apps/api/src/services/region.service.ts` (call `sseService.emit` after deletion)
+- [X] T033 [P] [US3] Emit `user.update` from user CRUD operations in `apps/api/src/routes/users.ts` (call `sseService.emit` on create, suspend, unsuspend, role change, delete)
+- [X] T034 [US3] Retrofit `useRegions` hook in `apps/panel/src/hooks/useRegions.ts` — add SSE subscription for `region.update` via `useSSE` (invalidate `["regions"]` query key)
+- [X] T035 [US3] Retrofit user queries in `apps/panel/src/router.tsx` — add SSE subscription for `user.update` via `useSSE` (invalidate `["users"]` and `["user", id]` query keys)
+- [X] T036 [US3] Add `useSSE` call to users page section in `apps/panel/src/router.tsx` (subscribe to user events, wire invalidations)
+- [X] T037 [P] [US3] Add integration test for region SSE events in `apps/api/src/routes/sse.spec.ts` (region create/delete triggers region.update on SSE stream)
+- [X] T038 [P] [US3] Add integration test for user SSE events in `apps/api/src/routes/sse.spec.ts` (user create/suspend/delete triggers user.update on SSE stream)
 
 **Checkpoint**: All panel data is reactive. Zero `refetchInterval` in panel source. Regions and users update in real time.
 

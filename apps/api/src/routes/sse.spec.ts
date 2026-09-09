@@ -106,4 +106,76 @@ describe("SSE endpoint [US1: real-time node updates]", () => {
 
     reader.cancel();
   });
+
+  it("delivers region.update events to connected clients", async () => {
+    const res = await app.request("/api/sse", {
+      headers: adminCookie ? { Cookie: adminCookie } : {},
+    });
+    expect(res.status).toBe(200);
+
+    const reader = res.body?.getReader();
+    if (!reader) throw new Error("No response body");
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    const readChunk = async (): Promise<string[]> => {
+      const { done, value } = await reader.read();
+      if (done) return [];
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split("\n\n");
+      buffer = events.pop() ?? "";
+      return events;
+    };
+
+    for (let i = 0; i < 10; i++) {
+      const events = await readChunk();
+      if (events.some((e) => e.includes("event: connected"))) break;
+    }
+
+    emit("region.update", { id: "region-1", name: "Updated" });
+
+    let received = false;
+    for (let i = 0; i < 20 && !received; i++) {
+      const events = await readChunk();
+      if (events.some((e) => e.includes("event: region.update"))) received = true;
+    }
+    expect(received).toBe(true);
+    reader.cancel();
+  });
+
+  it("delivers user.update events to connected clients", async () => {
+    const res = await app.request("/api/sse", {
+      headers: adminCookie ? { Cookie: adminCookie } : {},
+    });
+    expect(res.status).toBe(200);
+
+    const reader = res.body?.getReader();
+    if (!reader) throw new Error("No response body");
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    const readChunk = async (): Promise<string[]> => {
+      const { done, value } = await reader.read();
+      if (done) return [];
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split("\n\n");
+      buffer = events.pop() ?? "";
+      return events;
+    };
+
+    for (let i = 0; i < 10; i++) {
+      const events = await readChunk();
+      if (events.some((e) => e.includes("event: connected"))) break;
+    }
+
+    emit("user.update", { id: "user-1", email: "updated@test.local" });
+
+    let received = false;
+    for (let i = 0; i < 20 && !received; i++) {
+      const events = await readChunk();
+      if (events.some((e) => e.includes("event: user.update"))) received = true;
+    }
+    expect(received).toBe(true);
+    reader.cancel();
+  });
 });

@@ -1,6 +1,7 @@
 import { db, schema } from "@sigilpanel/db";
 import type { Region, RegionCreate, RegionWithCounts } from "@sigilpanel/shared";
 import { count, eq } from "drizzle-orm";
+import { emit } from "./sse.service";
 
 function toRegion(row: typeof schema.regions.$inferSelect): Region {
   return {
@@ -21,7 +22,9 @@ export async function createRegion(input: RegionCreate): Promise<Region> {
     })
     .returning();
 
-  return toRegion(row);
+  const region = toRegion(row);
+  emit("region.update", region);
+  return region;
 }
 
 export async function listRegions(): Promise<RegionWithCounts[]> {
@@ -66,5 +69,6 @@ export async function deleteRegion(id: string): Promise<{ ok: true } | { error: 
   }
 
   await db.delete(schema.regions).where(eq(schema.regions.id, id));
+  emit("region.update", { id });
   return { ok: true };
 }

@@ -15,6 +15,7 @@ import { TotpSetup } from "./components/TotpSetup";
 import { TwoFactorPrompt } from "./components/TwoFactorPrompt";
 import { UserTable } from "./components/UserTable";
 import { useAuth } from "./hooks/useAuth";
+import { useSSE } from "./hooks/useSSE";
 import { NodeDetailPage } from "./routes/node-detail";
 import { NodesPage } from "./routes/nodes";
 
@@ -149,6 +150,12 @@ function DashboardPage() {
 function UsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+
+  useSSE({
+    invalidations: {
+      "user.update": [["users"]],
+    },
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page],

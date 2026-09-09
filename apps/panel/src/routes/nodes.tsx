@@ -23,6 +23,7 @@ export function NodesPage() {
       "node.update": [["nodes"]],
       "node.create": [["nodes"]],
       "node.delete": [["nodes"]],
+      "region.update": [["regions"]],
     },
   });
 
