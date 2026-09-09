@@ -76,5 +76,5 @@ jobs:
       - run: pnpm --filter @sigilpanel/db db:generate
       - run: pnpm --filter @sigilpanel/db db:migrate
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm --filter @sigilpanel/panel exec playwright install --with-deps chromium
       - run: pnpm test:e2e
