@@ -189,8 +189,8 @@ When to use which:
 To start dev services for E2E verification:
 ```bash
 pnpm dev:services          # PostgreSQL + Redis via Docker Compose
-pnpm --filter @sigilpanel/api db:generate  # Generate Drizzle migrations
-pnpm --filter @sigilpanel/api db:migrate   # Run migrations
+pnpm --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
+pnpm --filter @sigilpanel/db db:migrate   # Run migrations
 pnpm --filter @sigilpanel/api db:seed       # Seed admin user
 pnpm dev                   # Start API + panel
 ```
@@ -212,17 +212,20 @@ pnpm test                                          # All workspace tests
 pnpm --filter @sigilpanel/api test                 # API tests only
 ```
 
-### E2E tests (`pnpm --filter @sigilpanel/panel test:e2e`)
+### E2E tests (`pnpm test:e2e`)
 
 - **Playwright** runs browser tests in `apps/panel/tests/e2e/`.
 - The Playwright config auto-starts the API and panel dev servers via `webServer` if they aren't already running, and stops them when done.
 - The API is started with `RATE_LIMIT_DISABLED=1` so login attempts are never throttled.
 - A `globalSetup` flushes Redis rate-limit keys and seeds the admin user (idempotent) before tests run.
-- E2E tests use the **real dev database** (not Testcontainers), but the admin user is seeded automatically by `globalSetup`.
-- System Chromium is used (`/usr/bin/chromium-browser`) to avoid Playwright browser dependency issues.
+- Each test cleans up after itself via `afterEach` → `POST /test/cleanup` (only registered when `RATE_LIMIT_DISABLED=1`, never in production). Truncates all tables except the admin user.
+- Each test is self-contained — creates what it needs, doesn't depend on previous tests.
+- In CI: GitHub Actions service containers provide a fresh PostgreSQL + Redis per job.
+- In local: dev Docker compose is used (persistent). Tests clean up after themselves to prevent pollution. The agent can drop the DB manually if needed.
+- Playwright uses its bundled Chromium in CI (`process.env.CI`), system Chromium locally (`/usr/bin/chromium-browser`).
 
 ```bash
-pnpm --filter @sigilpanel/panel test:e2e           # Playwright E2E tests
+pnpm test:e2e                                      # Playwright E2E tests
 ```
 
 ### Test structure
@@ -233,20 +236,24 @@ apps/api/src/
 │   ├── argon2.spec.ts        # Argon2id hash/verify
 │   ├── crypto.spec.ts        # AES-256-GCM encrypt/decrypt
 │   └── token.spec.ts         # Token generation
+├── middleware/
+│   └── rate-limit.spec.ts    # Rate limiter (in-memory Redis mock)
 ├── services/
 │   ├── password.spec.ts      # Reset token gen/hash
 │   └── totp.spec.ts          # TOTP + recovery codes
 ├── routes/
 │   ├── auth.spec.ts          # Login, logout, /me, password reset, 2FA
 │   ├── users.spec.ts         # User CRUD, suspension, guards
-│   └── api-keys.spec.ts      # API key create/list/revoke/auth
+│   ├── api-keys.spec.ts      # API key create/list/revoke/auth
+│   └── test-cleanup.ts       # Test-only DB cleanup endpoint (E2E mode)
 └── test/
     ├── global-setup.ts       # Testcontainers PostgreSQL + migrations
     ├── setup.ts              # Env var propagation
     └── helpers.ts            # DB cleanup, user factories, request helpers
 
 apps/panel/tests/e2e/
-├── global-setup.ts           # Flush Redis rate-limit keys
+├── global-setup.ts           # Flush Redis + seed admin
+├── helpers.ts                # cleanupDatabase() helper
 ├── login.spec.ts             # Admin login, invalid creds, logout
 └── users.spec.ts             # User creation, suspension
 ```

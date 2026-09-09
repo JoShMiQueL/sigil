@@ -253,6 +253,9 @@
 - [X] T131 Run quickstart.md validation scenarios and verify all pass
 - [X] T132 [P] Add panel layout with navigation sidebar in `apps/panel/src/components/Layout.tsx` (dashboard, users, security, api-keys, logout)
 - [X] T133 [P] Add GitHub Actions CI workflow in `.github/workflows/ci.yml` (lint, typecheck, unit/integration, E2E — uses same pnpm commands as local)
+- [X] T134 [P] Add E2E test isolation: `afterEach` cleanup via `POST /test/cleanup` endpoint (only in E2E mode), each test self-contained
+- [X] T135 [P] Add Makefile with targets mirroring CI steps (`make ci`, `make test`, `make test-e2e`)
+- [X] T136 [P] CI E2E job uses service containers (PostgreSQL + Redis) instead of dev compose
 
 ---
 
