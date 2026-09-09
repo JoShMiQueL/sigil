@@ -701,6 +701,13 @@ function NodeDetailPage() {
   const router = useRouter();
   const params = useParams({ strict: false });
   const nodeId = params.nodeId as string | undefined;
+  const queryClient = useQueryClient();
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [editRegionId, setEditRegionId] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [newCreds, setNewCreds] = useState<{ secretId: string; secret: string } | null>(null);
 
   const { data: node, isLoading } = useQuery({
     queryKey: ["node", nodeId],
@@ -711,6 +718,89 @@ function NodeDetailPage() {
     },
     enabled: !!nodeId,
     refetchInterval: 15000,
+  });
+
+  const { data: regionsData } = useQuery({
+    queryKey: ["regions"],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/regions`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch regions");
+      return res.json() as Promise<RegionWithCounts[]>;
+    },
+    enabled: !!nodeId,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (input: { displayName?: string; regionId?: string }) => {
+      const res = await fetch(`${API_URL}/api/admin/nodes/${nodeId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to update node" };
+      }
+      return {};
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["node", nodeId] });
+      queryClient.invalidateQueries({ queryKey: ["nodes"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/nodes/${nodeId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to delete node" };
+      }
+      return {};
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["nodes"] });
+      router.navigate({ to: "/nodes" });
+    },
+  });
+
+  const regenerateMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/nodes/${nodeId}/credentials/regenerate`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to regenerate credentials" };
+      }
+      return res.json() as Promise<{ secretId: string; secret: string }>;
+    },
+    onSuccess: (data) => {
+      if (!("error" in data)) {
+        setNewCreds(data);
+        setMessage("Credentials regenerated — copy the new secret now!");
+      }
+    },
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/nodes/${nodeId}/credentials/revoke`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error ?? "Failed to revoke credentials" };
+      }
+      return {};
+    },
+    onSuccess: () => setMessage("Credentials revoked"),
   });
 
   if (!nodeId) {
@@ -749,19 +839,102 @@ function NodeDetailPage() {
     unknown: "#888",
   };
 
+  const startEdit = () => {
+    setEditDisplayName(node.displayName);
+    setEditRegionId(node.regionId);
+    setEditing(true);
+    setError(null);
+    setMessage(null);
+  };
+
+  const saveEdit = async () => {
+    const input: { displayName?: string; regionId?: string } = {};
+    if (editDisplayName !== node.displayName) input.displayName = editDisplayName;
+    if (editRegionId !== node.regionId) input.regionId = editRegionId;
+
+    if (Object.keys(input).length === 0) {
+      setEditing(false);
+      return;
+    }
+
+    const result = await updateMutation.mutateAsync(input);
+    if ("error" in result && result.error) {
+      setError(result.error);
+    } else {
+      setEditing(false);
+      setMessage("Node updated");
+    }
+  };
+
   return (
     <Layout>
       <h1>{node.displayName}</h1>
       <button type="button" onClick={() => router.navigate({ to: "/nodes" })}>
         Back to Nodes
       </button>
+
+      {error && <ErrorState message={error} />}
+      {message && <p style={{ color: "#2d8" }}>{message}</p>}
+
+      {newCreds && (
+        <div
+          style={{ background: "#fff3cd", padding: "1rem", borderRadius: "4px", margin: "1rem 0" }}
+        >
+          <p style={{ fontWeight: "bold", color: "#c00" }}>
+            Copy the new secret now — it won't be shown again.
+          </p>
+          <p>Secret ID: {newCreds.secretId}</p>
+          <textarea
+            readOnly
+            value={newCreds.secret}
+            style={{ width: "100%", fontFamily: "monospace", fontSize: "0.85rem" }}
+            rows={2}
+          />
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(newCreds.secret);
+            }}
+          >
+            Copy secret
+          </button>
+          <button type="button" onClick={() => setNewCreds(null)} style={{ marginLeft: "0.5rem" }}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <dl style={{ marginTop: "1rem" }}>
         <dt>Hostname</dt>
         <dd>{node.hostname}</dd>
         <dt>IP Address</dt>
         <dd>{node.ipAddress}</dd>
         <dt>Region</dt>
-        <dd>{node.regionName}</dd>
+        <dd>
+          {editing ? (
+            <select value={editRegionId} onChange={(e) => setEditRegionId(e.target.value)}>
+              {(regionsData ?? []).map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            node.regionName
+          )}
+        </dd>
+        <dt>Display Name</dt>
+        <dd>
+          {editing ? (
+            <input
+              type="text"
+              value={editDisplayName}
+              onChange={(e) => setEditDisplayName(e.target.value)}
+            />
+          ) : (
+            node.displayName
+          )}
+        </dd>
         <dt>Status</dt>
         <dd>
           <span
@@ -787,6 +960,49 @@ function NodeDetailPage() {
         <dt>Last Heartbeat</dt>
         <dd>{node.lastHeartbeatAt ? new Date(node.lastHeartbeatAt).toLocaleString() : "Never"}</dd>
       </dl>
+
+      <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        {editing ? (
+          <>
+            <button type="button" onClick={saveEdit} disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? "Saving..." : "Save"}
+            </button>
+            <button type="button" onClick={() => setEditing(false)}>
+              Cancel
+            </button>
+          </>
+        ) : (
+          <button type="button" onClick={startEdit}>
+            Edit Node
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => regenerateMutation.mutate()}
+          disabled={regenerateMutation.isPending}
+        >
+          {regenerateMutation.isPending ? "Regenerating..." : "Regenerate Credentials"}
+        </button>
+        <button
+          type="button"
+          onClick={() => revokeMutation.mutate()}
+          disabled={revokeMutation.isPending}
+        >
+          {revokeMutation.isPending ? "Revoking..." : "Revoke Credentials"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (confirm(`Delete node "${node.displayName}"? This cannot be undone.`)) {
+              deleteMutation.mutate();
+            }
+          }}
+          disabled={deleteMutation.isPending}
+          style={{ color: "#c00" }}
+        >
+          {deleteMutation.isPending ? "Deleting..." : "Delete Node"}
+        </button>
+      </div>
     </Layout>
   );
 }
