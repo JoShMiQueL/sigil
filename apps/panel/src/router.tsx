@@ -1,11 +1,4 @@
-import type {
-  ApiKey,
-  ApiKeyScope,
-  Node,
-  RegionWithCounts,
-  User,
-  UserCreate,
-} from "@sigilpanel/shared";
+import type { ApiKey, ApiKeyScope, User, UserCreate } from "@sigilpanel/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
