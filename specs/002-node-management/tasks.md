@@ -86,19 +86,19 @@
 
 ### Tests for User Story 2
 
-- [ ] T027 [P] [US2] Integration test for pairing token generation and listing in `apps/api/src/routes/pairing.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T028 [P] [US2] Integration test for daemon registration in `apps/api/src/routes/pairing.spec.ts` (valid token, expired token, used token, invalid token)
+- [X] T027 [P] [US2] Integration test for pairing token generation and listing in `apps/api/src/routes/pairing.spec.ts` (Testcontainers PostgreSQL)
+- [X] T028 [P] [US2] Integration test for daemon registration in `apps/api/src/routes/pairing.spec.ts` (valid token, expired token, used token, invalid token)
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Implement pairing service in `apps/api/src/services/pairing.service.ts` (generate token, validate token, consume token + create node + issue credentials)
-- [ ] T030 [US2] Implement pairing admin routes in `apps/api/src/routes/pairing.ts` (POST /api/admin/pairing/tokens, GET /api/admin/pairing/tokens)
-- [ ] T031 [US2] Implement daemon registration route in `apps/api/src/routes/pairing.ts` (POST /api/node/register — no auth, exchanges token for credentials)
-- [ ] T032 [US2] Register pairing routes in `apps/api/src/index.ts`
-- [ ] T033 [P] [US2] Create pairing token dialog in `apps/panel/src/components/PairingTokenDialog.tsx` (select region, generate, display token once with copy button)
-- [ ] T034 [P] [US2] Create node table component in `apps/panel/src/components/NodeTable.tsx` (hostname, region, status, server count)
-- [ ] T035 [US2] Add pairing token button and node table to nodes page in `apps/panel/src/routes/nodes.tsx`
-- [ ] T036 [P] [US2] E2E test for pairing flow in `apps/panel/tests/e2e/pairing.spec.ts` (generate token, verify displayed once, simulate registration via API call, verify node in list)
+- [X] T029 [US2] Implement pairing service in `apps/api/src/services/pairing.service.ts` (generate token, validate token, consume token + create node + issue credentials)
+- [X] T030 [US2] Implement pairing admin routes in `apps/api/src/routes/pairing.ts` (POST /api/admin/pairing/tokens, GET /api/admin/pairing/tokens)
+- [X] T031 [US2] Implement daemon registration route in `apps/api/src/routes/pairing.ts` (POST /api/node/register — no auth, exchanges token for credentials)
+- [X] T032 [US2] Register pairing routes in `apps/api/src/index.ts`
+- [X] T033 [P] [US2] Create pairing token dialog in `apps/panel/src/components/PairingTokenDialog.tsx` (select region, generate, display token once with copy button)
+- [X] T034 [P] [US2] Create node table component in `apps/panel/src/components/NodeTable.tsx` (hostname, region, status, server count)
+- [X] T035 [US2] Add pairing token button and node table to nodes page in `apps/panel/src/routes/nodes.tsx`
+- [X] T036 [P] [US2] E2E test for pairing flow in `apps/panel/tests/e2e/pairing.spec.ts` (generate token, verify displayed once, simulate registration via API call, verify node in list)
 
 **Checkpoint**: Node pairing is functional. An admin can generate tokens and daemons can register. Nodes appear in the panel.
 

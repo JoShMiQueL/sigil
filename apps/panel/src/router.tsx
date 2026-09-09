@@ -1,6 +1,13 @@
-import type { ApiKey, ApiKeyScope, RegionWithCounts, User, UserCreate } from "@sigilpanel/shared";
+import type {
+  ApiKey,
+  ApiKeyScope,
+  Node,
+  RegionWithCounts,
+  User,
+  UserCreate,
+} from "@sigilpanel/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
+import { createRootRoute, createRoute, Outlet, redirect, useParams, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { ApiKeyManager } from "./components/ApiKeyManager";
 import { CreateRegionForm } from "./components/CreateRegionForm";
@@ -10,6 +17,8 @@ import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { Layout } from "./components/Layout";
 import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
+import { NodeTable } from "./components/NodeTable";
+import { PairingTokenDialog } from "./components/PairingTokenDialog";
 import { RegionList } from "./components/RegionList";
 import { ResetPasswordForm } from "./components/ResetPasswordForm";
 import { TotpSetup } from "./components/TotpSetup";
@@ -556,8 +565,9 @@ const apiKeysRoute = createRoute({
 
 function NodesPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
-  const { data, isLoading } = useQuery({
+  const { data: regionsData, isLoading: regionsLoading } = useQuery({
     queryKey: ["regions"],
     queryFn: async () => {
       const res = await fetch(`${API_URL}/api/admin/regions`, { credentials: "include" });
@@ -566,7 +576,17 @@ function NodesPage() {
     },
   });
 
-  const createMutation = useMutation({
+  const { data: nodesData } = useQuery({
+    queryKey: ["nodes"],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/nodes`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch nodes");
+      return res.json() as Promise<Node[]>;
+    },
+    refetchInterval: 15000,
+  });
+
+  const createRegionMutation = useMutation({
     mutationFn: async (input: { name: string; description?: string }) => {
       const res = await fetch(`${API_URL}/api/admin/regions`, {
         method: "POST",
@@ -583,7 +603,7 @@ function NodesPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["regions"] }),
   });
 
-  const deleteMutation = useMutation({
+  const deleteRegionMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await fetch(`${API_URL}/api/admin/regions/${id}`, {
         method: "DELETE",
@@ -598,26 +618,63 @@ function NodesPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["regions"] }),
   });
 
+  const generateTokenMutation = useMutation({
+    mutationFn: async (regionId: string) => {
+      const res = await fetch(`${API_URL}/api/admin/pairing/tokens`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ regionId }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error?.message ?? "Failed to generate token" };
+      }
+      return res.json() as Promise<{ token: string; expiresAt: string }>;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["nodes"] }),
+  });
+
+  const regions = regionsData ?? [];
+
   return (
     <Layout>
       <h1>Nodes</h1>
+
+      <h2>Regions</h2>
       <CreateRegionForm
         onCreate={async (input) => {
-          const result = await createMutation.mutateAsync(input);
+          const result = await createRegionMutation.mutateAsync(input);
           return result;
         }}
       />
-      {isLoading ? (
+      {regionsLoading ? (
         <LoadingState message="Loading regions..." />
-      ) : data ? (
+      ) : (
         <RegionList
-          regions={data}
+          regions={regions}
           onDelete={async (id) => {
-            const result = await deleteMutation.mutateAsync(id);
+            const result = await deleteRegionMutation.mutateAsync(id);
             return result;
           }}
         />
-      ) : null}
+      )}
+
+      <h2>Nodes</h2>
+      <PairingTokenDialog
+        regions={regions}
+        onGenerate={async (regionId) => {
+          const result = await generateTokenMutation.mutateAsync(regionId);
+          if ("error" in result) return { error: result.error };
+          return { token: result.token, expiresAt: result.expiresAt };
+        }}
+      />
+      <NodeTable
+        nodes={nodesData ?? []}
+        onRowClick={(node) =>
+          router.navigate({ to: "/nodes/$nodeId", params: { nodeId: node.id } })
+        }
+      />
     </Layout>
   );
 }
@@ -633,11 +690,117 @@ const nodesRoute = createRoute({
   component: NodesPage,
 });
 
+function NodeDetailPage() {
+  const router = useRouter();
+  const params = useParams({ strict: false });
+  const nodeId = params.nodeId as string | undefined;
+
+  const { data: node, isLoading } = useQuery({
+    queryKey: ["node", nodeId],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/api/admin/nodes/${nodeId}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch node");
+      return res.json() as Promise<Node>;
+    },
+    enabled: !!nodeId,
+    refetchInterval: 15000,
+  });
+
+  if (!nodeId) {
+    return (
+      <Layout>
+        <p>Node ID not provided</p>
+        <button type="button" onClick={() => router.navigate({ to: "/nodes" })}>
+          Back to Nodes
+        </button>
+      </Layout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <LoadingState message="Loading node..." />
+      </Layout>
+    );
+  }
+
+  if (!node) {
+    return (
+      <Layout>
+        <ErrorState message="Node not found" />
+        <button type="button" onClick={() => router.navigate({ to: "/nodes" })}>
+          Back to Nodes
+        </button>
+      </Layout>
+    );
+  }
+
+  const statusColors: Record<string, string> = {
+    online: "#2d8",
+    offline: "#c00",
+    unknown: "#888",
+  };
+
+  return (
+    <Layout>
+      <h1>{node.displayName}</h1>
+      <button type="button" onClick={() => router.navigate({ to: "/nodes" })}>
+        Back to Nodes
+      </button>
+      <dl style={{ marginTop: "1rem" }}>
+        <dt>Hostname</dt>
+        <dd>{node.hostname}</dd>
+        <dt>IP Address</dt>
+        <dd>{node.ipAddress}</dd>
+        <dt>Region</dt>
+        <dd>{node.regionName}</dd>
+        <dt>Status</dt>
+        <dd>
+          <span
+            style={{
+              display: "inline-block",
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              background: statusColors[node.status] ?? "#888",
+              marginRight: "0.5rem",
+            }}
+          />
+          {node.status}
+        </dd>
+        <dt>CPU</dt>
+        <dd>{node.cpuUsage != null ? `${node.cpuUsage.toFixed(1)}%` : "—"}</dd>
+        <dt>Memory</dt>
+        <dd>{node.memoryUsage != null ? `${node.memoryUsage.toFixed(1)}%` : "—"}</dd>
+        <dt>Disk</dt>
+        <dd>{node.diskUsage != null ? `${node.diskUsage.toFixed(1)}%` : "—"}</dd>
+        <dt>Containers</dt>
+        <dd>{node.containerCount ?? "—"}</dd>
+        <dt>Last Heartbeat</dt>
+        <dd>{node.lastHeartbeatAt ? new Date(node.lastHeartbeatAt).toLocaleString() : "Never"}</dd>
+      </dl>
+    </Layout>
+  );
+}
+
+const nodeDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/nodes/$nodeId",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (!user) throw redirect({ to: "/login" });
+    if (user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: NodeDetailPage,
+});
+
 export const routeTree = rootRoute.addChildren([
   loginRoute,
   dashboardRoute,
   usersRoute,
   nodesRoute,
+  nodeDetailRoute,
   forgotPasswordRoute,
   resetPasswordRoute,
   securityRoute,
