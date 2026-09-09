@@ -32,6 +32,7 @@ async function main() {
   console.log(`  Email: ${email}`);
   console.log(`  Password: ${password}`);
   console.log(`  Username: ${username}`);
+  process.exit(0);
 }
 
 main().catch((err) => {

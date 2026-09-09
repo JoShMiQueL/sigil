@@ -174,7 +174,7 @@ pnpm dev                   # Start API + panel
 
 ## Automated tests
 
-All tests are fully automatic — no manual server startup required.
+All tests are fully automatic — no manual server startup, seeding, or Redis flushing required. The only prerequisite is Docker running (for Testcontainers and the dev PostgreSQL/Redis).
 
 ### Unit + integration tests (`pnpm test`)
 
@@ -194,8 +194,8 @@ pnpm --filter @sigilpanel/api test                 # API tests only
 - **Playwright** runs browser tests in `apps/panel/tests/e2e/`.
 - The Playwright config auto-starts the API and panel dev servers via `webServer` if they aren't already running, and stops them when done.
 - The API is started with `RATE_LIMIT_DISABLED=1` so login attempts are never throttled.
-- A `globalSetup` flushes Redis rate-limit keys before tests run, so prior runs don't interfere.
-- E2E tests use the **real dev database** (not Testcontainers), so the admin user must be seeded (`pnpm --filter @sigilpanel/api db:seed`).
+- A `globalSetup` flushes Redis rate-limit keys and seeds the admin user (idempotent) before tests run.
+- E2E tests use the **real dev database** (not Testcontainers), but the admin user is seeded automatically by `globalSetup`.
 - System Chromium is used (`/usr/bin/chromium-browser`) to avoid Playwright browser dependency issues.
 
 ```bash

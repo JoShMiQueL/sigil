@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import Redis from "ioredis";
 
 export default async function globalSetup() {
@@ -8,4 +9,10 @@ export default async function globalSetup() {
     await redis.del(...keys);
   }
   await redis.quit();
+
+  // Seed admin user if not present (idempotent — skips if already exists)
+  execSync("pnpm --filter @sigilpanel/api db:seed", {
+    stdio: "pipe",
+    cwd: process.cwd(),
+  });
 }
