@@ -13,6 +13,7 @@ import {
   createAdmin,
   createUser,
   loginAndGetCookie,
+  parseJson,
 } from "../test/helpers";
 
 describe("users routes [US2: user management]", () => {
@@ -42,7 +43,7 @@ describe("users routes [US2: user management]", () => {
     });
 
     expect(res.status).toBe(201);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.user.email).toBe("newuser@test.local");
     expect(body.user.role).toBe("user");
     expect(body.user.status).toBe("active");
@@ -55,7 +56,7 @@ describe("users routes [US2: user management]", () => {
     const res = await apiRequest(app, "/api/admin/users?page=1&limit=10", { cookie: adminCookie });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.users.length).toBeGreaterThanOrEqual(3); // admin + 2 users
     expect(body.total).toBeGreaterThanOrEqual(3);
   });
@@ -70,14 +71,14 @@ describe("users routes [US2: user management]", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.user.status).toBe("suspended");
   });
 
   it("T050: admin cannot suspend self", async () => {
     // Get admin's user id from /me
     const meRes = await apiRequest(app, "/api/auth/me", { cookie: adminCookie });
-    const meBody = await meRes.json();
+    const meBody = await parseJson(meRes);
     const adminId = meBody.user.id;
 
     const res = await apiRequest(app, `/api/admin/users/${adminId}`, {
@@ -87,14 +88,14 @@ describe("users routes [US2: user management]", () => {
     });
 
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.error).toContain("own account");
   });
 
   it("T051: admin cannot suspend the last admin", async () => {
     // Get admin's user id
     const meRes = await apiRequest(app, "/api/auth/me", { cookie: adminCookie });
-    const adminId = (await meRes.json()).user.id;
+    const adminId = (await parseJson(meRes)).user.id;
 
     // Try to suspend via direct DB update to bypass self-check, then try suspending via API
     // Actually, we need a second admin to test last-admin suspension
@@ -227,7 +228,7 @@ describe("users routes [US2: user management]", () => {
     });
 
     expect(res.status).toBe(401);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.error).toBe("Account suspended");
   });
 

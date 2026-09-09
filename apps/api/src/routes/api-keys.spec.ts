@@ -7,7 +7,7 @@ vi.mock("../middleware/rate-limit", () => ({
 }));
 
 import app from "../index";
-import { apiRequest, cleanupDatabase, createAdmin, loginAndGetCookie } from "../test/helpers";
+import { apiRequest, cleanupDatabase, createAdmin, loginAndGetCookie, parseJson } from "../test/helpers";
 
 describe("api-keys routes [US5: API keys]", () => {
   let adminCookie: string | null;
@@ -31,7 +31,7 @@ describe("api-keys routes [US5: API keys]", () => {
     });
 
     expect(res.status).toBe(201);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.key).toMatch(/^sigil_/);
     expect(body.id).toBeTruthy();
     expect(body.name).toBe("test-key");
@@ -54,7 +54,7 @@ describe("api-keys routes [US5: API keys]", () => {
     const res = await apiRequest(app, "/api/api-keys", { cookie: adminCookie });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.keys).toHaveLength(2);
     expect(body.keys[0].name).toBe("key1");
     expect(body.keys[0].key).toBeUndefined(); // Full key not returned
@@ -67,7 +67,7 @@ describe("api-keys routes [US5: API keys]", () => {
       cookie: adminCookie,
       body: { name: "bearer-key", scopes: ["read"] },
     });
-    const { key } = await createRes.json();
+    const { key } = await parseJson(createRes);
 
     // Use API key to access /me
     const meRes = await apiRequest(app, "/api/auth/me", {
@@ -75,7 +75,7 @@ describe("api-keys routes [US5: API keys]", () => {
     });
 
     expect(meRes.status).toBe(200);
-    const meBody = await meRes.json();
+    const meBody = await parseJson(meRes);
     expect(meBody.user.email).toBe("admin@test.local");
   });
 
@@ -85,7 +85,7 @@ describe("api-keys routes [US5: API keys]", () => {
       cookie: adminCookie,
       body: { name: "revoke-key", scopes: ["read"] },
     });
-    const { key, id } = await createRes.json();
+    const { key, id } = await parseJson(createRes);
 
     // Revoke
     const revokeRes = await apiRequest(app, `/api/api-keys/${id}`, {
@@ -115,7 +115,7 @@ describe("api-keys routes [US5: API keys]", () => {
       cookie: adminCookie,
       body: { name: "read-only", scopes: ["read"] },
     });
-    const { key } = await createRes.json();
+    const { key } = await parseJson(createRes);
 
     // API key can access /me
     const meRes = await apiRequest(app, "/api/auth/me", {
@@ -138,7 +138,7 @@ describe("api-keys routes [US5: API keys]", () => {
       cookie: adminCookie,
       body: { name: "track-key", scopes: ["read"] },
     });
-    const { key } = await createRes.json();
+    const { key } = await parseJson(createRes);
 
     // Use the key
     await apiRequest(app, "/api/auth/me", {
@@ -147,7 +147,7 @@ describe("api-keys routes [US5: API keys]", () => {
 
     // List keys and check lastUsedAt
     const listRes = await apiRequest(app, "/api/api-keys", { cookie: adminCookie });
-    const body = await listRes.json();
+    const body = await parseJson(listRes);
     expect(body.keys[0].lastUsedAt).not.toBeNull();
   });
 });

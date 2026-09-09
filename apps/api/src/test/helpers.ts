@@ -59,9 +59,14 @@ export function extractCookie(res: Response): string | null {
   return match ? `sigil_session=${match[1]}` : null;
 }
 
+// Parse JSON response body (typed as any for test convenience)
+export async function parseJson(res: Response): Promise<any> {
+  return res.json();
+}
+
 // Make a request to the Hono app and return the Response
 export async function apiRequest(
-  app: { request: (path: string, init?: RequestInit) => Promise<Response> },
+  app: { request: (path: string, init?: RequestInit) => Promise<Response> | Response },
   path: string,
   options: {
     method?: string;
@@ -74,15 +79,17 @@ export async function apiRequest(
   if (options.cookie) headers["Cookie"] = options.cookie;
   if (options.body) headers["Content-Type"] = "application/json";
 
-  return app.request(path, {
-    method: options.method ?? "GET",
-    headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
+  return Promise.resolve(
+    app.request(path, {
+      method: options.method ?? "GET",
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    }),
+  );
 }
 
 export async function loginAndGetCookie(
-  app: { request: (path: string, init?: RequestInit) => Promise<Response> },
+  app: { request: (path: string, init?: RequestInit) => Promise<Response> | Response },
   email: string,
   password: string,
 ): Promise<{ cookie: string | null; res: Response }> {

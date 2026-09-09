@@ -17,6 +17,7 @@ import {
   generateResetToken,
   generateTotpCode,
   loginAndGetCookie,
+  parseJson,
 } from "../test/helpers";
 
 describe("auth routes [US1: login/logout/me]", () => {
@@ -37,7 +38,7 @@ describe("auth routes [US1: login/logout/me]", () => {
     });
 
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.status).toBe("ok");
     expect(body.user.email).toBe("admin1@test.local");
     expect(res.headers.get("set-cookie")).toContain("sigil_session=");
@@ -52,7 +53,7 @@ describe("auth routes [US1: login/logout/me]", () => {
     });
 
     expect(res.status).toBe(401);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.error).toBe("Invalid credentials");
   });
 
@@ -89,7 +90,7 @@ describe("auth routes [US1: login/logout/me]", () => {
 
     const res = await apiRequest(app, "/api/auth/me", { cookie });
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = await parseJson(res);
     expect(body.user.email).toBe("admin4@test.local");
     expect(body.user.role).toBe("admin");
   });
@@ -217,7 +218,7 @@ describe("auth routes [US4: 2FA]", () => {
     // Enable 2FA
     const enableRes = await apiRequest(app, "/api/auth/2fa/enable", { method: "POST", cookie });
     expect(enableRes.status).toBe(200);
-    const enableBody = await enableRes.json();
+    const enableBody = await parseJson(enableRes);
     expect(enableBody.secret).toBeTruthy();
     expect(enableBody.qrUri).toBeTruthy();
     expect(enableBody.recoveryCodes).toHaveLength(8);
@@ -233,7 +234,7 @@ describe("auth routes [US4: 2FA]", () => {
 
     // /me should show totpEnabled = true
     const meRes = await apiRequest(app, "/api/auth/me", { cookie });
-    const meBody = await meRes.json();
+    const meBody = await parseJson(meRes);
     expect(meBody.user.totpEnabled).toBe(true);
   });
 
@@ -243,7 +244,7 @@ describe("auth routes [US4: 2FA]", () => {
 
     // Enable 2FA
     const enableRes = await apiRequest(app, "/api/auth/2fa/enable", { method: "POST", cookie });
-    const { secret } = await enableRes.json();
+    const { secret } = await parseJson(enableRes);
     const code = generateTotpCode(secret);
     await apiRequest(app, "/api/auth/2fa/verify", { method: "POST", cookie, body: { code } });
 
@@ -256,7 +257,7 @@ describe("auth routes [US4: 2FA]", () => {
       body: { email: "2fa-login@test.local", password: "admin12345" },
     });
     expect(loginRes.status).toBe(200);
-    const loginBody = await loginRes.json();
+    const loginBody = await parseJson(loginRes);
     expect(loginBody.status).toBe("2fa_required");
     expect(loginBody.userId).toBe(userId);
 
@@ -267,7 +268,7 @@ describe("auth routes [US4: 2FA]", () => {
       body: { userId, code: code2 },
     });
     expect(res2fa.status).toBe(200);
-    const body2fa = await res2fa.json();
+    const body2fa: any = await parseJson(res2fa);
     expect(body2fa.status).toBe("ok");
     expect(body2fa.user.email).toBe("2fa-login@test.local");
   });
@@ -278,7 +279,7 @@ describe("auth routes [US4: 2FA]", () => {
 
     // Enable 2FA
     const enableRes = await apiRequest(app, "/api/auth/2fa/enable", { method: "POST", cookie });
-    const { secret, recoveryCodes } = await enableRes.json();
+    const { secret, recoveryCodes } = await parseJson(enableRes);
     const code = generateTotpCode(secret);
     await apiRequest(app, "/api/auth/2fa/verify", { method: "POST", cookie, body: { code } });
 
@@ -290,7 +291,7 @@ describe("auth routes [US4: 2FA]", () => {
       method: "POST",
       body: { email: "2fa-recovery@test.local", password: "admin12345" },
     });
-    const loginBody = await loginRes.json();
+    const loginBody = await parseJson(loginRes);
     expect(loginBody.status).toBe("2fa_required");
 
     // Use a recovery code
@@ -299,7 +300,7 @@ describe("auth routes [US4: 2FA]", () => {
       body: { userId, code: recoveryCodes[0] },
     });
     expect(recoveryRes.status).toBe(200);
-    const recoveryBody = await recoveryRes.json();
+    const recoveryBody = await parseJson(recoveryRes);
     expect(recoveryBody.status).toBe("ok");
 
     // Try to reuse the same recovery code (should fail)
@@ -324,7 +325,7 @@ describe("auth routes [US4: 2FA]", () => {
 
     // Enable 2FA
     const enableRes = await apiRequest(app, "/api/auth/2fa/enable", { method: "POST", cookie });
-    const { secret } = await enableRes.json();
+    const { secret } = await parseJson(enableRes);
     const code = generateTotpCode(secret);
     await apiRequest(app, "/api/auth/2fa/verify", { method: "POST", cookie, body: { code } });
 
@@ -346,7 +347,7 @@ describe("auth routes [US4: 2FA]", () => {
 
     // /me should show totpEnabled = false
     const meRes = await apiRequest(app, "/api/auth/me", { cookie });
-    const meBody = await meRes.json();
+    const meBody = await parseJson(meRes);
     expect(meBody.user.totpEnabled).toBe(false);
   });
 });

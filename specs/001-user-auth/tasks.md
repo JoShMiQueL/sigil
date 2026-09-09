@@ -77,7 +77,7 @@
 - [X] T031 [P] [US1] Integration test for login with invalid credentials in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
 - [X] T032 [P] [US1] Integration test for logout destroying session in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
 - [X] T033 [P] [US1] Integration test for /me endpoint with valid session in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T034 [P] [US1] E2E test for full login flow in `apps/panel/tests/e2e/login.spec.ts` (Playwright)
+- [X] T034 [P] [US1] E2E test for full login flow in `apps/panel/tests/e2e/login.spec.ts` (Playwright)
 
 ### Implementation for User Story 1
 
@@ -112,7 +112,7 @@
 - [X] T050 [P] [US2] Integration test for preventing self-suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
 - [X] T051 [P] [US2] Integration test for preventing last-admin suspension in `apps/api/src/routes/users.spec.ts` (Testcontainers PostgreSQL)
 - [X] T052 [P] [US2] Integration test for suspended user login rejection in `apps/api/src/routes/auth.spec.ts` (Testcontainers PostgreSQL)
-- [ ] T053 [P] [US2] E2E test for user creation flow in `apps/panel/tests/e2e/users.spec.ts` (Playwright)
+- [X] T053 [P] [US2] E2E test for user creation flow in `apps/panel/tests/e2e/users.spec.ts` (Playwright)
 
 ### Implementation for User Story 2
 
