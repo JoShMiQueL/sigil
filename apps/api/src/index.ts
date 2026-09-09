@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth";
 import nodesRoutes from "./routes/nodes";
 import { adminPairing, heartbeatApp, default as pairingRoutes } from "./routes/pairing";
 import regionsRoutes from "./routes/regions";
+import sseRoutes from "./routes/sse";
 import testCleanupRoutes from "./routes/test-cleanup";
 import usersRoutes from "./routes/users";
 
@@ -39,6 +40,7 @@ app.route("/api/admin/nodes", nodesRoutes);
 app.route("/api/admin/pairing", adminPairing);
 app.route("/api", pairingRoutes);
 app.route("/api", heartbeatApp);
+app.route("/api", sseRoutes);
 app.route("/api/api-keys", apiKeysRoutes);
 
 export default app;

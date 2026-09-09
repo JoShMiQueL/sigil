@@ -3,6 +3,8 @@ import { eq, lt } from "drizzle-orm";
 import { generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { encrypt } from "../lib/crypto";
 import { hashToken } from "../lib/token";
+import { getNodeById } from "./node.service";
+import { emit } from "./sse.service";
 
 const PAIRING_TOKEN_PREFIX = "sigilpair_";
 const PAIRING_TOKEN_TTL_MIN = 15;
@@ -125,6 +127,9 @@ export async function consumePairingToken(
     .update(schema.pairingTokens)
     .set({ usedAt: new Date(), usedByNodeId: nodeRow.id })
     .where(eq(schema.pairingTokens.id, tokenRow.id));
+
+  const fullNode = await getNodeById(nodeRow.id);
+  if (fullNode) emit("node.create", fullNode);
 
   return { ok: true, nodeId: nodeRow.id, secretId, secret };
 }

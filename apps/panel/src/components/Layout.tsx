@@ -1,6 +1,8 @@
 import type { User } from "@sigilpanel/shared";
 import { useRouter } from "@tanstack/react-router";
 import { useAuth } from "../hooks/useAuth";
+import { useSSE } from "../hooks/useSSE";
+import { ReconnectingIndicator } from "./ReconnectingIndicator";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,6 +11,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { user, logout, isLoggingOut } = useAuth();
   const router = useRouter();
+  const { connectionState } = useSSE();
 
   if (!user) return <>{children}</>;
 
@@ -22,6 +25,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "system-ui, sans-serif" }}>
+      <ReconnectingIndicator state={connectionState} />
       <nav
         style={{
           width: "200px",

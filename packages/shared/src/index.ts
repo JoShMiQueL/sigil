@@ -10,3 +10,4 @@ export * from "./node/heartbeat";
 export * from "./node/node";
 export * from "./node/pairing";
 export * from "./node/region";
+export * from "./sse/events";

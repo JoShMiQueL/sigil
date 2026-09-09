@@ -26,9 +26,9 @@
 
 **Purpose**: Shared SSE event schemas used by both API and panel.
 
-- [ ] T001 [P] Create SSE event schemas in `packages/shared/src/sse/events.ts` (SSEEventType enum, SSEEventSchema, event payload schemas per type)
-- [ ] T002 [P] Create SSE barrel export in `packages/shared/src/sse/index.ts` and re-export from `packages/shared/src/index.ts`
-- [ ] T003 Build shared package to verify schemas compile (`pnpm --filter @sigilpanel/shared build`)
+- [X] T001 [P] Create SSE event schemas in `packages/shared/src/sse/events.ts` (SSEEventType enum, SSEEventSchema, event payload schemas per type)
+- [X] T002 [P] Create SSE barrel export in `packages/shared/src/sse/index.ts` and re-export from `packages/shared/src/index.ts`
+- [X] T003 Build shared package to verify schemas compile (`pnpm --filter @sigilpanel/shared build`)
 
 **Checkpoint**: Shared SSE contracts available to both API and panel.
 
@@ -40,16 +40,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Create SSE service in `apps/api/src/services/sse.service.ts` (subscriber registry, emit function, in-memory fanout, connection add/remove)
-- [ ] T005 Add Redis pub/sub to `apps/api/src/services/sse.service.ts` for multi-process event fanout (publish on emit, subscribe on startup, forward to local subscribers)
-- [ ] T006 Add per-node debounce to `apps/api/src/services/sse.service.ts` (max 1 node.update event/sec per node, batch metric updates)
-- [ ] T007 Create SSE endpoint route in `apps/api/src/routes/sse.ts` (GET /api/sse, session-cookie auth via existing auth middleware, streamSSE, 15s SSE heartbeat comments, connection cleanup on close)
-- [ ] T008 Register SSE route in `apps/api/src/index.ts`
-- [ ] T009 [P] Create unit tests for SSE service in `apps/api/src/services/sse.service.spec.ts` (emit, subscriber add/remove, debounce, in-memory fanout)
-- [ ] T010 [P] Create integration test for SSE endpoint in `apps/api/src/routes/sse.spec.ts` (authenticated connect receives events, unauthenticated returns 401, connection cleanup)
-- [ ] T011 Create core `useSSE` hook in `apps/panel/src/hooks/useSSE.ts` (EventSource connection, event dispatch to handlers, TanStack Query invalidation via `queryClient.invalidateQueries`, connection state tracking)
-- [ ] T012 [P] Create `ReconnectingIndicator` component in `apps/panel/src/components/ReconnectingIndicator.tsx` (banner shown when connection state is "reconnecting" or "disconnected")
-- [ ] T013 Mount `ReconnectingIndicator` in panel layout in `apps/panel/src/components/Layout.tsx` (reads connection state from `useSSE`, shows banner when not connected)
+- [X] T004 Create SSE service in `apps/api/src/services/sse.service.ts` (subscriber registry, emit function, in-memory fanout, connection add/remove)
+- [X] T005 Add Redis pub/sub to `apps/api/src/services/sse.service.ts` for multi-process event fanout (publish on emit, subscribe on startup, forward to local subscribers)
+- [X] T006 Add per-node debounce to `apps/api/src/services/sse.service.ts` (max 1 node.update event/sec per node, batch metric updates)
+- [X] T007 Create SSE endpoint route in `apps/api/src/routes/sse.ts` (GET /api/sse, session-cookie auth via existing auth middleware, streamSSE, 15s SSE heartbeat comments, connection cleanup on close)
+- [X] T008 Register SSE route in `apps/api/src/index.ts`
+- [X] T009 [P] Create unit tests for SSE service in `apps/api/src/services/sse.service.spec.ts` (emit, subscriber add/remove, debounce, in-memory fanout)
+- [X] T010 [P] Create integration test for SSE endpoint in `apps/api/src/routes/sse.spec.ts` (authenticated connect receives events, unauthenticated returns 401, connection cleanup)
+- [X] T011 Create core `useSSE` hook in `apps/panel/src/hooks/useSSE.ts` (EventSource connection, event dispatch to handlers, TanStack Query invalidation via `queryClient.invalidateQueries`, connection state tracking)
+- [X] T012 [P] Create `ReconnectingIndicator` component in `apps/panel/src/components/ReconnectingIndicator.tsx` (banner shown when connection state is "reconnecting" or "disconnected")
+- [X] T013 Mount `ReconnectingIndicator` in panel layout in `apps/panel/src/components/Layout.tsx` (reads connection state from `useSSE`, shows banner when not connected)
 
 **Checkpoint**: SSE endpoint serves events, `useSSE` hook connects and dispatches, reconnecting indicator exists. User story implementation can now begin.
 
@@ -63,15 +63,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Emit `node.update` from `processHeartbeat` in `apps/api/src/services/heartbeat.service.ts` (call `sseService.emit` after processing heartbeat)
-- [ ] T015 [P] [US1] Emit `node.update` from `sweepOfflineNodes` in `apps/api/src/services/heartbeat.service.ts` (call `sseService.emit` per node marked offline)
-- [ ] T016 [P] [US1] Emit `node.create` from `consumePairingToken` in `apps/api/src/services/pairing.service.ts` (call `sseService.emit` after node registration)
-- [ ] T017 [P] [US1] Emit `node.delete` from `deleteNode` in `apps/api/src/services/node.service.ts` (call `sseService.emit` after deletion)
-- [ ] T018 [US1] Retrofit `useNodes` hook in `apps/panel/src/hooks/useNodes.ts` — remove `refetchInterval: 15000`, add SSE subscription for `node.update`, `node.create`, `node.delete` via `useSSE` (invalidate `["nodes"]` query key)
-- [ ] T019 [US1] Retrofit `useNode` hook in `apps/panel/src/hooks/useNodes.ts` — remove `refetchInterval: 15000`, add SSE subscription for `node.update` filtered by nodeId (use `queryClient.setQueryData` for direct cache update on metrics, `invalidateQueries` on status change)
-- [ ] T020 [US1] Add `useSSE` call to `NodesPage` in `apps/panel/src/routes/nodes.tsx` (subscribe to node events, wire invalidations)
-- [ ] T021 [US1] Add `useSSE` call to `NodeDetailPage` in `apps/panel/src/routes/node-detail.tsx` (subscribe to `node.update` for specific nodeId)
-- [ ] T022 [P] [US1] Add integration test for node SSE events in `apps/api/src/routes/sse.spec.ts` (heartbeat triggers node.update event on SSE stream, pairing triggers node.create, delete triggers node.delete)
+- [X] T014 [P] [US1] Emit `node.update` from `processHeartbeat` in `apps/api/src/services/heartbeat.service.ts` (call `sseService.emit` after processing heartbeat)
+- [X] T015 [P] [US1] Emit `node.update` from `sweepOfflineNodes` in `apps/api/src/services/heartbeat.service.ts` (call `sseService.emit` per node marked offline)
+- [X] T016 [P] [US1] Emit `node.create` from `consumePairingToken` in `apps/api/src/services/pairing.service.ts` (call `sseService.emit` after node registration)
+- [X] T017 [P] [US1] Emit `node.delete` from `deleteNode` in `apps/api/src/services/node.service.ts` (call `sseService.emit` after deletion)
+- [X] T018 [US1] Retrofit `useNodes` hook in `apps/panel/src/hooks/useNodes.ts` — remove `refetchInterval: 15000`, add SSE subscription for `node.update`, `node.create`, `node.delete` via `useSSE` (invalidate `["nodes"]` query key)
+- [X] T019 [US1] Retrofit `useNode` hook in `apps/panel/src/hooks/useNodes.ts` — remove `refetchInterval: 15000`, add SSE subscription for `node.update` filtered by nodeId (use `queryClient.setQueryData` for direct cache update on metrics, `invalidateQueries` on status change)
+- [X] T020 [US1] Add `useSSE` call to `NodesPage` in `apps/panel/src/routes/nodes.tsx` (subscribe to node events, wire invalidations)
+- [X] T021 [US1] Add `useSSE` call to `NodeDetailPage` in `apps/panel/src/routes/node-detail.tsx` (subscribe to `node.update` for specific nodeId)
+- [X] T022 [P] [US1] Add integration test for node SSE events in `apps/api/src/routes/sse.spec.ts` (heartbeat triggers node.update event on SSE stream, pairing triggers node.create, delete triggers node.delete)
 
 **Checkpoint**: Node status and metrics update in real time. Zero polling for node data. MVP deliverable.
 

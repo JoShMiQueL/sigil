@@ -1,6 +1,8 @@
 import { db, schema } from "@sigilpanel/db";
 import type { HeartbeatPayload } from "@sigilpanel/shared";
 import { eq, lt } from "drizzle-orm";
+import { getNodeById } from "./node.service";
+import { emit } from "./sse.service";
 
 const HEARTBEAT_TIMEOUT_SEC = 90;
 
@@ -17,6 +19,9 @@ export async function processHeartbeat(nodeId: string, payload: HeartbeatPayload
       updatedAt: new Date(),
     })
     .where(eq(schema.nodes.id, nodeId));
+
+  const node = await getNodeById(nodeId);
+  if (node) emit("node.update", node);
 }
 
 export async function sweepOfflineNodes(): Promise<number> {
@@ -34,6 +39,9 @@ export async function sweepOfflineNodes(): Promise<number> {
       .update(schema.nodes)
       .set({ status: "offline", updatedAt: new Date() })
       .where(eq(schema.nodes.id, node.id));
+
+    const fullNode = await getNodeById(node.id);
+    if (fullNode) emit("node.update", fullNode);
   }
 
   return offlineNodes.length;

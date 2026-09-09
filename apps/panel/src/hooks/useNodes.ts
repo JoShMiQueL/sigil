@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-export function useNodes(poll = true) {
+export function useNodes() {
   return useQuery({
     queryKey: ["nodes"],
     queryFn: async () => {
@@ -11,11 +11,10 @@ export function useNodes(poll = true) {
       if (!res.ok) throw new Error("Failed to fetch nodes");
       return res.json() as Promise<Node[]>;
     },
-    refetchInterval: poll ? 15000 : false,
   });
 }
 
-export function useNode(nodeId: string | undefined, poll = true) {
+export function useNode(nodeId: string | undefined) {
   return useQuery({
     queryKey: ["node", nodeId],
     queryFn: async () => {
@@ -24,7 +23,6 @@ export function useNode(nodeId: string | undefined, poll = true) {
       return res.json() as Promise<Node>;
     },
     enabled: !!nodeId,
-    refetchInterval: poll ? 15000 : false,
   });
 }
 

@@ -1,3 +1,5 @@
+import type { Node } from "@sigilpanel/shared";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { ErrorState } from "../components/ErrorState";
@@ -13,9 +15,11 @@ import {
   useUpdateNode,
 } from "../hooks/useNodes";
 import { useRegions } from "../hooks/useRegions";
+import { useSSE } from "../hooks/useSSE";
 
 export function NodeDetailPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const params = useParams({ strict: false });
   const nodeId = params.nodeId as string | undefined;
   const [editing, setEditing] = useState(false);
@@ -29,6 +33,23 @@ export function NodeDetailPage() {
   const deleteMutation = useDeleteNode(nodeId);
   const regenerateMutation = useRegenerateCredentials(nodeId);
   const revokeMutation = useRevokeCredentials(nodeId);
+
+  useSSE({
+    invalidations: {
+      "node.create": [["nodes"]],
+      "node.delete": [["nodes"], ["node", nodeId ?? ""]],
+    },
+    handlers: {
+      "node.update": (payload) => {
+        if (!nodeId) return;
+        const updated = payload as Node;
+        if (updated.id === nodeId) {
+          queryClient.setQueryData(["node", nodeId], updated);
+          queryClient.invalidateQueries({ queryKey: ["nodes"] });
+        }
+      },
+    },
+  });
 
   if (!nodeId) {
     return (

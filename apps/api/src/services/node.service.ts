@@ -3,6 +3,7 @@ import type { Node, NodeUpdate } from "@sigilpanel/shared";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { encrypt } from "../lib/crypto";
+import { emit } from "./sse.service";
 
 function toNode(row: typeof schema.nodes.$inferSelect, regionName: string): Node {
   return {
@@ -99,6 +100,7 @@ export async function deleteNode(
   }
 
   await db.delete(schema.nodes).where(eq(schema.nodes.id, id));
+  emit("node.delete", { id });
   return { ok: true };
 }
 

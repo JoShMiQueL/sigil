@@ -7,6 +7,7 @@ import { PairingTokenDialog } from "../components/PairingTokenDialog";
 import { RegionList } from "../components/RegionList";
 import { useGeneratePairingToken, useNodes } from "../hooks/useNodes";
 import { useCreateRegion, useDeleteRegion, useRegions } from "../hooks/useRegions";
+import { useSSE } from "../hooks/useSSE";
 
 export function NodesPage() {
   const router = useRouter();
@@ -16,6 +17,14 @@ export function NodesPage() {
   const createRegionMutation = useCreateRegion();
   const deleteRegionMutation = useDeleteRegion();
   const generateTokenMutation = useGeneratePairingToken();
+
+  useSSE({
+    invalidations: {
+      "node.update": [["nodes"]],
+      "node.create": [["nodes"]],
+      "node.delete": [["nodes"]],
+    },
+  });
 
   const regions = regionsData ?? [];
 
