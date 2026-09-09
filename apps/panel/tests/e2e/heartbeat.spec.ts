@@ -45,7 +45,7 @@ test.describe("US3: Health monitoring [T046]", () => {
     });
     expect(regRes.status()).toBe(201);
     const regBody = await regRes.json();
-    const { nodeId, secretId, secret } = regBody;
+    const { secretId, secret } = regBody;
 
     // Send a heartbeat with valid auth
     const ts = Math.floor(Date.now() / 1000);
