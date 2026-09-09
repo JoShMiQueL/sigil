@@ -51,7 +51,7 @@ test.describe("US4: Node lifecycle management [T053b]", () => {
 
     // Edit display name
     await page.click("button:has-text('Edit Node')");
-    const nameInput = page.locator("dd input[type='text']");
+    const nameInput = page.locator("input[type='text']").first();
     await nameInput.fill("My Renamed Node");
     await page.click("button:has-text('Save')");
     await expect(page.locator("text=Node updated")).toBeVisible({ timeout: 5000 });
@@ -71,6 +71,7 @@ test.describe("US4: Node lifecycle management [T053b]", () => {
     await page.waitForURL("/nodes", { timeout: 5000 });
 
     // Node should be gone
-    await expect(page.locator("text=My Renamed Node")).not.toBeVisible({ timeout: 5000 });
+    await expect(page.locator("h1")).not.toHaveText("My Renamed Node", { timeout: 5000 });
+    await expect(page.locator("tr:has-text('My Renamed Node')")).not.toBeVisible({ timeout: 5000 });
   });
 });

@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-09
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: Parent roadmap: `ROADMAP.md` → entry **R17**. Real-time Panel — SSE infrastructure, replace polling, reactive panel. Constitution Principle VI mandates HTTP for actions, SSE for panel updates, WebSocket for console/SFTP. No polling for state data.
 

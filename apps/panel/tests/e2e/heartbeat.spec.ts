@@ -45,7 +45,7 @@ test.describe("US3: Health monitoring [T046]", () => {
     });
     expect(regRes.status()).toBe(201);
     const regBody = await regRes.json();
-    const { nodeId, secret } = regBody;
+    const { nodeId, secretId, secret } = regBody;
 
     // Send a heartbeat with valid auth
     const ts = Math.floor(Date.now() / 1000);
@@ -67,7 +67,7 @@ test.describe("US3: Health monitoring [T046]", () => {
       false,
       ["sign"],
     );
-    const message = enc.encode(`${nodeId}${ts}${body}`);
+    const message = enc.encode(`${ts}${body}`);
     const sigBuf = await crypto.subtle.sign("HMAC", key, message);
     const signature = Array.from(new Uint8Array(sigBuf))
       .map((b) => b.toString(16).padStart(2, "0"))
@@ -76,7 +76,7 @@ test.describe("US3: Health monitoring [T046]", () => {
     const hbRes = await request.post("http://localhost:3000/api/node/heartbeat", {
       headers: {
         "Content-Type": "application/json",
-        "x-node-id": nodeId,
+        "x-node-id": secretId,
         "x-node-signature": signature,
         "x-node-timestamp": ts.toString(),
       },

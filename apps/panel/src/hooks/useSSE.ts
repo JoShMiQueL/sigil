@@ -188,6 +188,7 @@ export function useSSE(options: UseSSEOptions = {}): UseSSEReturn {
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: SSE connection is singleton, options captured on mount
   useEffect(() => {
     const stateListener = (newState: SSEConnectionState) => {
       setLocalState(newState);
