@@ -2,7 +2,6 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { apiKeys } from "./schema/api-keys";
 import { auditLogs } from "./schema/audit-logs";
-import { groups } from "./schema/groups";
 import { nodeCredentials } from "./schema/node-credentials";
 import { nodes } from "./schema/nodes";
 import { pairingTokens } from "./schema/pairing-tokens";
@@ -24,7 +23,6 @@ export const schema = {
   nodes,
   pairingTokens,
   nodeCredentials,
-  groups,
   templates,
   variables,
   registries,

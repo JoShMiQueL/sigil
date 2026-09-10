@@ -44,7 +44,7 @@ export const RegistryIndexEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  group: z.string(),
+  tags: z.array(z.string().min(1).max(50)).default([]),
   author: z.string().optional(),
   version: z.string(),
   file: z.string(),

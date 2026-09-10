@@ -36,6 +36,13 @@
       "when": 1789051041770,
       "tag": "0004_clean_juggernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789052000000,
+      "tag": "0005_drop_groups_add_tags",
+      "breakpoints": true
     }
   ]
 }

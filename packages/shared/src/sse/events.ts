@@ -3,7 +3,6 @@ import { UserSchema } from "../auth/user";
 import { NodeSchema } from "../node/node";
 import { RegionWithCountsSchema } from "../node/region";
 import { ChangeSchema } from "../template/changelog";
-import { GroupSchema } from "../template/group";
 import { TemplateSchema } from "../template/template";
 
 export const SSEEventTypeSchema = z.enum([
@@ -14,9 +13,6 @@ export const SSEEventTypeSchema = z.enum([
   "server.state",
   "user.update",
   "connected",
-  "group.create",
-  "group.update",
-  "group.delete",
   "template.create",
   "template.update",
   "template.delete",
@@ -59,12 +55,6 @@ export const ConnectedPayloadSchema = z.object({
 });
 export type ConnectedPayload = z.infer<typeof ConnectedPayloadSchema>;
 
-export const GroupDeletePayloadSchema = z.object({
-  id: z.string().uuid(),
-  deleted: z.literal(true),
-});
-export type GroupDeletePayload = z.infer<typeof GroupDeletePayloadSchema>;
-
 export const TemplateDeletePayloadSchema = z.object({
   id: z.string().uuid(),
   deleted: z.literal(true),
@@ -99,8 +89,6 @@ export const SSEEventPayloadSchema = z.union([
   UserDeletePayloadSchema,
   ServerStatePayloadSchema,
   ConnectedPayloadSchema,
-  GroupSchema,
-  GroupDeletePayloadSchema,
   TemplateSchema,
   TemplateDeletePayloadSchema,
   TemplateUpdateAvailablePayloadSchema,

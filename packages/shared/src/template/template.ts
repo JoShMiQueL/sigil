@@ -18,7 +18,6 @@ export type ResourceLimitsRange = z.infer<typeof ResourceLimitsRangeSchema>;
 
 export const TemplateSchema = z.object({
   id: z.string().uuid(),
-  groupId: z.string().uuid(),
   registryId: z.string().uuid().nullable(),
   sourceId: z.string().nullable(),
   sourceHash: z.string().nullable(),
@@ -34,6 +33,7 @@ export const TemplateSchema = z.object({
   resourceLimits: ResourceLimitsSchema,
   resourceLimitsRange: ResourceLimitsRangeSchema.nullable(),
   changelog: ChangelogSchema.default([]),
+  tags: z.array(z.string().min(1).max(50)).default([]),
   active: z.boolean().default(false),
   customized: z.boolean().default(false),
   variables: z.array(VariableSchema).default([]),
@@ -43,7 +43,6 @@ export const TemplateSchema = z.object({
 export type Template = z.infer<typeof TemplateSchema>;
 
 export const TemplateCreateSchema = z.object({
-  groupId: z.string().uuid(),
   name: z.string().min(1).max(100),
   description: z.string().nullable().optional(),
   author: z.string().nullable().optional(),
@@ -56,6 +55,7 @@ export const TemplateCreateSchema = z.object({
   resourceLimits: ResourceLimitsSchema,
   resourceLimitsRange: ResourceLimitsRangeSchema.nullable().optional(),
   changelog: ChangelogSchema.default([]),
+  tags: z.array(z.string().min(1).max(50)).default([]),
   variables: z
     .array(
       z.object({
@@ -91,6 +91,7 @@ export const TemplateUpdateSchema = z.object({
   resourceLimits: ResourceLimitsSchema.optional(),
   resourceLimitsRange: ResourceLimitsRangeSchema.nullable().optional(),
   changelog: ChangelogSchema.optional(),
+  tags: z.array(z.string().min(1).max(50)).optional(),
   variables: z
     .array(
       z.object({
@@ -135,6 +136,7 @@ export const TemplateYAMLSchema = z.object({
   resourceLimits: ResourceLimitsSchema,
   resourceLimitsRange: ResourceLimitsRangeSchema.optional(),
   changelog: ChangelogSchema.default([]),
+  tags: z.array(z.string().min(1).max(50)).default([]),
   variables: z
     .array(
       z.object({

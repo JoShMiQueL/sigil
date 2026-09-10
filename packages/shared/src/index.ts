@@ -15,7 +15,6 @@ export * from "./server/lifecycle";
 export * from "./server/state";
 export * from "./sse/events";
 export * from "./template/changelog";
-export * from "./template/group";
 export * from "./template/ptdlv2";
 export * from "./template/registry";
 export * from "./template/template";
