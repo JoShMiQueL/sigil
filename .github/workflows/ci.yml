@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  RATE_LIMIT_DISABLED: "1"
-
 jobs:
   lint-typecheck:
     name: Lint & Typecheck
@@ -18,8 +15,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install
-      - run: bun check
-      - run: bun typecheck
+      - run: bun run check
+      - run: bun run typecheck
 
   unit-integration:
     name: Unit & Integration Tests
@@ -36,13 +33,15 @@ jobs:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      RATE_LIMIT_DISABLED: "1"
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - name: Get Playwright version
         id: pw-version
-        run: echo "version=$(bun --filter @sigilpanel/panel exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(cd apps/panel && bunx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         id: pw-cache
         uses: actions/cache@v6
@@ -52,8 +51,8 @@ jobs:
       - run: bun --filter @sigilpanel/db db:generate
       - name: Install Playwright browsers
         if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: bun --filter @sigilpanel/panel exec playwright install --with-deps chromium
+        run: cd apps/panel && bunx playwright install --with-deps chromium
       - name: Install Playwright system deps
         if: steps.pw-cache.outputs.cache-hit == 'true'
-        run: bun --filter @sigilpanel/panel exec playwright install-deps chromium
+        run: cd apps/panel && bunx playwright install-deps chromium
       - run: bun run test:e2e
