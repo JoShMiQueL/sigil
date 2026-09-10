@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { Template, TemplateCreate } from "@sigilpanel/shared";
+import type { Template, TemplateCreate, VariableCreate } from "@sigilpanel/shared";
+import { VariableEditor } from "./variable-editor";
 
 interface TemplateFormProps {
   template?: Template | null;
@@ -21,6 +22,9 @@ export function TemplateForm({ template, groupId, onSubmit, onCancel }: Template
   const [pidsLimit, setPidsLimit] = useState(String(template?.resourceLimits?.pidsLimit ?? 512));
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [variables, setVariables] = useState<VariableCreate[]>(
+    (template?.variables as unknown as VariableCreate[]) ?? [],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +49,7 @@ export function TemplateForm({ template, groupId, onSubmit, onCancel }: Template
       },
       resourceLimitsRange: template?.resourceLimitsRange,
       changelog: template?.changelog ?? [],
-      variables: (template?.variables ?? []) as TemplateCreate["variables"],
+      variables: variables as TemplateCreate["variables"],
     };
 
     const result = await onSubmit(input);
@@ -115,6 +119,7 @@ export function TemplateForm({ template, groupId, onSubmit, onCancel }: Template
           <input id="tpl-pids" type="number" value={pidsLimit} onChange={(e) => setPidsLimit(e.target.value)} required style={{ marginLeft: "0.5rem" }} />
         </label>
       </fieldset>
+      <VariableEditor variables={variables} onChange={setVariables} />
       <button type="submit" disabled={submitting}>
         {submitting ? "Saving..." : template ? "Update Template" : "Create Template"}
       </button>

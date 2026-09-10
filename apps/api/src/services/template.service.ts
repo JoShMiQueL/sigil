@@ -5,6 +5,7 @@ import { emit } from "./sse.service";
 import { fetchRegistryIndex, fetchTemplateFile, type RegistryCredentials } from "../lib/registry-fetch";
 import { parseTemplateYAML } from "../lib/yaml-utils";
 import { createHash } from "node:crypto";
+import { validateVariables, VariableValidationError } from "./variable-validation";
 
 function toTemplate(
   row: typeof schema.templates.$inferSelect,
@@ -59,6 +60,10 @@ async function getTemplateVariables(templateId: string): Promise<typeof schema.v
 }
 
 export async function createTemplate(input: TemplateCreate): Promise<Template> {
+  if (input.variables && input.variables.length > 0) {
+    validateVariables(input.variables);
+  }
+
   const [row] = await db
     .insert(schema.templates)
     .values({
@@ -170,6 +175,7 @@ export async function updateTemplate(id: string, input: TemplateUpdate): Promise
     .returning();
 
   if (input.variables !== undefined) {
+    validateVariables(input.variables);
     await db.delete(schema.variables).where(eq(schema.variables.templateId, id));
     if (input.variables.length > 0) {
       await db.insert(schema.variables).values(

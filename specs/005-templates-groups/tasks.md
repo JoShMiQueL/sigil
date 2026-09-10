@@ -157,13 +157,13 @@
 
 ### Tests for User Story 4
 
-- [ ] T052 [P] [US4] Unit test for variable validation in `apps/api/src/services/template.service.spec.ts` — validate variable default values against their own rules (required without default, min/max, regex, allowed values for select, dataType coercion)
+- [X] T052 [P] [US4] Unit test for variable validation in `apps/api/src/services/template.service.spec.ts` — validate variable default values against their own rules (required without default, min/max, regex, allowed values for select, dataType coercion)
 
 ### Implementation for User Story 4
 
-- [ ] T053 [US4] Add variable validation logic to template service in `apps/api/src/services/template.service.ts` — validate default values against rules, reject required variables without defaults, reject conflicting envVar names within a template, validate regex patterns are valid (depends on T043, T002)
-- [ ] T054 [US4] Create VariableEditor component in `apps/panel/src/components/templates/variable-editor.tsx` — add/edit/remove/reorder variables, type-specific fields (min/max for integer, regex for string, allowed values for select), visibility dropdown, sort order drag (depends on T047)
-- [ ] T055 [US4] Integrate VariableEditor into TemplateForm in `apps/panel/src/components/templates/template-form.tsx` (depends on T054)
+- [X] T053 [US4] Add variable validation logic to template service in `apps/api/src/services/template.service.ts` — validate default values against rules, reject required variables without defaults, reject conflicting envVar names within a template, validate regex patterns are valid (depends on T043, T002)
+- [X] T054 [US4] Create VariableEditor component in `apps/panel/src/components/templates/variable-editor.tsx` — add/edit/remove/reorder variables, type-specific fields (min/max for integer, regex for string, allowed values for select), visibility dropdown, sort order drag (depends on T047)
+- [X] T055 [US4] Integrate VariableEditor into TemplateForm in `apps/panel/src/components/templates/template-form.tsx` (depends on T054)
 
 **Checkpoint**: User Story 4 is fully functional. Admin can define and validate typed variables within templates.
 

@@ -13,6 +13,7 @@ import {
   resetToUpstream,
   updateTemplate,
 } from "../services/template.service";
+import { VariableValidationError } from "../services/variable-validation";
 
 const templates = new Hono<AuthContext>();
 
@@ -62,6 +63,9 @@ templates.post("/", zValidator("json", TemplateCreateSchema), async (c) => {
     });
     return c.json(template, 201);
   } catch (err) {
+    if (err instanceof VariableValidationError) {
+      return c.json({ error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } }, 400);
+    }
     const cause = err instanceof Error && "cause" in err ? (err.cause as { code?: string }) : err;
     if (cause && typeof cause === "object" && "code" in cause && cause.code === "23505") {
       return c.json(
@@ -77,17 +81,31 @@ templates.patch("/:id", zValidator("json", TemplateUpdateSchema), async (c) => {
   const id = c.req.param("id");
   const input = c.req.valid("json");
 
-  const template = await updateTemplate(id, input);
-  if (!template) return c.json({ error: "Template not found" }, 404);
+  try {
+    const template = await updateTemplate(id, input);
+    if (!template) return c.json({ error: "Template not found" }, 404);
 
-  const user = c.get("user");
-  await logAudit({
-    userId: user?.id,
-    action: "template_update" as never,
-    targetType: "template",
-    targetId: template.id,
-  });
-  return c.json(template);
+    const user = c.get("user");
+    await logAudit({
+      userId: user?.id,
+      action: "template_update" as never,
+      targetType: "template",
+      targetId: template.id,
+    });
+    return c.json(template);
+  } catch (err) {
+    if (err instanceof VariableValidationError) {
+      return c.json({ error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } }, 400);
+    }
+    const cause = err instanceof Error && "cause" in err ? (err.cause as { code?: string }) : err;
+    if (cause && typeof cause === "object" && "code" in cause && cause.code === "23505") {
+      return c.json(
+        { error: { code: "TEMPLATE_NAME_EXISTS", message: "A template with this name already exists in this group" } },
+        409,
+      );
+    }
+    throw err;
+  }
 });
 
 templates.delete("/:id", async (c) => {
