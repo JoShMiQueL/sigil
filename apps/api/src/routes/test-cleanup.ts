@@ -1,5 +1,5 @@
 import { db, schema } from "@sigil/db";
-import { ne } from "drizzle-orm";
+import { ne, sql } from "drizzle-orm";
 import { Hono } from "hono";
 
 /**
@@ -7,6 +7,7 @@ import { Hono } from "hono";
  * Only registered when NODE_ENV is "test" or "development".
  * Never available in production — the guard is in index.ts.
  * Truncates all tables except the admin user so each test starts clean.
+ * Preserves the E2E daemon node (started by Playwright globalSetup).
  */
 const testCleanup = new Hono();
 
@@ -14,10 +15,15 @@ testCleanup.post("/cleanup", async (c) => {
   await db.delete(schema.variables);
   await db.delete(schema.templates);
   await db.delete(schema.registries);
-  await db.delete(schema.nodeCredentials);
+  // Preserve the E2E daemon node and its credentials (started by globalSetup)
+  await db
+    .delete(schema.nodeCredentials)
+    .where(
+      sql`${schema.nodeCredentials.nodeId} NOT IN (SELECT id FROM ${schema.nodes} WHERE hostname = 'e2e-daemon')`,
+    );
   await db.delete(schema.pairingTokens);
-  await db.delete(schema.nodes);
-  await db.delete(schema.regions);
+  await db.delete(schema.nodes).where(ne(schema.nodes.hostname, "e2e-daemon"));
+  await db.delete(schema.regions).where(ne(schema.regions.name, "e2e-daemon-region"));
   await db.delete(schema.apiKeys);
   await db.delete(schema.auditLogs);
   await db.delete(schema.passwordResetTokens);
