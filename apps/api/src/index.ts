@@ -14,6 +14,7 @@ import registriesRoutes from "./routes/registries";
 import serverStateRoutes from "./routes/server-state";
 import serversRoutes from "./routes/servers";
 import sseRoutes from "./routes/sse";
+import templatesRoutes from "./routes/templates";
 import testCleanupRoutes from "./routes/test-cleanup";
 import usersRoutes from "./routes/users";
 
@@ -42,6 +43,7 @@ app.route("/api/admin/users", usersRoutes);
 app.route("/api/admin/regions", regionsRoutes);
 app.route("/api/admin/groups", groupsRoutes);
 app.route("/api/admin/registries", registriesRoutes);
+app.route("/api/admin/templates", templatesRoutes);
 app.route("/api/admin/nodes", nodesRoutes);
 app.route("/api/admin/servers", serversRoutes);
 app.route("/api/admin/pairing", adminPairing);
