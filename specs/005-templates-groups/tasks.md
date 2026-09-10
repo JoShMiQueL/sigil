@@ -105,14 +105,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T032 [P] [US2] Integration test for registry CRUD in `apps/api/src/routes/registries.spec.ts` — create, list, edit, delete, credential redaction in responses, auth method validation (Testcontainers PostgreSQL)
-- [ ] T033 [P] [US2] Integration test for registry fetch and install in `apps/api/src/services/registry.service.spec.ts` — fetch index, list available templates, install template, duplicate install handling, unreachable registry handling (Testcontainers + mock HTTP server)
+- [X] T032 [P] [US2] Integration test for registry CRUD in `apps/api/src/routes/registries.spec.ts` — create, list, edit, delete, credential redaction in responses, auth method validation (Testcontainers PostgreSQL)
+- [X] T033 [P] [US2] Integration test for registry fetch and install in `apps/api/src/services/registry.service.spec.ts` — fetch index, list available templates, install template, duplicate install handling, unreachable registry handling (Testcontainers + mock HTTP server)
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Create registry service in `apps/api/src/services/registry.service.ts` — createRegistry, listRegistries (redact credentials), updateRegistry, deleteRegistry (set templates.registryId to null), getRegistryById, fetchIndex, listAvailableTemplates, installTemplate (depends on T014, T019)
-- [ ] T035 [US2] Create registries API routes in `apps/api/src/routes/registries.ts` — POST /api/registries, GET /api/registries, PATCH /api/registries/:id, DELETE /api/registries/:id, POST /api/registries/:id/check, GET /api/registries/:id/available, POST /api/registries/:id/install, admin-only guard, credential redaction (depends on T006, T034)
-- [ ] T036 [US2] Register registries routes in `apps/api/src/index.ts` (depends on T035)
+- [X] T034 [US2] Create registry service in `apps/api/src/services/registry.service.ts` — createRegistry, listRegistries (redact credentials), updateRegistry, deleteRegistry (set templates.registryId to null), getRegistryById, fetchIndex, listAvailableTemplates, installTemplate (depends on T014, T019)
+- [X] T035 [US2] Create registries API routes in `apps/api/src/routes/registries.ts` — POST /api/registries, GET /api/registries, PATCH /api/registries/:id, DELETE /api/registries/:id, POST /api/registries/:id/check, GET /api/registries/:id/available, POST /api/registries/:id/install, admin-only guard, credential redaction (depends on T006, T034)
+- [X] T036 [US2] Register registries routes in `apps/api/src/index.ts` (depends on T035)
 - [ ] T037 [P] [US2] Create useRegistries hook in `apps/panel/src/hooks/use-registries.ts` — fetch registries, available templates, install action, SSE subscription
 - [ ] T038 [P] [US2] Create RegistryForm component in `apps/panel/src/components/registries/registry-form.tsx` — URL, name, auth method (none/token/basic), credential fields (password type, never displayed back)
 - [ ] T039 [P] [US2] Create AvailableTemplates component in `apps/panel/src/components/registries/available-templates.tsx` — list available templates from a registry with install buttons

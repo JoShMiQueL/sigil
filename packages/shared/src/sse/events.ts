@@ -22,6 +22,7 @@ export const SSEEventTypeSchema = z.enum([
   "template.delete",
   "template.update_available",
   "template.update_applied",
+  "registry.update",
 ]);
 export type SSEEventType = z.infer<typeof SSEEventTypeSchema>;
 
