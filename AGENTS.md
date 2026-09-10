@@ -168,9 +168,9 @@ The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on
 Jobs:
 1. **Lint & Typecheck** — `pnpm check` + `pnpm typecheck`
 2. **Unit & Integration** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test` (Testcontainers auto-starts PostgreSQL, no external services needed)
-3. **E2E** — service containers (PostgreSQL + Redis) + `pnpm --filter @sigilpanel/db db:migrate` + `pnpm test:e2e` (with `RATE_LIMIT_DISABLED=1`)
+3. **E2E** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test:e2e` (Testcontainers auto-starts PostgreSQL + Redis, no external services needed)
 
-The E2E job uses GitHub Actions service containers for PostgreSQL and Redis, not the dev Docker compose. The Playwright config detects `CI` env var and uses Playwright's bundled Chromium instead of system Chromium.
+The E2E job uses the same `scripts/run-e2e.ts` Testcontainers orchestrator as local development — no GitHub Actions service containers, no separate CI setup. The Playwright config detects `CI` env var and uses Playwright's bundled Chromium instead of system Chromium.
 
 CI caching (all jobs):
 - **pnpm store** — cached by `pnpm/setup@v2` (keyed on `pnpm-lock.yaml`)
@@ -184,7 +184,7 @@ make ci         # all checks (lint, typecheck, test, e2e)
 make check      # lint only
 make typecheck  # type checking only
 make test       # unit + integration only
-make test-e2e   # E2E only (needs Docker running for dev services)
+make test-e2e   # E2E only (needs Docker running for Testcontainers)
 ```
 
 The `Makefile` targets mirror the workflow steps exactly. Requires Docker running.
@@ -311,14 +311,20 @@ pnpm --filter @sigilpanel/api test                 # API tests only
 ### E2E tests (`pnpm test:e2e`)
 
 - **Playwright** runs browser tests in `apps/panel/tests/e2e/`.
-- The Playwright config auto-starts the API and panel dev servers via `webServer` if they aren't already running, and stops them when done.
-- The API is started with `RATE_LIMIT_DISABLED=1` so login attempts are never throttled.
-- A `globalSetup` flushes Redis rate-limit keys and seeds the admin user (idempotent) before tests run.
-- Each test cleans up after itself via `afterEach` → `POST /test/cleanup` (only registered when `RATE_LIMIT_DISABLED=1`, never in production). Truncates all tables except the admin user.
+- `scripts/run-e2e.ts` is the single orchestrator for both local and CI. It:
+  1. Builds the panel for production (`vite build`)
+  2. Starts isolated PostgreSQL + Redis Testcontainers (random ports, no host conflicts)
+  3. Applies Drizzle migrations to the testcontainer
+  4. Seeds the admin user
+  5. Launches Playwright with `DATABASE_URL` + `REDIS_URL` pointing to the testcontainers
+  6. Stops the testcontainers on exit (success or failure)
+- The Playwright config `webServer` starts the API (`pnpm --filter @sigilpanel/api start` — `tsx` without watch, no hot reload) and the panel (`pnpm --filter @sigilpanel/panel preview` — serves the production build).
+- `NODE_ENV=development` enables the test-cleanup endpoint between tests.
+- `RATE_LIMIT_DISABLED=1` prevents login throttling during tests.
+- Each test cleans up after itself via `afterEach` → `POST /test/cleanup` (only registered when `NODE_ENV !== "production"`, never in real production). Truncates all tables except the admin user.
 - Each test is self-contained — creates what it needs, doesn't depend on previous tests.
-- In CI: GitHub Actions service containers provide a fresh PostgreSQL + Redis per job.
-- In local: dev Docker compose is used (persistent). Tests clean up after themselves to prevent pollution. The agent can drop the DB manually if needed.
 - Playwright uses its bundled Chromium in CI (`process.env.CI`), system Chromium locally (`/usr/bin/chromium-browser`).
+- **Local and CI are identical**: same command (`pnpm test:e2e`), same orchestrator, same Testcontainers. No separate CI setup.
 
 ```bash
 pnpm test:e2e                                      # Playwright E2E tests
@@ -354,14 +360,17 @@ apps/api/src/
     └── helpers.ts            # DB cleanup, user/node/region factories, request helpers
 
 apps/panel/tests/e2e/
-├── global-setup.ts           # Flush Redis + seed admin
 ├── helpers.ts                # cleanupDatabase() helper
 ├── login.spec.ts             # Admin login, invalid creds, logout
 ├── users.spec.ts             # User creation, suspension
 ├── regions.spec.ts           # Region create, delete, duplicate name (US1)
 ├── pairing.spec.ts           # Pairing token generation, daemon registration (US2)
 ├── heartbeat.spec.ts         # Heartbeat sends, online status verification (US3)
-└── node-lifecycle.spec.ts    # Node edit, regenerate creds, delete (US4)
+├── node-lifecycle.spec.ts    # Node edit, regenerate creds, delete (US4)
+└── real-time.spec.ts         # SSE: region/node updates, no polling (R17)
+
+scripts/
+└── run-e2e.ts                # Testcontainers orchestrator (PostgreSQL + Redis → Playwright)
 ```
 
 ## Spec Kit workflow

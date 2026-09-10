@@ -17,13 +17,17 @@
     "check": "biome check",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "test:e2e": "turbo run test:e2e",
+    "test:e2e": "tsx scripts/run-e2e.ts",
     "dev:services": "docker compose -f infra/docker/docker-compose.dev.yml up -d",
     "dev:services:down": "docker compose -f infra/docker/docker-compose.dev.yml down"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.12",
+    "@testcontainers/postgresql": "^12.1.0",
+    "@testcontainers/redis": "^12.1.0",
     "@types/node": "^24.0.0",
+    "testcontainers": "^12.1.0",
+    "tsx": "^4.23.13",
     "turbo": "^2.10.12",
     "typescript": "^7.0.2"
   }

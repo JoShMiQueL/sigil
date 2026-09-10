@@ -15,7 +15,6 @@ test:
 
 test-e2e:
 	pnpm --filter @sigilpanel/db db:generate
-	pnpm --filter @sigilpanel/db db:migrate
 	pnpm test:e2e
 
 # Full CI simulation: same 3 jobs as .github/workflows/ci.yml

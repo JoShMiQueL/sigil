@@ -54,33 +54,6 @@ jobs:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    services:
-      postgres:
-        image: postgres:18-alpine
-        env:
-          POSTGRES_USER: sigilpanel
-          POSTGRES_PASSWORD: sigilpanel
-          POSTGRES_DB: sigilpanel
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U sigilpanel"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis:8-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: postgresql://sigilpanel:sigilpanel@localhost:5432/sigilpanel
-      REDIS_URL: redis://localhost:6379
-      NODE_ENV: development
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/setup@v2
@@ -104,7 +77,6 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.pw-version.outputs.version }}
       - run: pnpm --filter @sigilpanel/db db:generate
-      - run: pnpm --filter @sigilpanel/db db:migrate
       - name: Install Playwright browsers
         if: steps.pw-cache.outputs.cache-hit != 'true'
         run: pnpm --filter @sigilpanel/panel exec playwright install --with-deps chromium
