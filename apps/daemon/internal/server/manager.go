@@ -337,6 +337,12 @@ func (m *Manager) UpdateStateFromMonitor(event docker.StateChangeEvent) {
 		return
 	}
 
+	// Ignore stale events from old containers (e.g. after restart creates a new container ID).
+	// The old container's "destroy"/"missing" event should not affect the new container's state.
+	if event.ContainerID != "" && entry.ContainerID != "" && event.ContainerID != entry.ContainerID {
+		return
+	}
+
 	entry.State = ContainerState(event.NewState)
 	if event.NewState == "missing" {
 		delete(m.servers, event.ServerID)
@@ -357,6 +363,11 @@ func (m *Manager) ShouldReportState(event docker.StateChangeEvent) bool {
 
 	// If manager kept "stopped" but monitor said "crashed", don't report the crash
 	if entry.State == StateStopped && event.NewState == "crashed" {
+		return false
+	}
+
+	// Ignore stale events from old containers (e.g. after restart creates a new container ID)
+	if event.ContainerID != "" && entry.ContainerID != "" && event.ContainerID != entry.ContainerID {
 		return false
 	}
 
