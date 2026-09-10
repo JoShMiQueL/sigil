@@ -128,7 +128,12 @@ export async function seedOfficialTemplates(): Promise<void> {
           startupCommand: parsed.startupCommand,
           stopSignal: parsed.stopSignal ?? "^C",
           environment: parsed.environment ?? {},
-          portMappings: parsed.portMappings ?? [],
+          portMappings: (parsed.portMappings ?? []).map((p) => ({
+            hostPort: p.externalPort,
+            containerPort: p.internalPort,
+            protocol: p.protocol as "tcp" | "udp",
+            hostIp: p.name,
+          })),
           resourceLimits: parsed.resourceLimits,
           resourceLimitsRange: parsed.resourceLimitsRange ?? null,
           changelog: parsed.changelog ?? [],
