@@ -1,9 +1,13 @@
 export { apiKeys } from "./api-keys";
 export { auditLogs } from "./audit-logs";
+export { groups } from "./groups";
 export { nodeCredentials } from "./node-credentials";
 export { nodes } from "./nodes";
 export { pairingTokens } from "./pairing-tokens";
 export { passwordResetTokens } from "./password-reset-tokens";
 export { regions } from "./regions";
+export { registries } from "./registries";
 export { sessions } from "./sessions";
+export { templates } from "./templates";
 export { users } from "./users";
+export { variables } from "./variables";

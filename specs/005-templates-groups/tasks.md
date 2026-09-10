@@ -44,12 +44,12 @@
 - [X] T008 Create `packages/shared/src/template/index.ts` re-exporting all template schemas (depends on T001-T007)
 - [X] T009 Update `packages/shared/src/index.ts` to export from `./template/index` (depends on T008)
 - [X] T010 Update `packages/shared/src/sse/events.ts` to add new SSE event types (template.create, template.update, template.delete, template.update_available, template.update_applied, group.create, group.update, group.delete) and payload schemas (depends on T003, T005)
-- [ ] T011 [P] Create groups table in `packages/db/src/schema/groups.ts`
-- [ ] T012 [P] Create templates table (includes resourceLimitsRange, changelog jsonb fields) in `packages/db/src/schema/templates.ts`
-- [ ] T013 [P] Create variables table in `packages/db/src/schema/variables.ts`
-- [ ] T014 [P] Create registries table in `packages/db/src/schema/registries.ts`
-- [ ] T015 Update `packages/db/src/schema/index.ts` to export groups, templates, variables, registries (depends on T011-T014)
-- [ ] T016 Generate Drizzle migration for groups, templates, variables, registries tables (depends on T015)
+- [X] T011 [P] Create groups table in `packages/db/src/schema/groups.ts`
+- [X] T012 [P] Create templates table (includes resourceLimitsRange, changelog jsonb fields) in `packages/db/src/schema/templates.ts`
+- [X] T013 [P] Create variables table in `packages/db/src/schema/variables.ts`
+- [X] T014 [P] Create registries table in `packages/db/src/schema/registries.ts`
+- [X] T015 Update `packages/db/src/schema/index.ts` to export groups, templates, variables, registries (depends on T011-T014)
+- [X] T016 Generate Drizzle migration for groups, templates, variables, registries tables (depends on T015)
 - [ ] T017 [P] Create official templates directory structure: `templates/index.yaml`, `templates/minecraft/paper-mc.yaml`, `templates/minecraft/vanilla-mc.yaml`, `templates/source-engine/csgo.yaml`, `templates/rust/rust.yaml`
 - [ ] T018 [P] Write `templates/index.yaml` with entries for all official templates (id, name, description, group, author, version, file, sha256)
 
