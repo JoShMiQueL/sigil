@@ -207,4 +207,77 @@ describe("node management routes [US4: node lifecycle]", () => {
     // With 0 servers (placeholder), deletion succeeds
     expect(res.status).toBe(204);
   });
+
+  it("T039: admin can set primary IP on a node", async () => {
+    const res = await apiRequest(app, `/api/admin/nodes/${nodeId}`, {
+      method: "PATCH",
+      cookie: adminCookie,
+      body: { primaryIp: "203.0.113.10" },
+    });
+    expect(res.status).toBe(200);
+    const body = await parseJson(res);
+    expect(body.primaryIp).toBe("203.0.113.10");
+  });
+
+  it("T039b: admin can clear primary IP on a node", async () => {
+    // First set it
+    await apiRequest(app, `/api/admin/nodes/${nodeId}`, {
+      method: "PATCH",
+      cookie: adminCookie,
+      body: { primaryIp: "203.0.113.10" },
+    });
+    // Then clear it
+    const res = await apiRequest(app, `/api/admin/nodes/${nodeId}`, {
+      method: "PATCH",
+      cookie: adminCookie,
+      body: { primaryIp: null },
+    });
+    expect(res.status).toBe(200);
+    const body = await parseJson(res);
+    expect(body.primaryIp).toBeNull();
+  });
+
+  it("T045: delete node with assigned allocations returns 409", async () => {
+    // Add allocations
+    await apiRequest(app, `/api/admin/nodes/${nodeId}/allocations`, {
+      method: "POST",
+      cookie: adminCookie,
+      body: { ip: "203.0.113.10", portStart: 25565, portEnd: 25567, protocol: "tcp" },
+    });
+    // Get the first allocation ID
+    const listRes = await apiRequest(app, `/api/admin/nodes/${nodeId}/allocations`, {
+      cookie: adminCookie,
+    });
+    const list = await parseJson(listRes);
+    const firstAllocId = list.allocations[0].id;
+    // Assign it to a fake server
+    await apiRequest(app, `/api/admin/nodes/${nodeId}/allocations/${firstAllocId}/assign`, {
+      method: "POST",
+      cookie: adminCookie,
+      body: { serverId: "00000000-0000-4000-8000-000000000001", isPrimary: true },
+    });
+    // Try to delete the node — should fail with 409
+    const deleteRes = await apiRequest(app, `/api/admin/nodes/${nodeId}`, {
+      method: "DELETE",
+      cookie: adminCookie,
+    });
+    expect(deleteRes.status).toBe(409);
+    const body = await parseJson(deleteRes);
+    expect(body.error.code).toBe("NODE_HAS_ASSIGNED_ALLOCATIONS");
+  });
+
+  it("T045b: delete node with only available allocations succeeds (cascades)", async () => {
+    // Add allocations (available, not assigned)
+    await apiRequest(app, `/api/admin/nodes/${nodeId}/allocations`, {
+      method: "POST",
+      cookie: adminCookie,
+      body: { ip: "203.0.113.10", portStart: 25565, portEnd: 25567, protocol: "tcp" },
+    });
+    // Delete the node — should succeed (available allocations cascade delete)
+    const deleteRes = await apiRequest(app, `/api/admin/nodes/${nodeId}`, {
+      method: "DELETE",
+      cookie: adminCookie,
+    });
+    expect(deleteRes.status).toBe(204);
+  });
 });

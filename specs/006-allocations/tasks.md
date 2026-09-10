@@ -133,7 +133,7 @@
 - [X] T036 [US4] Add auto-assign endpoint to allocations API in `apps/api/src/routes/allocations.ts` — POST /:nodeId/allocations/auto-assign (serverId) — finds first available allocation on primaryIp (or any if no primary), assigns as primary, returns allocation (depends on T010)
 - [X] T037 [US4] Add PATCH /:nodeId primaryIp update to nodes API in `apps/api/src/routes/nodes.ts` — allow setting/clearing primaryIp on a node (depends on T007)
 - [X] T038 [US4] Add auto-assign tests to `apps/api/src/routes/allocations.spec.ts` — test auto-assign with primaryIp set (picks from primaryIp), without primaryIp (picks any), no available (409), verify isPrimary=true (depends on T036)
-- [ ] T039 [US4] Add primaryIp update tests to `apps/api/src/routes/nodes.spec.ts` — test PATCH primaryIp (set, clear, invalid IP) (depends on T037)
+- [X] T039 [US4] Add primaryIp update tests to `apps/api/src/routes/nodes.spec.ts` — test PATCH primaryIp (set, clear, invalid IP) (depends on T037)
 - [X] T040 [P] [US4] Add useAutoAssignAllocation and useSetPrimaryIp mutations to `apps/panel/src/hooks/use-allocations.ts` (depends on T016)
 - [X] T041 [US4] Add primary IP selector to node detail page in `apps/panel/src/routes/node-detail.tsx` — dropdown of distinct IPs on the node, "Set as primary" button, "Clear" button (depends on T040)
 - [X] T042 [US4] MCP verification — set primary IP on a node, auto-assign an allocation via API, verify it picked from primary IP, verify isPrimary=true, clear primary IP, auto-assign again (picks any), verify no available allocations returns error (depends on T041)
@@ -148,14 +148,14 @@
 **Purpose**: Improvements that affect multiple user stories.
 
 - [X] T044 [P] Add node deletion protection in `apps/api/src/routes/nodes.ts` — check for assigned allocations before deleting a node, return 409 if any exist (depends on T010)
-- [ ] T045 [P] Add node deletion protection tests to `apps/api/src/routes/nodes.spec.ts` — test delete node with assigned allocations (409), delete node with only available allocations (ok, cascades) (depends on T044)
+- [X] T045 [P] Add node deletion protection tests to `apps/api/src/routes/nodes.spec.ts` — test delete node with assigned allocations (409), delete node with only available allocations (ok, cascades) (depends on T044)
 - [X] T046 [P] Update test-cleanup endpoint in `apps/api/src/routes/test-cleanup.ts` — delete allocations except those assigned to the E2E daemon's server (if any) (depends on T009)
-- [ ] T047 Run `bun run check` (lint + format) and fix any issues
-- [ ] T048 Run `bun run typecheck` and fix any type errors
-- [ ] T049 Run `bun run test` and ensure all unit/integration tests pass
-- [ ] T050 Run `bun run test:e2e` and ensure all E2E tests pass (including new allocation tests)
-- [ ] T051 Run quickstart.md validation scenarios end-to-end
-- [ ] T052 Update ROADMAP.md to mark R7 as `done` (in the same commit that completes the last task)
+- [X] T047 Run `bun run check` (lint + format) and fix any issues
+- [X] T048 Run `bun run typecheck` and fix any type errors
+- [X] T049 Run `bun run test` and ensure all unit/integration tests pass
+- [X] T050 Run `bun run test:e2e` and ensure all E2E tests pass (including new allocation tests)
+- [X] T051 Run quickstart.md validation scenarios end-to-end
+- [X] T052 Update ROADMAP.md to mark R7 as `done` (in the same commit that completes the last task)
 
 ---
 
