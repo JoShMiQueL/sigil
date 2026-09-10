@@ -1,11 +1,14 @@
-import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { cleanupDatabase } from "./helpers";
 
 const API_URL = "http://localhost:3000";
 
 function getNodeId(): string {
-  return readFileSync("/tmp/sigil-e2e-node-id", "utf-8").trim();
+  const nodeId = process.env.E2E_NODE_ID;
+  if (!nodeId) {
+    throw new Error("E2E_NODE_ID env var not set — run via scripts/run-e2e.ts");
+  }
+  return nodeId;
 }
 
 async function fetchRetry(url: string, init?: RequestInit, retries = 3): Promise<Response> {
