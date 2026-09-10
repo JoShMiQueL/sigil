@@ -149,7 +149,7 @@ Every container the daemon creates runs with minimal privileges and security con
 
 ### Key Entities *(include if feature involves data)*
 
-- **Daemon Configuration**: The daemon's local configuration file containing the panel URL, pairing token (for first registration), credential storage path, heartbeat interval, Docker socket path, volume base path, and security defaults.
+- **Daemon Configuration**: The daemon's local configuration file containing the panel URL, pairing token (for first registration), credential storage path, heartbeat interval, Docker socket path, volume base path, listen address, advertise IP (optional override for the IP the panel uses to reach the daemon; defaults to auto-detected outbound IP), hostname (optional override for the node hostname; defaults to `os.Hostname()`), and security defaults.
 - **Server Configuration**: The JSON payload sent by the panel to the daemon describing how to create and run a server container. Includes image, startup command, environment variables, port allocations, volume path, and resource limits.
 - **Container State**: The current lifecycle state of a server container (creating, running, stopped, crashed, removing, missing). Monitored by the daemon and reported to the panel.
 - **Filesystem Jail**: The security boundary around a server's files. Rooted at the server's volume directory. Enforces path canonicalization, symlink rejection, and traversal blocking.

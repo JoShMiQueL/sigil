@@ -1,10 +1,10 @@
-# SigilPanel
+# Sigil
 
 Modern game server management panel. A reimagining of Pterodactyl with modern technologies.
 
 ## Project Overview
 
-SigilPanel is a self-hosted game server management panel that runs game servers in isolated Docker containers. It consists of a web panel for management and a daemon that runs on each node to control Docker containers.
+Sigil is a self-hosted game server management panel that runs game servers in isolated Docker containers. It consists of a web panel for management and a daemon that runs on each node to control Docker containers.
 
 ## Tech Stack
 

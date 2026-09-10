@@ -48,7 +48,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T008 Create daemon config struct and YAML parsing in `apps/daemon/internal/config/config.go` (panel_url, pairing_token, credentials_path, volume_base_path, docker_socket, listen_address, heartbeat_interval_sec, stop_timeout_sec, disk_full_threshold_pct, uid_range_start, uid_range_end, default_pids_limit, default_memory_limit_mb, default_cpu_limit, log_level)
+- [X] T008 Create daemon config struct and YAML parsing in `apps/daemon/internal/config/config.go` (panel_url, pairing_token, credentials_path, volume_base_path, docker_socket, listen_address, advertise_ip, hostname, heartbeat_interval_sec, stop_timeout_sec, disk_full_threshold_pct, uid_range_start, uid_range_end, default_pids_limit, default_memory_limit_mb, default_cpu_limit, log_level)
 - [X] T009 Create config validation in `apps/daemon/internal/config/config.go` — reject missing or malformed config, validate ranges (heartbeat > 0, uid range valid, disk threshold 0-100), exit on invalid config
 - [X] T010 [P] Write config tests in `apps/daemon/internal/config/config_test.go` — valid config parses, invalid config returns error, missing required fields rejected
 - [X] T011 Create credential storage in `apps/daemon/internal/auth/credentials.go` — load/save credentials from JSON file with 0600 permissions, handle missing file (first run)
