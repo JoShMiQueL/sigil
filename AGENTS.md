@@ -172,6 +172,11 @@ Jobs:
 
 The E2E job uses GitHub Actions service containers for PostgreSQL and Redis, not the dev Docker compose. The Playwright config detects `CI` env var and uses Playwright's bundled Chromium instead of system Chromium.
 
+CI caching (all jobs):
+- **pnpm store** — cached by `pnpm/setup@v2` (keyed on `pnpm-lock.yaml`)
+- **Turborepo** — `.turbo/` cached via `actions/cache@v6` (keyed per job + commit SHA)
+- **Playwright browsers** — `~/.cache/ms-playwright` cached via `actions/cache@v6` (keyed on Playwright version); on cache hit only system deps are reinstalled with `playwright install-deps`
+
 To run the same checks locally:
 
 ```bash
