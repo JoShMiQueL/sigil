@@ -30,6 +30,7 @@ export function TemplateList({
         <tr>
           <th>Name</th>
           <th>Version</th>
+          <th>Tags</th>
           <th>Image</th>
           <th>Active</th>
           <th>Customized</th>
@@ -41,6 +42,7 @@ export function TemplateList({
           <tr key={t.id}>
             <td>{t.name}</td>
             <td>{t.version}</td>
+            <td>{(t.tags ?? []).join(", ") || "—"}</td>
             <td>{t.image}</td>
             <td>{t.active ? "✓" : "—"}</td>
             <td>{t.customized ? "⚠" : "—"}</td>

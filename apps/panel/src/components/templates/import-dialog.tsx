@@ -1,9 +1,9 @@
 import { useState } from "react";
 
 interface ImportDialogProps {
-  groupId: string;
   onImport: (
     file: File,
+    tags: string[],
     conflict: "overwrite" | "skip",
   ) => Promise<{ error?: string; skippedFields?: string[]; conflict?: string }>;
   onClose: () => void;
@@ -11,6 +11,7 @@ interface ImportDialogProps {
 
 export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [tagsInput, setTagsInput] = useState("");
   const [conflict, setConflict] = useState<"overwrite" | "skip">("skip");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ skippedFields: string[]; conflict: string } | null>(null);
@@ -24,7 +25,12 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
     setError(null);
     setImporting(true);
 
-    const res = await onImport(file, conflict);
+    const tags = tagsInput
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const res = await onImport(file, tags, conflict);
     setImporting(false);
 
     if (res.error) {
@@ -63,6 +69,19 @@ export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
             type="file"
             accept=".json,.yaml,.yml"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            style={{ display: "block", marginTop: "0.25rem" }}
+          />
+        </label>
+      </div>
+      <div style={{ marginBottom: "0.5rem" }}>
+        <label htmlFor="import-tags">
+          Tags (comma-separated):
+          <input
+            id="import-tags"
+            type="text"
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            placeholder="minecraft, java"
             style={{ display: "block", marginTop: "0.25rem" }}
           />
         </label>

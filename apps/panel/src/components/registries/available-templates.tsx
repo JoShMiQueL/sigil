@@ -20,7 +20,7 @@ export function AvailableTemplates({
       <thead>
         <tr>
           <th>Name</th>
-          <th>Group</th>
+          <th>Tags</th>
           <th>Author</th>
           <th>Version</th>
           <th>Action</th>
@@ -30,7 +30,7 @@ export function AvailableTemplates({
         {templates.map((t) => (
           <tr key={t.id}>
             <td>{t.name}</td>
-            <td>{t.group}</td>
+            <td>{(t.tags ?? []).join(", ") || "—"}</td>
             <td>{t.author ?? "—"}</td>
             <td>{t.version}</td>
             <td>

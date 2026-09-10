@@ -3,12 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-export function useTemplates(opts: { groupId?: string } = {}) {
+export function useTemplates(opts: { tag?: string } = {}) {
   const params = new URLSearchParams();
-  if (opts.groupId) params.set("groupId", opts.groupId);
+  if (opts.tag) params.set("tag", opts.tag);
 
   return useQuery({
-    queryKey: ["templates", opts.groupId ?? "all"],
+    queryKey: ["templates", opts.tag ?? "all"],
     queryFn: async () => {
       const url = `${API_URL}/api/admin/templates${params.toString() ? `?${params}` : ""}`;
       const res = await fetch(url, { credentials: "include" });
@@ -142,16 +142,16 @@ export function useImportTemplate() {
   return useMutation({
     mutationFn: async ({
       file,
-      groupId,
+      tags,
       conflict,
     }: {
       file: File;
-      groupId: string;
+      tags: string[];
       conflict: "overwrite" | "skip";
     }) => {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("groupId", groupId);
+      formData.append("tags", tags.join(","));
       formData.append("conflict", conflict);
 
       const res = await fetch(`${API_URL}/api/admin/templates/import`, {

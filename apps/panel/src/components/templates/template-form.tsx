@@ -4,12 +4,11 @@ import { VariableEditor } from "./variable-editor";
 
 interface TemplateFormProps {
   template?: Template | null;
-  groupId: string;
   onSubmit: (input: TemplateCreate) => Promise<{ error?: string }>;
   onCancel?: () => void;
 }
 
-export function TemplateForm({ template, groupId, onSubmit, onCancel }: TemplateFormProps) {
+export function TemplateForm({ template, onSubmit, onCancel }: TemplateFormProps) {
   const [name, setName] = useState(template?.name ?? "");
   const [description, setDescription] = useState(template?.description ?? "");
   const [author, setAuthor] = useState(template?.author ?? "");
@@ -20,6 +19,7 @@ export function TemplateForm({ template, groupId, onSubmit, onCancel }: Template
   const [memoryMb, setMemoryMb] = useState(String(template?.resourceLimits?.memoryMb ?? 1024));
   const [cpuLimit, setCpuLimit] = useState(String(template?.resourceLimits?.cpuLimit ?? 1.0));
   const [pidsLimit, setPidsLimit] = useState(String(template?.resourceLimits?.pidsLimit ?? 512));
+  const [tagsInput, setTagsInput] = useState((template?.tags ?? []).join(", "));
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [variables, setVariables] = useState<VariableCreate[]>(
@@ -32,7 +32,6 @@ export function TemplateForm({ template, groupId, onSubmit, onCancel }: Template
     setSubmitting(true);
 
     const input: TemplateCreate = {
-      groupId,
       name,
       description: description || undefined,
       author: author || undefined,
@@ -49,6 +48,10 @@ export function TemplateForm({ template, groupId, onSubmit, onCancel }: Template
       },
       resourceLimitsRange: template?.resourceLimitsRange,
       changelog: template?.changelog ?? [],
+      tags: tagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
       variables: variables as TemplateCreate["variables"],
     };
 
@@ -149,6 +152,19 @@ export function TemplateForm({ template, groupId, onSubmit, onCancel }: Template
             type="text"
             value={stopSignal}
             onChange={(e) => setStopSignal(e.target.value)}
+            style={{ display: "block", marginTop: "0.25rem" }}
+          />
+        </label>
+      </div>
+      <div style={{ marginBottom: "0.5rem" }}>
+        <label htmlFor="tpl-tags">
+          Tags (comma-separated):
+          <input
+            id="tpl-tags"
+            type="text"
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            placeholder="minecraft, java, paper"
             style={{ display: "block", marginTop: "0.25rem" }}
           />
         </label>
