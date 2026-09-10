@@ -168,7 +168,8 @@ The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on
 Jobs:
 1. **Lint & Typecheck** — `bun run check` + `bun run typecheck`
 2. **Unit & Integration** — `bun --filter @sigilpanel/db db:generate` + `bun run test` (Testcontainers auto-starts PostgreSQL, no external services needed)
-3. **E2E** — `bun --filter @sigilpanel/db db:generate` + `bun run test:e2e` (Testcontainers auto-starts PostgreSQL + Redis, no external services needed)
+3. **Daemon** — `go build ./...` + `go test ./internal/... -short` (unit) + `go test ./internal/... -tags integration` (integration, needs Docker)
+4. **E2E** — `bun --filter @sigilpanel/db db:generate` + `bun run test:e2e` (Testcontainers auto-starts PostgreSQL + Redis, no external services needed)
 
 The E2E job uses the same `scripts/run-e2e.ts` Testcontainers orchestrator as local development — no GitHub Actions service containers, no separate CI setup. The Playwright config detects `CI` env var and uses Playwright's bundled Chromium instead of system Chromium.
 
@@ -187,6 +188,19 @@ make test-e2e   # E2E only (needs Docker running for Testcontainers)
 ```
 
 The `Makefile` targets mirror the workflow steps exactly. Requires Docker running.
+
+### Daemon (Go)
+
+```bash
+cd apps/daemon
+make build              # build daemon binary
+make test               # unit tests only (short mode)
+make test-integration   # integration tests (needs Docker)
+make test-all           # all tests
+make lint               # go vet
+```
+
+The daemon is a Go 1.27 application in `apps/daemon/`. It uses the Docker Engine API (not Docker CLI) and communicates with the panel over authenticated HTTP (HMAC-SHA256).
 
 ## E2E verification workflow
 

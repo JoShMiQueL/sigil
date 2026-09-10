@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-10
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: Parent roadmap: `ROADMAP.md` -> entry **R6**. Daemon core -- Docker lifecycle, filesystem jail, container isolation. Depends on R4 (Node Management).
 
