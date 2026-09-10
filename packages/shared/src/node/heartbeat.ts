@@ -6,5 +6,6 @@ export const HeartbeatPayloadSchema = z.object({
   memoryUsage: z.number().min(0).max(100),
   diskUsage: z.number().min(0).max(100),
   containerCount: z.number().int().min(0),
+  dockerAvailable: z.boolean().default(true),
 });
 export type HeartbeatPayload = z.infer<typeof HeartbeatPayloadSchema>;

@@ -14,7 +14,7 @@ function toNode(row: typeof schema.nodes.$inferSelect, regionName: string): Node
     displayName: row.displayName,
     ipAddress: row.ipAddress,
     capabilities: row.capabilities as Record<string, unknown>,
-    status: row.status as "online" | "offline" | "unknown",
+    status: row.status as "online" | "offline" | "degraded" | "unknown",
     cpuUsage: row.cpuUsage,
     memoryUsage: row.memoryUsage,
     diskUsage: row.diskUsage,

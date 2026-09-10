@@ -37,10 +37,10 @@ A machine running a SigilPanel daemon. Registered via pairing token. Reports hea
 | id | uuid | PK, default `gen_random_uuid()` | |
 | region_id | uuid | FK → regions.id, not null, on delete restrict | |
 | hostname | text | not null, max 255 | Daemon-reported hostname |
-| ip_address | inet | not null | Daemon-reported public IP |
+| ip_address | text | not null | Daemon-reported public IP (stored as text for flexibility) |
 | display_name | text | not null, max 64 | Admin-editable label, defaults to hostname |
 | capabilities | jsonb | not null, default `'{}'` | e.g., `{"docker": true, "sftp": true}` |
-| status | enum | not null, default `'unknown'` | Values: `online`, `offline`, `unknown` |
+| status | enum | not null, default `'unknown'` | Values: `online`, `offline`, `degraded`, `unknown` |
 | cpu_usage | real | nullable | 0-100, from last heartbeat |
 | memory_usage | real | nullable | 0-100, from last heartbeat |
 | disk_usage | real | nullable | 0-100, from last heartbeat |
@@ -54,10 +54,17 @@ A machine running a SigilPanel daemon. Registered via pairing token. Reports hea
 - `nodes_hostname_idx` on `hostname`
 
 **State transitions** (status field):
-- `unknown` → `online` (first heartbeat received)
+- `unknown` → `online` (first heartbeat received, `dockerAvailable: true`)
+- `unknown` → `degraded` (first heartbeat received, `dockerAvailable: false`)
 - `online` → `offline` (heartbeat timeout exceeded)
-- `offline` → `online` (heartbeat received after offline period)
+- `online` → `degraded` (heartbeat received with `dockerAvailable: false`)
+- `degraded` → `online` (heartbeat received with `dockerAvailable: true`)
+- `degraded` → `offline` (heartbeat timeout exceeded)
+- `offline` → `online` (heartbeat received after offline period, `dockerAvailable: true`)
+- `offline` → `degraded` (heartbeat received after offline period, `dockerAvailable: false`)
 - `unknown` → `offline` (heartbeat timeout exceeded without ever being online)
+
+**Note**: The `degraded` status is introduced in R6. R4 only uses `online`, `offline`, and `unknown`. The `dockerAvailable` field in the heartbeat payload (also introduced in R6) controls the `online` vs `degraded` transition.
 
 **Deletion rules**:
 - Cannot delete a node with running servers (enforced in R9, API checks server count)
@@ -99,7 +106,7 @@ Authentication credentials for a daemon to communicate with the panel.
 |-------|------|-------------|-------|
 | id | uuid | PK, default `gen_random_uuid()` | |
 | node_id | uuid | FK → nodes.id, not null, on delete cascade | |
-| secret_hash | text | not null | Argon2id hash of the secret |
+| secret_encrypted | text | not null | AES-256 encrypted secret (reversible — API decrypts to verify HMAC signatures) |
 | secret_id | text | not null, max 32 | Public identifier sent in `X-Node-Id` header |
 | created_at | timestamptz | not null, default `now()` | |
 | revoked_at | timestamptz | nullable | Set when credentials are regenerated |
@@ -114,7 +121,7 @@ Authentication credentials for a daemon to communicate with the panel.
 - Revoked when admin regenerates credentials (revoked_at set, new credential created)
 - A node has at most one active credential (revoked_at IS NULL)
 
-**Secret format**: `secret_id` is a random 16-char base64url string. The full secret is `sigilnode_<base64url(32 bytes)>`, shown once at registration or regeneration. Only Argon2id hash stored. Authentication uses HMAC-SHA256 with the secret as key.
+**Secret format**: `secret_id` is a random 16-char base64url string. The full secret is `sigilnode_<base64url(32 bytes)>`, shown once at registration or regeneration. The secret is stored AES-256 encrypted (reversible) — the API decrypts it to verify HMAC-SHA256 signatures on incoming daemon requests. Authentication uses HMAC-SHA256 with the secret as key.
 
 ### Heartbeat
 
@@ -127,9 +134,10 @@ Not a persisted entity — heartbeats are processed in real-time and update the 
 | memory_usage | real | not null, 0-100 | |
 | disk_usage | real | not null, 0-100 | |
 | container_count | integer | not null, >= 0 | |
+| docker_available | boolean | not null, default true | Introduced in R6. When false, node status is set to `degraded` instead of `online`. |
 
 **Processing**:
-- On receipt: validate HMAC signature, validate timestamp window, update node's `status` to `online`, `last_heartbeat_at` to `now()`, and resource fields.
+- On receipt: validate HMAC signature, validate timestamp window, update node's `status` to `online` (or `degraded` if `docker_available` is false), `last_heartbeat_at` to `now()`, and resource fields.
 - On timeout: periodic sweep marks nodes as `offline` when `last_heartbeat_at < now() - 90s`.
 
 ## Entity Relationships

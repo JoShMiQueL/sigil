@@ -8,6 +8,7 @@ export const SSEEventTypeSchema = z.enum([
   "node.create",
   "node.delete",
   "region.update",
+  "server.state",
   "user.update",
   "connected",
 ]);
@@ -30,6 +31,16 @@ export const UserDeletePayloadSchema = z.object({
 });
 export type UserDeletePayload = z.infer<typeof UserDeletePayloadSchema>;
 
+export const ServerStatePayloadSchema = z.object({
+  serverId: z.string().uuid(),
+  nodeId: z.string().uuid(),
+  state: z.enum(["creating", "running", "stopped", "crashed", "removing", "missing"]),
+  reason: z.string().optional(),
+  exitCode: z.number().int().nullable().optional(),
+  timestamp: z.string().datetime(),
+});
+export type ServerStatePayload = z.infer<typeof ServerStatePayloadSchema>;
+
 export const ConnectedPayloadSchema = z.object({
   connectionId: z.string().uuid(),
   userId: z.string().uuid(),
@@ -43,6 +54,7 @@ export const SSEEventPayloadSchema = z.union([
   RegionDeletePayloadSchema,
   UserSchema,
   UserDeletePayloadSchema,
+  ServerStatePayloadSchema,
   ConnectedPayloadSchema,
 ]);
 export type SSEEventPayload = z.infer<typeof SSEEventPayloadSchema>;

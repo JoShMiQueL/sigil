@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const NodeStatusSchema = z.enum(["online", "offline", "unknown"]);
+export const NodeStatusSchema = z.enum(["online", "offline", "degraded", "unknown"]);
 export type NodeStatus = z.infer<typeof NodeStatusSchema>;
 
 export const NodeCapabilitiesSchema = z

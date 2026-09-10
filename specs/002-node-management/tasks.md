@@ -122,7 +122,7 @@
 - [X] T041 [US3] Start heartbeat timeout sweep interval in `apps/api/src/index.ts` (30s sweep, marks nodes offline if last_heartbeat_at > 90s ago)
 - [X] T042 [P] [US3] Create node detail page in `apps/panel/src/routes/node-detail.tsx` (shows node info + resource usage)
 - [X] T043 [P] [US3] Create node detail panel component in `apps/panel/src/components/NodeDetailPanel.tsx` (CPU/memory/disk bars, container count, last heartbeat time)
-- [X] T044 [US3] Add 15s polling to node table in `apps/panel/src/components/NodeTable.tsx` (refresh node list when page is active, show online/offline/unknown indicators)
+- [X] T044 [US3] Add real-time node status updates to node table in `apps/panel/src/components/NodeTable.tsx` (refresh node list when page is active via SSE subscription from R17, show online/offline/unknown/degraded indicators)
 - [X] T045 [US3] Add node row click navigation to node detail page in `apps/panel/src/components/NodeTable.tsx`
 - [X] T046 [P] [US3] E2E test for heartbeat flow in `apps/panel/tests/e2e/heartbeat.spec.ts` (register node, send heartbeat via API, verify online status + resource data in UI)
 

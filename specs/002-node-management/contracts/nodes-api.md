@@ -17,19 +17,19 @@ List all nodes with status and resource usage.
 [
   {
     "id": "uuid",
-    "region_id": "uuid",
-    "region_name": "EU-West",
+    "regionId": "uuid",
+    "regionName": "EU-West",
     "hostname": "node-01.example.com",
-    "display_name": "Node 01",
-    "ip_address": "203.0.113.10",
+    "displayName": "Node 01",
+    "ipAddress": "203.0.113.10",
     "status": "online",
-    "cpu_usage": 42.5,
-    "memory_usage": 68.0,
-    "disk_usage": 35.2,
-    "container_count": 5,
-    "last_heartbeat_at": "2026-09-09T...",
-    "created_at": "2026-09-09T...",
-    "updated_at": "2026-09-09T..."
+    "cpuUsage": 42.5,
+    "memoryUsage": 68.0,
+    "diskUsage": 35.2,
+    "containerCount": 5,
+    "lastHeartbeatAt": "2026-09-09T...",
+    "createdAt": "2026-09-09T...",
+    "updatedAt": "2026-09-09T..."
   }
 ]
 ```
@@ -42,20 +42,20 @@ Get a single node's details.
 ```json
 {
   "id": "uuid",
-  "region_id": "uuid",
-  "region_name": "EU-West",
+  "regionId": "uuid",
+  "regionName": "EU-West",
   "hostname": "node-01.example.com",
-  "display_name": "Node 01",
-  "ip_address": "203.0.113.10",
+  "displayName": "Node 01",
+  "ipAddress": "203.0.113.10",
   "capabilities": { "docker": true, "sftp": true },
   "status": "online",
-  "cpu_usage": 42.5,
-  "memory_usage": 68.0,
-  "disk_usage": 35.2,
-  "container_count": 5,
-  "last_heartbeat_at": "2026-09-09T...",
-  "created_at": "2026-09-09T...",
-  "updated_at": "2026-09-09T..."
+  "cpuUsage": 42.5,
+  "memoryUsage": 68.0,
+  "diskUsage": 35.2,
+  "containerCount": 5,
+  "lastHeartbeatAt": "2026-09-09T...",
+  "createdAt": "2026-09-09T...",
+  "updatedAt": "2026-09-09T..."
 }
 ```
 
@@ -68,8 +68,8 @@ Update a node's editable fields.
 **Request**: `NodeUpdateSchema`
 ```json
 {
-  "display_name": "New Name",
-  "region_id": "uuid"
+  "displayName": "New Name",
+  "regionId": "uuid"
 }
 ```
 
@@ -88,18 +88,26 @@ Remove a node. Fails if the node has running servers.
 { "error": { "code": "NODE_HAS_SERVERS", "message": "Cannot remove a node with active servers" } }
 ```
 
-## POST /api/admin/nodes/:id/regenerate-credentials
+## POST /api/admin/nodes/:id/credentials/regenerate
 
 Regenerate a node's authentication credentials. Old credentials are immediately revoked.
 
-**Response 200**: `NodeCredentialDisplaySchema`
+**Response 201**: `NodeCredentialDisplaySchema`
 ```json
 {
-  "node_id": "uuid",
-  "secret_id": "abc123...",
+  "nodeId": "uuid",
+  "secretId": "abc123...",
   "secret": "sigilnode_<base64url>",
-  "created_at": "2026-09-09T..."
+  "createdAt": "2026-09-09T..."
 }
 ```
 
 The `secret` is shown only once. The admin must copy it to the daemon configuration immediately.
+
+## POST /api/admin/nodes/:id/credentials/revoke
+
+Revoke a node's authentication credentials. The daemon will no longer be able to authenticate.
+
+**Response 204**: Credentials revoked.
+
+**Response 404**: Node not found.

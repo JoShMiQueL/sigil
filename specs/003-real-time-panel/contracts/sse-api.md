@@ -39,6 +39,7 @@ data: {"id":"...","name":"EU-West","nodeCount":3,"serverCount":0}
 | Node created | `node.create` | `Node` (full object) | Daemon registered via pairing |
 | Node deleted | `node.delete` | `{ id: string }` | Admin deletes node |
 | Region updated | `region.update` | `RegionWithCounts` or `{ id: string, deleted: true }` | Region created/deleted, counts changed |
+| Server state changed | `server.state` | `ServerStatePayload` (serverId, nodeId, state, reason, exitCode, timestamp) | Daemon reports container state change (R6) |
 | User updated | `user.update` | `User` (partial) or `{ id: string, deleted: true }` | User created/suspended/role changed |
 | Connected | `connected` | `{ connectionId: string, userId: string }` | SSE connection established |
 
@@ -52,6 +53,7 @@ export const SSEEventTypeSchema = z.enum([
   "node.create",
   "node.delete",
   "region.update",
+  "server.state",
   "user.update",
   "connected",
 ]);

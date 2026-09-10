@@ -14,7 +14,7 @@ Generate a pairing token for a specific region.
 **Request**: `PairingTokenCreateSchema`
 ```json
 {
-  "region_id": "uuid"
+  "regionId": "uuid"
 }
 ```
 
@@ -23,9 +23,9 @@ Generate a pairing token for a specific region.
 {
   "id": "uuid",
   "token": "sigilpair_<base64url>",
-  "region_id": "uuid",
-  "region_name": "EU-West",
-  "expires_at": "2026-09-09T..."
+  "regionId": "uuid",
+  "regionName": "EU-West",
+  "expiresAt": "2026-09-09T..."
 }
 ```
 
@@ -42,13 +42,13 @@ List pairing tokens (active and used, for audit purposes).
 [
   {
     "id": "uuid",
-    "region_id": "uuid",
-    "region_name": "EU-West",
-    "created_by": "uuid",
-    "expires_at": "2026-09-09T...",
-    "used_at": null,
-    "used_by_node_id": null,
-    "created_at": "2026-09-09T..."
+    "regionId": "uuid",
+    "regionName": "EU-West",
+    "createdBy": "uuid",
+    "expiresAt": "2026-09-09T...",
+    "usedAt": null,
+    "usedByNodeId": null,
+    "createdAt": "2026-09-09T..."
   }
 ]
 ```
@@ -66,9 +66,9 @@ Register a new daemon node using a pairing token. This is the only daemon endpoi
 **Request**: `PairingRequestSchema`
 ```json
 {
-  "pairing_token": "sigilpair_<base64url>",
+  "pairingToken": "sigilpair_<base64url>",
   "hostname": "node-01.example.com",
-  "ip_address": "203.0.113.10",
+  "ipAddress": "203.0.113.10",
   "capabilities": { "docker": true, "sftp": true }
 }
 ```
@@ -76,8 +76,8 @@ Register a new daemon node using a pairing token. This is the only daemon endpoi
 **Response 201**: `NodeRegistrationResponseSchema`
 ```json
 {
-  "node_id": "uuid",
-  "secret_id": "abc123...",
+  "nodeId": "uuid",
+  "secretId": "abc123...",
   "secret": "sigilnode_<base64url>"
 }
 ```
@@ -102,14 +102,15 @@ Send a heartbeat with resource usage data.
 ```json
 {
   "timestamp": 1736380800,
-  "cpu_usage": 42.5,
-  "memory_usage": 68.0,
-  "disk_usage": 35.2,
-  "container_count": 5
+  "cpuUsage": 42.5,
+  "memoryUsage": 68.0,
+  "diskUsage": 35.2,
+  "containerCount": 5,
+  "dockerAvailable": true
 }
 ```
 
-**Response 204**: Heartbeat accepted. Node status updated to `online`.
+**Response 204**: Heartbeat accepted. Node status updated to `online` (or `degraded` if `dockerAvailable` is false).
 
 **Response 401**: Invalid signature, unknown node, or revoked credentials.
 ```json

@@ -10,7 +10,7 @@ export async function processHeartbeat(nodeId: string, payload: HeartbeatPayload
   await db
     .update(schema.nodes)
     .set({
-      status: "online",
+      status: payload.dockerAvailable ? "online" : "degraded",
       cpuUsage: payload.cpuUsage,
       memoryUsage: payload.memoryUsage,
       diskUsage: payload.diskUsage,

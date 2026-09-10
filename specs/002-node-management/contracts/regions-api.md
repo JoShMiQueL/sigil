@@ -16,10 +16,10 @@ List all regions with node and server counts.
     "id": "uuid",
     "name": "EU-West",
     "description": "European servers",
-    "node_count": 3,
-    "server_count": 12,
-    "created_at": "2026-09-09T...",
-    "updated_at": "2026-09-09T..."
+    "nodeCount": 3,
+    "serverCount": 12,
+    "createdAt": "2026-09-09T...",
+    "updatedAt": "2026-09-09T..."
   }
 ]
 ```
@@ -42,8 +42,8 @@ Create a new region.
   "id": "uuid",
   "name": "EU-West",
   "description": "European servers",
-  "created_at": "2026-09-09T...",
-  "updated_at": "2026-09-09T..."
+  "createdAt": "2026-09-09T...",
+  "updatedAt": "2026-09-09T..."
 }
 ```
 
