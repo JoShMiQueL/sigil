@@ -7,6 +7,8 @@ import { CreateUserForm } from "./components/CreateUserForm";
 import { ErrorState } from "./components/ErrorState";
 import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { GroupForm } from "./components/groups/group-form";
+import { AvailableTemplates } from "./components/registries/available-templates";
+import { RegistryForm } from "./components/registries/registry-form";
 import { Layout } from "./components/Layout";
 import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
@@ -16,6 +18,14 @@ import { TwoFactorPrompt } from "./components/TwoFactorPrompt";
 import { UserTable } from "./components/UserTable";
 import { useAuth } from "./hooks/useAuth";
 import { useCreateGroup, useDeleteGroup, useGroups, useUpdateGroup } from "./hooks/use-groups";
+import {
+  useAvailableTemplates,
+  useCheckRegistry,
+useCreateRegistry,
+  useDeleteRegistry,
+  useInstallTemplate,
+  useRegistries,
+} from "./hooks/use-registries";
 import { useSSE } from "./hooks/useSSE";
 import { NodeDetailPage } from "./routes/node-detail";
 import { NodesPage } from "./routes/nodes";
@@ -134,6 +144,13 @@ function DashboardPage() {
         <p>
           <button type="button" onClick={() => router.navigate({ to: "/groups" })}>
             Manage Template Groups
+          </button>
+        </p>
+      )}
+      {user.role === "admin" && (
+        <p>
+          <button type="button" onClick={() => router.navigate({ to: "/registries" })}>
+            Manage Registries
           </button>
         </p>
       )}
@@ -712,6 +729,140 @@ const groupsRoute = createRoute({
   component: GroupsPage,
 });
 
+function RegistriesPage() {
+  const { data: registries, isLoading } = useRegistries();
+  const createMutation = useCreateRegistry();
+  const deleteMutation = useDeleteRegistry();
+  const checkMutation = useCheckRegistry();
+  const installMutation = useInstallTemplate();
+  const [showCreate, setShowCreate] = useState(false);
+  const [selectedRegistryId, setSelectedRegistryId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [installingId, setInstallingId] = useState<string | null>(null);
+
+  const { data: availableTemplates } = useAvailableTemplates(selectedRegistryId);
+
+  useSSE({
+    invalidations: {
+      "registry.update": [["registries"]],
+    },
+  });
+
+  return (
+    <Layout>
+      <h1>Template Registries</h1>
+      {error && <ErrorState message={error} />}
+
+      {showCreate ? (
+        <RegistryForm
+          onSubmit={async (input) => {
+            const result = await createMutation.mutateAsync(input);
+            if (result.error) {
+              setError(result.error);
+              return result;
+            }
+            setError(null);
+            setShowCreate(false);
+            return {};
+          }}
+          onCancel={() => setShowCreate(false)}
+        />
+      ) : (
+        <button type="button" onClick={() => setShowCreate(true)}>
+          Add Registry
+        </button>
+      )}
+
+      {isLoading ? (
+        <LoadingState message="Loading registries..." />
+      ) : registries && registries.length > 0 ? (
+        <table style={{ marginTop: "1rem", width: "100%" }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>URL</th>
+              <th>Auth</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {registries.map((reg) => (
+              <tr key={reg.id}>
+                <td>{reg.isOfficial ? "★ " : ""}{reg.name}</td>
+                <td>{reg.url}</td>
+                <td>{reg.authMethod}</td>
+                <td>{reg.status}</td>
+                <td>
+                  <button type="button" onClick={() => setSelectedRegistryId(reg.id)}>
+                    Browse
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await checkMutation.mutateAsync(reg.id);
+                    }}
+                    style={{ marginLeft: "0.5rem" }}
+                  >
+                    Check
+                  </button>
+                  {!reg.isOfficial && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const result = await deleteMutation.mutateAsync(reg.id);
+                        if (result.error) setError(result.error);
+                        else setError(null);
+                      }}
+                      style={{ marginLeft: "0.5rem" }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No registries configured.</p>
+      )}
+
+      {selectedRegistryId && (
+        <div style={{ marginTop: "1rem" }}>
+          <h2>Available Templates</h2>
+          <AvailableTemplates
+            templates={availableTemplates ?? []}
+            installingId={installingId}
+            onInstall={async (sourceId) => {
+              setInstallingId(sourceId);
+              const result = await installMutation.mutateAsync({
+                registryId: selectedRegistryId,
+                sourceId,
+              });
+              setInstallingId(null);
+              if (result.error) setError(result.error);
+              else setError(null);
+              return result;
+            }}
+          />
+        </div>
+      )}
+    </Layout>
+  );
+}
+
+const registriesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/registries",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: RegistriesPage,
+});
+
 export const routeTree = rootRoute.addChildren([
   loginRoute,
   dashboardRoute,
@@ -719,6 +870,7 @@ export const routeTree = rootRoute.addChildren([
   nodesRoute,
   nodeDetailRoute,
   groupsRoute,
+  registriesRoute,
   forgotPasswordRoute,
   resetPasswordRoute,
   securityRoute,

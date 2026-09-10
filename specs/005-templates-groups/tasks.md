@@ -113,11 +113,11 @@
 - [X] T034 [US2] Create registry service in `apps/api/src/services/registry.service.ts` — createRegistry, listRegistries (redact credentials), updateRegistry, deleteRegistry (set templates.registryId to null), getRegistryById, fetchIndex, listAvailableTemplates, installTemplate (depends on T014, T019)
 - [X] T035 [US2] Create registries API routes in `apps/api/src/routes/registries.ts` — POST /api/registries, GET /api/registries, PATCH /api/registries/:id, DELETE /api/registries/:id, POST /api/registries/:id/check, GET /api/registries/:id/available, POST /api/registries/:id/install, admin-only guard, credential redaction (depends on T006, T034)
 - [X] T036 [US2] Register registries routes in `apps/api/src/index.ts` (depends on T035)
-- [ ] T037 [P] [US2] Create useRegistries hook in `apps/panel/src/hooks/use-registries.ts` — fetch registries, available templates, install action, SSE subscription
-- [ ] T038 [P] [US2] Create RegistryForm component in `apps/panel/src/components/registries/registry-form.tsx` — URL, name, auth method (none/token/basic), credential fields (password type, never displayed back)
-- [ ] T039 [P] [US2] Create AvailableTemplates component in `apps/panel/src/components/registries/available-templates.tsx` — list available templates from a registry with install buttons
-- [ ] T040 [US2] Create registries management page in `apps/panel/src/routes/registries.tsx` — list registries with status, add/edit/delete via RegistryForm, view available templates, install templates (depends on T037, T038, T039)
-- [ ] T041 [US2] Add registries route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T040)
+- [X] T037 [P] [US2] Create useRegistries hook in `apps/panel/src/hooks/use-registries.ts` — fetch registries, available templates, install action, SSE subscription
+- [X] T038 [P] [US2] Create RegistryForm component in `apps/panel/src/components/registries/registry-form.tsx` — URL, name, auth method (none/token/basic), credential fields (password type, never displayed back)
+- [X] T039 [P] [US2] Create AvailableTemplates component in `apps/panel/src/components/registries/available-templates.tsx` — list available templates from a registry with install buttons
+- [X] T040 [US2] Create registries management page in `apps/panel/src/routes/registries.tsx` — list registries with status, add/edit/delete via RegistryForm, view available templates, install templates (depends on T037, T038, T039)
+- [X] T041 [US2] Add registries route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T040)
 
 **Checkpoint**: User Story 2 is fully functional. Admin can manage registries and install templates. Official registry is pre-seeded.
 
