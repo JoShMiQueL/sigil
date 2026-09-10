@@ -1,3 +1,1 @@
-{
-  "feature_directory": "specs/004-daemon-core"
-}
+{ "feature_directory": "specs/005-templates-groups" }
