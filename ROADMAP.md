@@ -1,6 +1,6 @@
-# Roadmap: SigilPanel
+# Roadmap: Sigil
 
-SigilPanel is a self-hosted platform for managing game servers across multiple nodes. It is too large for a single spec cycle, so it is decomposed into independently-specifiable sub-features. Each runs through its own `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` cycle.
+Sigil is a self-hosted platform for managing game servers across multiple nodes. It is too large for a single spec cycle, so it is decomposed into independently-specifiable sub-features. Each runs through its own `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` cycle.
 
 **Status legend**: planned · in-progress · done
 

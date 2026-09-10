@@ -6,7 +6,7 @@
 
 ## Summary
 
-User authentication and management for the SigilPanel control plane. Covers login/logout (P1), admin user management (P2), password reset via email (P3), TOTP 2FA (P4), and scoped API keys (P5). The panel owns all auth — the daemon is not involved in authentication.
+User authentication and management for the Sigil control plane. Covers login/logout (P1), admin user management (P2), password reset via email (P3), TOTP 2FA (P4), and scoped API keys (P5). The panel owns all auth — the daemon is not involved in authentication.
 
 ## Technical Context
 

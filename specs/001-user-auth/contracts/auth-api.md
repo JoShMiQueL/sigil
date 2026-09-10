@@ -123,7 +123,7 @@ Start 2FA enrollment. Returns a TOTP secret and QR code URI. Requires authentica
 ```json
 {
   "secret": "JBSWY3DPEHPK3PXP",
-  "qrUri": "otpauth://totp/SigilPanel:admin@example.com?secret=...",
+  "qrUri": "otpauth://totp/Sigil:admin@example.com?secret=...",
   "recoveryCodes": ["code1", "code2", ...]
 }
 ```

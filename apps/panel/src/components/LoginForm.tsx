@@ -38,7 +38,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1>SigilPanel</h1>
+      <h1>Sigil</h1>
       {error && <div role="alert">{error}</div>}
       <label>
         Email

@@ -24,7 +24,7 @@ export function TwoFactorPrompt({ userId, onVerify }: TwoFactorPromptProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1>SigilPanel</h1>
+      <h1>Sigil</h1>
       <h2>Two-Factor Authentication</h2>
       <p>Enter the 6-digit code from your authenticator app, or a recovery code.</p>
       {error && <div role="alert">{error}</div>}

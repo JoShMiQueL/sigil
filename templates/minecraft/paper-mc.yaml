@@ -1,6 +1,6 @@
 name: Paper MC
 description: High-performance Minecraft server with plugin support
-author: SigilPanel
+author: Sigil
 version: "1.0.0"
 image: eclipse-temurin:21-jre
 startupCommand: java -Xms{{memoryMb}}M -Xmx{{memoryMb}}M -jar paper.jar nogui

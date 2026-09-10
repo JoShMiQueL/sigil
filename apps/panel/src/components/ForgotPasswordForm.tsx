@@ -36,7 +36,7 @@ export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
   if (sent) {
     return (
       <div>
-        <h1>SigilPanel</h1>
+        <h1>Sigil</h1>
         <p>If an account exists for {email}, a password reset link has been sent.</p>
       </div>
     );
@@ -44,7 +44,7 @@ export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1>SigilPanel</h1>
+      <h1>Sigil</h1>
       <h2>Forgot Password</h2>
       {error && <div role="alert">{error}</div>}
       <label>

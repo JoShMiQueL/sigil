@@ -18,13 +18,13 @@
 >
 > **Impact on the research below**: R3 (registry index format) and R6 (seeding) originally referenced a `group` field; those references are updated to `tags` to reflect the current contract. The rest of the research (PTDL_v2 mapping, YAML parsing, registry fetch, background checker, credential storage, resource limits range, changelog format) is unaffected by the refactor.
 
-## R1: PTDL_v2 Field Mapping to SigilPanel Native Format
+## R1: PTDL_v2 Field Mapping to Sigil Native Format
 
 ### Decision
 
-SigilPanel uses its own native template format (YAML). PTDL_v2 eggs (JSON) are imported and converted. The mapping is:
+Sigil uses its own native template format (YAML). PTDL_v2 eggs (JSON) are imported and converted. The mapping is:
 
-| PTDL_v2 Field | SigilPanel Field | Transformation |
+| PTDL_v2 Field | Sigil Field | Transformation |
 |--------------|-----------------|----------------|
 | `name` | `name` | Direct |
 | `description` | `description` | Direct |
@@ -39,7 +39,7 @@ SigilPanel uses its own native template format (YAML). PTDL_v2 eggs (JSON) are i
 | `variables[].rules` (Laravel string) | `variables[].type` + structured validation | Parse pipe-delimited rules |
 | `variables[].field_type` ("text") | `variables[].dataType` (string/int/bool/select) | Infer from rules |
 | `variables[].user_viewable` + `user_editable` | `variables[].visibility` | See mapping below |
-| `meta.update_url` | — | Dropped (SigilPanel uses registry) |
+| `meta.update_url` | — | Dropped (Sigil uses registry) |
 | `file_denylist` | — | Dropped (jail handles this, R6) |
 | `features` | — | Dropped (Pterodactyl-specific) |
 | `scripts.installation` | — | Deferred (not in R8 scope) |
@@ -75,7 +75,7 @@ Parsing algorithm:
 
 ### Rationale
 
-SigilPanel modernizes PTDL_v2 by replacing Laravel-style validation strings with structured validation that Zod can validate natively. The `visibility` enum replaces two booleans with a single, clearer field. Deferred fields (install scripts, config parsers) are silently ignored — they are out of scope for R8 and will be considered in future roadmap items.
+Sigil modernizes PTDL_v2 by replacing Laravel-style validation strings with structured validation that Zod can validate natively. The `visibility` enum replaces two booleans with a single, clearer field. Deferred fields (install scripts, config parsers) are silently ignored — they are out of scope for R8 and will be considered in future roadmap items.
 
 ### Alternatives considered
 
@@ -129,7 +129,7 @@ templates:
     tags:
       - minecraft
       - java
-    author: SigilPanel
+    author: Sigil
     version: "1.1.0"
     file: minecraft/paper-mc.yaml
     sha256: "def456..."

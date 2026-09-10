@@ -30,7 +30,7 @@ A geographic or logical grouping of nodes. Nodes must belong to a region before 
 
 ### Node
 
-A machine running a SigilPanel daemon. Registered via pairing token. Reports health via heartbeats.
+A machine running a Sigil daemon. Registered via pairing token. Reports health via heartbeats.
 
 | Field | Type | Constraints | Notes |
 |-------|------|-------------|-------|

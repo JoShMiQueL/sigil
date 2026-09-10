@@ -1,4 +1,4 @@
-# Multi-stage build for SigilPanel daemon
+# Multi-stage build for Sigil daemon
 FROM golang:1.27-alpine AS builder
 
 WORKDIR /app

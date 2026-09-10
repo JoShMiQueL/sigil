@@ -32,7 +32,7 @@ An admin organizes the game catalog by tagging templates. Tags are free-form str
 
 ### User Story 2 - Admin Manages Registries and Installs Templates (Priority: P2)
 
-An admin configures one or more template registries — git repositories served via HTTP that contain YAML template files and an index. The official SigilPanel registry is pre-configured by default and its templates are pre-installed (seeded) on a fresh panel deployment. The admin can add additional registries: community public repos or private hosting repos with authentication (token or basic auth). The panel fetches the registry index and displays available templates that are not yet installed. The admin installs templates from any configured registry. Installed templates live in the panel's database. Private registries store credentials securely (redacted in logs).
+An admin configures one or more template registries — git repositories served via HTTP that contain YAML template files and an index. The official Sigil registry is pre-configured by default and its templates are pre-installed (seeded) on a fresh panel deployment. The admin can add additional registries: community public repos or private hosting repos with authentication (token or basic auth). The panel fetches the registry index and displays available templates that are not yet installed. The admin installs templates from any configured registry. Installed templates live in the panel's database. Private registries store credentials securely (redacted in logs).
 
 **Why this priority**: Registries are the distribution mechanism. Without them, the admin can only create templates manually. The official registry must be pre-configured so the panel is useful out of the box.
 
@@ -40,7 +40,7 @@ An admin configures one or more template registries — git repositories served 
 
 **Acceptance Scenarios**:
 
-1. **Given** a fresh panel deployment, **When** the admin views registries, **Then** the official SigilPanel registry is listed and its templates are already installed and active.
+1. **Given** a fresh panel deployment, **When** the admin views registries, **Then** the official Sigil registry is listed and its templates are already installed and active.
 2. **Given** the admin adds a public community registry URL, **When** the panel fetches its index, **Then** the registry's templates appear in the "Available templates" section with name, description, tags, and author.
 3. **Given** the admin adds a private registry requiring a token, **When** the panel fetches its index using the provided token, **Then** the registry's templates appear in "Available templates". If the token is invalid, the fetch fails with a descriptive error.
 4. **Given** templates are listed in "Available", **When** the admin clicks "Install" on a template, **Then** the template is copied to the panel database and appears in "Installed templates" with `active: false`.
@@ -92,7 +92,7 @@ An admin defines variables for a template. Variables are editable parameters exp
 
 ### User Story 5 - Admin Imports PTDL_v2 Eggs (Priority: P5)
 
-An admin imports Pterodactyl egg files (PTDL_v2 format, JSON) to create templates. The import parses the JSON egg file, extracts the image, startup command, environment variables, and variable definitions, and creates a template with all fields populated in SigilPanel's native format. The admin assigns tags to the imported template (the egg format has no tag concept, so tags come from the admin's input or a default derived from the egg name). If a template with the same name already exists, the admin chooses to overwrite or skip. Invalid egg files are rejected with a descriptive error indicating which field failed validation. The import converts PTDL_v2-specific fields to SigilPanel's modernized equivalents: `rules` strings become structured validation, `field_type` becomes a proper data type, and `user_viewable`/`user_editable` booleans become a single `visibility` enum. Deferred PTDL_v2 fields (install scripts, config file parsers, file denylist, features) are silently ignored and the admin is informed which fields were skipped.
+An admin imports Pterodactyl egg files (PTDL_v2 format, JSON) to create templates. The import parses the JSON egg file, extracts the image, startup command, environment variables, and variable definitions, and creates a template with all fields populated in Sigil's native format. The admin assigns tags to the imported template (the egg format has no tag concept, so tags come from the admin's input or a default derived from the egg name). If a template with the same name already exists, the admin chooses to overwrite or skip. Invalid egg files are rejected with a descriptive error indicating which field failed validation. The import converts PTDL_v2-specific fields to Sigil's modernized equivalents: `rules` strings become structured validation, `field_type` becomes a proper data type, and `user_viewable`/`user_editable` booleans become a single `visibility` enum. Deferred PTDL_v2 fields (install scripts, config file parsers, file denylist, features) are silently ignored and the admin is informed which fields were skipped.
 
 **Why this priority**: Migration from Pterodactyl is a key adoption path. Existing Pterodactyl users have dozens of eggs they want to import without manual re-entry.
 
@@ -113,11 +113,11 @@ An admin imports Pterodactyl egg files (PTDL_v2 format, JSON) to create template
 
 ### User Story 6 - Admin Exports Templates (Priority: P6)
 
-An admin exports a template as a YAML file in SigilPanel's native format. The export serializes the template's image, startup command, environment variables, variables, port mappings, resource limits, and stop signal into a human-readable YAML file. The exported file can be imported back into another SigilPanel instance. Export to PTDL_v2 JSON is not supported — SigilPanel's native format is the canonical format for sharing.
+An admin exports a template as a YAML file in Sigil's native format. The export serializes the template's image, startup command, environment variables, variables, port mappings, resource limits, and stop signal into a human-readable YAML file. The exported file can be imported back into another Sigil instance. Export to PTDL_v2 JSON is not supported — Sigil's native format is the canonical format for sharing.
 
-**Why this priority**: Export enables sharing and backup of templates. It completes the import/export round-trip and makes templates portable between SigilPanel instances.
+**Why this priority**: Export enables sharing and backup of templates. It completes the import/export round-trip and makes templates portable between Sigil instances.
 
-**Independent Test**: Can be tested by exporting a template to a YAML file, verifying the file contains the correct native structure, and importing it back into another SigilPanel instance.
+**Independent Test**: Can be tested by exporting a template to a YAML file, verifying the file contains the correct native structure, and importing it back into another Sigil instance.
 
 **Acceptance Scenarios**:
 
@@ -167,7 +167,7 @@ The panel periodically checks all configured registries for changes to installed
 - **FR-001**: System MUST allow admins to assign one or more tags to a template. Tags are free-form strings managed inline on the template (no separate group entity).
 - **FR-002**: System MUST allow admins to edit a template's tags (add, remove, change) inline on the template edit form.
 - **FR-003**: System MUST allow admins to filter the template list by tag.
-- **FR-004**: System MUST pre-configure the official SigilPanel registry on fresh deployments and seed its templates as installed and active.
+- **FR-004**: System MUST pre-configure the official Sigil registry on fresh deployments and seed its templates as installed and active.
 - **FR-005**: System MUST allow admins to add additional registries with a URL and optional authentication (token or basic auth).
 - **FR-006**: System MUST store registry credentials securely and redact them in logs (Constitution Principle III, rule 4).
 - **FR-007**: System MUST fetch a registry's index and display available templates (not yet installed) with name, description, tags, and author.
@@ -187,7 +187,7 @@ The panel periodically checks all configured registries for changes to installed
 - **FR-021**: System MUST silently ignore deferred PTDL_v2 fields (install scripts, config file parsers, file denylist, features) and inform the admin which fields were skipped.
 - **FR-022**: System MUST support overwrite and skip conflict resolution when importing an egg with a name that already exists.
 - **FR-023**: System MUST reject invalid PTDL_v2 egg files with a descriptive error indicating which field failed validation.
-- **FR-024**: System MUST allow admins to export a template as a YAML file in SigilPanel's native format.
+- **FR-024**: System MUST allow admins to export a template as a YAML file in Sigil's native format.
 - **FR-025**: System MUST display templates and registries in the panel UI with real-time updates via SSE (no polling).
 - **FR-026**: System MUST enforce that template names are unique across the panel.
 - **FR-027**: System MUST treat registry metadata as the source of truth for tags on registry-installed templates (the registry index entry's `tags: string[]`). Locally created templates have user-defined tags. Editing tags on a registry-installed template marks it `customized: true`.
@@ -224,14 +224,14 @@ The panel periodically checks all configured registries for changes to installed
 
 - Admins have basic knowledge of Docker images and startup commands for the games they want to host.
 - Templates are edited both through the admin UI and by hand (YAML files in the `templates/` directory of the monorepo for official templates, or in external registries for community/private). YAML is chosen as the native format for its readability with multiline strings and comments. Bun's built-in `Bun.YAML` API is used for parsing and serialization — no external YAML dependency.
-- The PTDL_v2 format is well-documented and stable; SigilPanel does not need to support PTDL_v1 (legacy format).
+- The PTDL_v2 format is well-documented and stable; Sigil does not need to support PTDL_v1 (legacy format).
 - Template variables map to environment variables and startup command arguments — complex variable interpolation (conditionals, loops) is out of scope for R8 and deferred to a future enhancement.
 - Docker image building (R2) is a separate feature; R8 only references existing images by name.
 - Server creation from templates (R9) is a separate feature; R8 only defines the template blueprint.
 - Applying template updates to existing servers (re-render config, preserve user variables, restart) is handled by R9, not R8. R8 only updates the template definition and notifies the admin that servers may need updating.
 - Install scripts and config file parsers (present in PTDL_v2) are deferred — R8 does not implement them. Import silently ignores these fields.
 - The panel UI is the primary interface for template management; no CLI or API-only workflow is required for R8.
-- The official registry lives in the monorepo's `templates/` directory and is served via GitHub raw URLs. Community and private registries are external HTTP endpoints (GitHub, Gitea, GitLab, any static file server). SigilPanel does not host registries — it only consumes them. CI path filters ensure changes to `templates/` only trigger template-related validation jobs.
+- The official registry lives in the monorepo's `templates/` directory and is served via GitHub raw URLs. Community and private registries are external HTTP endpoints (GitHub, Gitea, GitLab, any static file server). Sigil does not host registries — it only consumes them. CI path filters ensure changes to `templates/` only trigger template-related validation jobs.
 - Registry credentials are stored in the panel database and used only for fetching template indexes and files. They are never exposed to users or logged.
 - Existing authentication (R1) and node management (R4) are available and functional.
 - One version of a template is active at a time. There is no version history or rollback within the panel — git history of the monorepo (for official templates) or the external registry serves as the version history.

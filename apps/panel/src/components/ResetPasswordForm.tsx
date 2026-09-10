@@ -48,7 +48,7 @@ export function ResetPasswordForm({ token, onSubmit }: ResetPasswordFormProps) {
   if (success) {
     return (
       <div>
-        <h1>SigilPanel</h1>
+        <h1>Sigil</h1>
         <p>Password reset successfully. You can now log in with your new password.</p>
         <a href="/login">Go to login</a>
       </div>
@@ -57,7 +57,7 @@ export function ResetPasswordForm({ token, onSubmit }: ResetPasswordFormProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1>SigilPanel</h1>
+      <h1>Sigil</h1>
       <h2>Reset Password</h2>
       {error && <div role="alert">{error}</div>}
       <label>

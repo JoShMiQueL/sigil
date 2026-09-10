@@ -32,7 +32,7 @@ Sync Impact Report
   - R1/R4 specs must note polling as tech debt to be retrofitted by R17
 -->
 
-# SigilPanel Constitution
+# Sigil Constitution
 
 ## Core Principles
 

@@ -175,7 +175,7 @@
 
 ## Phase 7: User Story 5 - Admin Imports PTDL_v2 Eggs (Priority: P5)
 
-**Goal**: Admin can upload PTDL_v2 egg JSON files and have them converted to native SigilPanel templates. Deferred fields are silently ignored with a report of skipped fields.
+**Goal**: Admin can upload PTDL_v2 egg JSON files and have them converted to native Sigil templates. Deferred fields are silently ignored with a report of skipped fields.
 
 **Independent Test**: Import a sample PTDL_v2 egg JSON, verify the created template has correct image, startup, and variables with structured validation (not Laravel rules strings). Verify skipped fields are reported.
 
@@ -197,7 +197,7 @@
 
 ## Phase 8: User Story 6 - Admin Exports Templates (Priority: P6)
 
-**Goal**: Admin can export a template as a YAML file in SigilPanel's native format. The exported file can be re-imported into another instance.
+**Goal**: Admin can export a template as a YAML file in Sigil's native format. The exported file can be re-imported into another instance.
 
 **Independent Test**: Export a template to YAML, verify the file contains correct native structure (image, startup, variables, resourceLimits, resourceLimitsRange, changelog, tags), import it back into another instance, verify all fields match.
 

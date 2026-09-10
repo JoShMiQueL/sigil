@@ -6,7 +6,7 @@
 
 ## Summary
 
-R8 implements the template catalog system for SigilPanel: templates with inline tags (no separate group entity), variables, registry management with multiple sources (official + community + private), PTDL_v2 egg import with field conversion, YAML export, background update detection with SSE notifications, and template activation/deactivation for user visibility control. Templates are stored in PostgreSQL, use YAML as the native file format, and are distributed via git repos served over HTTP. The official registry is pre-seeded on fresh deployments. Tags are free-form strings on each template (`tags: string[]`); the source of truth for registry-installed templates is the registry index entry's `tags` field, while locally created templates have user-defined tags. The panel filters by tag instead of by group.
+R8 implements the template catalog system for Sigil: templates with inline tags (no separate group entity), variables, registry management with multiple sources (official + community + private), PTDL_v2 egg import with field conversion, YAML export, background update detection with SSE notifications, and template activation/deactivation for user visibility control. Templates are stored in PostgreSQL, use YAML as the native file format, and are distributed via git repos served over HTTP. The official registry is pre-seeded on fresh deployments. Tags are free-form strings on each template (`tags: string[]`); the source of truth for registry-installed templates is the registry index entry's `tags` field, while locally created templates have user-defined tags. The panel filters by tag instead of by group.
 
 ## Technical Context
 

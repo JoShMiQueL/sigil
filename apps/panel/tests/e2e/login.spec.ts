@@ -17,7 +17,7 @@ test.describe("US1: Login flow [T034]", () => {
     // Should redirect to dashboard
     await page.waitForURL("/");
     await expect(page.locator("h1")).toContainText("Dashboard");
-    await expect(page).toHaveTitle(/SigilPanel/);
+    await expect(page).toHaveTitle(/Sigil/);
   });
 
   test("invalid credentials show error", async ({ page }) => {

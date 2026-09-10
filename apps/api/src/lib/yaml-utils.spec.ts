@@ -10,7 +10,7 @@ function makeTemplate(): Template {
     sourceHash: "abc123",
     name: "Paper MC",
     description: "Paper Minecraft server",
-    author: "SigilPanel",
+    author: "Sigil",
     version: "1.0.0",
     image: "eclipse-temurin:21-jre",
     startupCommand: "java -jar paper.jar nogui",

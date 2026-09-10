@@ -114,7 +114,7 @@ Git repository served via HTTP containing template files.
 | password | text | nullable | For basic auth (redacted) |
 | status | text | NOT NULL, default "unknown" | Enum: "ok", "auth_failed", "unreachable", "unknown" |
 | lastCheckedAt | timestamp | nullable | |
-| isOfficial | boolean | NOT NULL, default false | True for the default SigilPanel registry |
+| isOfficial | boolean | NOT NULL, default false | True for the default Sigil registry |
 | createdAt | timestamp | NOT NULL, default now() | |
 | updatedAt | timestamp | NOT NULL, default now() | |
 

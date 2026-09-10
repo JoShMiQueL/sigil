@@ -6,7 +6,7 @@
 
 ## Summary
 
-The SigilPanel daemon (Go 1.27) runs on each node and manages Docker containers for game servers. It registers with the panel via pairing tokens (R4), sends periodic heartbeats, accepts authenticated server lifecycle commands (create, start, stop, restart, remove) from the panel via its own HTTP API, isolates server files in a secure filesystem jail, monitors and reports container state changes back to the panel, and applies non-negotiable security hardening to all containers. This is the execution plane foundation — without it, no game servers can run.
+The Sigil daemon (Go 1.27) runs on each node and manages Docker containers for game servers. It registers with the panel via pairing tokens (R4), sends periodic heartbeats, accepts authenticated server lifecycle commands (create, start, stop, restart, remove) from the panel via its own HTTP API, isolates server files in a secure filesystem jail, monitors and reports container state changes back to the panel, and applies non-negotiable security hardening to all containers. This is the execution plane foundation — without it, no game servers can run.
 
 ## Technical Context
 

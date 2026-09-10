@@ -149,7 +149,7 @@ function DashboardPage() {
 
   return (
     <Layout>
-      <h1>SigilPanel Dashboard</h1>
+      <h1>Sigil Dashboard</h1>
       <p>
         Welcome, {user.username} ({user.role})
       </p>

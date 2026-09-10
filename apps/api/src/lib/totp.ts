@@ -12,7 +12,7 @@ export function generateTotpSecret(): string {
 }
 
 export function generateTotpUri(email: string, secret: string): string {
-  return authenticator.keyuri(email, "SigilPanel", secret);
+  return authenticator.keyuri(email, "Sigil", secret);
 }
 
 export function verifyTotp(token: string, secret: string): boolean {

@@ -41,7 +41,7 @@ export function Layout({ children }: LayoutProps) {
           backgroundColor: "#f5f5f5",
         }}
       >
-        <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>SigilPanel</h2>
+        <h2 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Sigil</h2>
         <p style={{ fontSize: "0.85rem", color: "#666", marginBottom: "1rem" }}>
           {user.username} ({user.role})
         </p>

@@ -282,7 +282,7 @@ templates:
     tags:
       - minecraft
       - java
-    author: SigilPanel
+    author: Sigil
     version: "1.1.0"
     file: minecraft/paper-mc.yaml
     sha256: "def456..."
@@ -296,7 +296,7 @@ Each template file is a YAML file at the path specified by `file` relative to th
 # minecraft/paper-mc.yaml
 name: "Paper MC"
 description: "High-performance Minecraft server"
-author: SigilPanel
+author: Sigil
 version: "1.0.0"
 tags:
   - minecraft

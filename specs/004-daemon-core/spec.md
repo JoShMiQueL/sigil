@@ -172,7 +172,7 @@ Every container the daemon creates runs with minimal privileges and security con
 - The daemon is written in Go 1.27 and uses the Docker Engine API via the official Go SDK (`docker/client`), not the Docker CLI.
 - The panel (R4) already has the registration (`POST /api/node/register`) and heartbeat (`POST /api/node/heartbeat`) endpoints implemented. The daemon is the client for these endpoints.
 - Node credentials from R4 use HMAC-SHA256 for authentication. The daemon uses the same scheme to authenticate incoming panel requests (panel-to-daemon direction).
-- For development and testing, public Docker images (`alpine`, `eclipse-temurin`) are used instead of custom SigilPanel images (R2). Production requires custom images.
+- For development and testing, public Docker images (`alpine`, `eclipse-temurin`) are used instead of custom Sigil images (R2). Production requires custom images.
 - Server lifecycle commands flow from panel to daemon via HTTP. The daemon exposes its own HTTP API on a configurable port (default 8080 on the node's internal interface).
 - The daemon does not implement SFTP (R11), backups (R12), file manager UI (R11), or WebSocket console (R10). These are separate specs that build on R6.
 - The daemon does not implement server creation from templates (R8). Server configuration is received as a complete JSON payload from the panel. Template expansion happens in the panel.

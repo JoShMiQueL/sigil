@@ -6,7 +6,7 @@
 
 ## Summary
 
-Node management for the SigilPanel control plane. Covers region management (P1), node pairing via single-use tokens (P2), node health monitoring via heartbeats (P3), and node lifecycle management (P4). The panel owns all node records and the API contract that the daemon (R6) will use to register and report. The daemon itself is not implemented in this spec.
+Node management for the Sigil control plane. Covers region management (P1), node pairing via single-use tokens (P2), node health monitoring via heartbeats (P3), and node lifecycle management (P4). The panel owns all node records and the API contract that the daemon (R6) will use to register and report. The daemon itself is not implemented in this spec.
 
 ## Technical Context
 

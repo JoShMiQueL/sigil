@@ -117,7 +117,7 @@ An administrator can view, edit, and remove nodes. Editing allows changing the n
 ### Key Entities *(include if feature involves data)*
 
 - **Region**: A geographic or logical grouping of nodes. Has a unique name, optional description, and contains zero or more nodes.
-- **Node**: A machine running a SigilPanel daemon. Has a hostname, IP, region, capabilities, credentials, status, and resource usage. Belongs to exactly one region.
+- **Node**: A machine running a Sigil daemon. Has a hostname, IP, region, capabilities, credentials, status, and resource usage. Belongs to exactly one region.
 - **Pairing Token**: A single-use, time-limited token that allows a daemon to register itself with the panel. Has an expiration time and a "used" flag.
 - **Node Credentials**: Unique authentication secrets issued to a daemon upon registration. Used to authenticate heartbeats and state callbacks. Can be regenerated.
 - **Heartbeat**: A periodic report from a daemon containing CPU, memory, disk usage, and container count. Used to determine node health.
