@@ -19,12 +19,6 @@ test.describe("R8 US5/US6: Template import/export [T076]", () => {
   test("admin can import a PTDL_v2 egg and export a template", async ({ page }) => {
     await adminLogin(page);
 
-    // Create a group via API using browser context cookies (page.request shares cookies)
-    const groupRes = await page.request.post(`${API_URL}/api/admin/groups`, {
-      data: { name: "ImportTest" },
-    });
-    const group = await groupRes.json();
-
     // Create a test PTDL_v2 egg file
     const eggJson = JSON.stringify({
       meta: { version: "PTDL_v2" },
@@ -54,7 +48,7 @@ test.describe("R8 US5/US6: Template import/export [T076]", () => {
       },
     });
 
-    // Import via API using multipart form data
+    // Import via API using multipart form data with tags
     const importRes = await page.request.post(`${API_URL}/api/admin/templates/import`, {
       multipart: {
         file: {
@@ -62,7 +56,7 @@ test.describe("R8 US5/US6: Template import/export [T076]", () => {
           mimeType: "application/json",
           buffer: Buffer.from(eggJson),
         },
-        groupId: group.id,
+        tags: "minecraft, java, test",
         conflict: "skip",
       },
     });
