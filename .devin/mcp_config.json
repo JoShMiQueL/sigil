@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--executablePath", "/snap/bin/chromium", "--isolated", "--experimentalPageIdRouting"],
+      "transport": "stdio"
+    }
+  }
+}
