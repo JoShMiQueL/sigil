@@ -15,11 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
           cache: true
+      - name: Cache Turborepo
+        uses: actions/cache@v6
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
       - run: pnpm check
       - run: pnpm typecheck
 
@@ -28,11 +35,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
           cache: true
+      - name: Cache Turborepo
+        uses: actions/cache@v6
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
       - run: pnpm --filter @sigilpanel/db db:generate
       - run: pnpm test
 
@@ -68,13 +82,33 @@ jobs:
       REDIS_URL: redis://localhost:6379
       NODE_ENV: development
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
           cache: true
+      - name: Cache Turborepo
+        uses: actions/cache@v6
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+      - name: Get Playwright version
+        id: pw-version
+        run: echo "version=$(pnpm --filter @sigilpanel/panel exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw-version.outputs.version }}
       - run: pnpm --filter @sigilpanel/db db:generate
       - run: pnpm --filter @sigilpanel/db db:migrate
       - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
         run: pnpm --filter @sigilpanel/panel exec playwright install --with-deps chromium
+      - name: Install Playwright system deps
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @sigilpanel/panel exec playwright install-deps chromium
       - run: pnpm test:e2e
