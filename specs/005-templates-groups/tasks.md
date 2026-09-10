@@ -138,12 +138,12 @@
 - [X] T043 [US3] Create template service in `apps/api/src/services/template.service.ts` — createTemplate, listTemplates (admin sees all, user sees active only), getTemplateById, updateTemplate (set customized=true if registryId exists), deleteTemplate (reject if servers use it — NOTE: servers table is R9, so in R8 this check always passes; the FK constraint is added in R9), activateTemplate, deactivateTemplate, resetToUpstream (re-fetch from registry, set customized=false) (depends on T012, T019)
 - [X] T044 [US3] Create templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates, GET /api/templates (with groupId and active filters), GET /api/templates/:id, PATCH /api/templates/:id, DELETE /api/templates/:id, POST /api/templates/:id/activate, POST /api/templates/:id/deactivate, POST /api/templates/:id/reset, admin-only for mutations, user-accessible for list/get (depends on T005, T043)
 - [X] T045 [US3] Register templates routes in `apps/api/src/index.ts` (depends on T044)
-- [ ] T046 [P] [US3] Create useTemplates hook in `apps/panel/src/hooks/use-templates.ts` — fetch templates (admin/user modes), activate/deactivate/edit/delete actions, SSE subscription for template events
-- [ ] T047 [P] [US3] Create TemplateForm component in `apps/panel/src/components/templates/template-form.tsx` — all template fields including resourceLimits, resourceLimitsRange, changelog editor, variables editor
-- [ ] T048 [P] [US3] Create TemplateList component in `apps/panel/src/components/templates/template-list.tsx` — list with group filter, active/inactive badges, customized indicator, activate/deactivate/delete actions
-- [ ] T049 [P] [US3] Create ChangelogView component in `apps/panel/src/components/templates/changelog-view.tsx` — render changelog entries with typed change badges (added=green, changed=blue, deprecated=yellow, removed=red, fixed=purple, security=orange)
-- [ ] T050 [US3] Create templates management page in `apps/panel/src/routes/templates.tsx` — list templates, create/edit via TemplateForm, activate/deactivate, reset to upstream, view changelog, filter by group (depends on T046, T047, T048, T049)
-- [ ] T051 [US3] Add templates route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T050)
+- [X] T046 [P] [US3] Create useTemplates hook in `apps/panel/src/hooks/use-templates.ts` — fetch templates (admin/user modes), activate/deactivate/edit/delete actions, SSE subscription for template events
+- [X] T047 [P] [US3] Create TemplateForm component in `apps/panel/src/components/templates/template-form.tsx` — all template fields including resourceLimits, resourceLimitsRange, changelog editor, variables editor
+- [X] T048 [P] [US3] Create TemplateList component in `apps/panel/src/components/templates/template-list.tsx` — list with group filter, active/inactive badges, customized indicator, activate/deactivate/delete actions
+- [X] T049 [P] [US3] Create ChangelogView component in `apps/panel/src/components/templates/changelog-view.tsx` — render changelog entries with typed change badges (added=green, changed=blue, deprecated=yellow, removed=red, fixed=purple, security=orange)
+- [X] T050 [US3] Create templates management page in `apps/panel/src/routes/templates.tsx` — list templates, create/edit via TemplateForm, activate/deactivate, reset to upstream, view changelog, filter by group (depends on T046, T047, T048, T049)
+- [X] T051 [US3] Add templates route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T050)
 
 **Checkpoint**: User Story 3 is fully functional. Admin can manage the full template lifecycle. Users see only active templates.
 

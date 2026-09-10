@@ -1,4 +1,4 @@
-import type { ApiKey, ApiKeyScope, User, UserCreate } from "@sigilpanel/shared";
+import type { ApiKey, ApiKeyScope, Template, TemplateUpdate, User, UserCreate } from "@sigilpanel/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
@@ -9,6 +9,9 @@ import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { GroupForm } from "./components/groups/group-form";
 import { AvailableTemplates } from "./components/registries/available-templates";
 import { RegistryForm } from "./components/registries/registry-form";
+import { ChangelogView } from "./components/templates/changelog-view";
+import { TemplateForm } from "./components/templates/template-form";
+import { TemplateList } from "./components/templates/template-list";
 import { Layout } from "./components/Layout";
 import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
@@ -21,11 +24,20 @@ import { useCreateGroup, useDeleteGroup, useGroups, useUpdateGroup } from "./hoo
 import {
   useAvailableTemplates,
   useCheckRegistry,
-useCreateRegistry,
+  useCreateRegistry,
   useDeleteRegistry,
   useInstallTemplate,
   useRegistries,
 } from "./hooks/use-registries";
+import {
+  useActivateTemplate,
+  useCreateTemplate,
+  useDeactivateTemplate,
+  useDeleteTemplate,
+  useResetTemplate,
+  useTemplates,
+  useUpdateTemplate,
+} from "./hooks/use-templates";
 import { useSSE } from "./hooks/useSSE";
 import { NodeDetailPage } from "./routes/node-detail";
 import { NodesPage } from "./routes/nodes";
@@ -151,6 +163,13 @@ function DashboardPage() {
         <p>
           <button type="button" onClick={() => router.navigate({ to: "/registries" })}>
             Manage Registries
+          </button>
+        </p>
+      )}
+      {user.role === "admin" && (
+        <p>
+          <button type="button" onClick={() => router.navigate({ to: "/templates" })}>
+            Manage Templates
           </button>
         </p>
       )}
@@ -863,6 +882,154 @@ const registriesRoute = createRoute({
   component: RegistriesPage,
 });
 
+function TemplatesPage() {
+  const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined);
+  const { data: templates, isLoading } = useTemplates({ groupId: selectedGroupId });
+  const { data: groups } = useGroups();
+  const createMutation = useCreateTemplate();
+  const updateMutation = useUpdateTemplate();
+  const deleteMutation = useDeleteTemplate();
+  const activateMutation = useActivateTemplate();
+  const deactivateMutation = useDeactivateTemplate();
+  const resetMutation = useResetTemplate();
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const [changelogTemplate, setChangelogTemplate] = useState<Template | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useSSE({
+    invalidations: {
+      "template.create": [["templates"]],
+      "template.update": [["templates"]],
+      "template.delete": [["templates"]],
+    },
+  });
+
+  return (
+    <Layout>
+      <h1>Templates</h1>
+      {error && <ErrorState message={error} />}
+
+      <div style={{ marginBottom: "1rem" }}>
+        <label htmlFor="group-filter">
+          Filter by group:
+          <select
+            id="group-filter"
+            value={selectedGroupId ?? ""}
+            onChange={(e) => setSelectedGroupId(e.target.value || undefined)}
+            style={{ marginLeft: "0.5rem" }}
+          >
+            <option value="">All groups</option>
+            {groups?.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {showCreate && (groups ?? []).length > 0 && (
+        <TemplateForm
+          groupId={selectedGroupId ?? groups![0].id}
+          onSubmit={async (input) => {
+            const result = await createMutation.mutateAsync(input);
+            if (result.error) {
+              setError(result.error);
+              return result;
+            }
+            setError(null);
+            setShowCreate(false);
+            return {};
+          }}
+          onCancel={() => setShowCreate(false)}
+        />
+      )}
+
+      {editingTemplate && (
+        <TemplateForm
+          template={editingTemplate}
+          groupId={editingTemplate.groupId}
+          onSubmit={async (input) => {
+            const result = await updateMutation.mutateAsync({ id: editingTemplate.id, input: input as TemplateUpdate });
+            if (result.error) {
+              setError(result.error);
+              return result;
+            }
+            setError(null);
+            setEditingTemplate(null);
+            return {};
+          }}
+          onCancel={() => setEditingTemplate(null)}
+        />
+      )}
+
+      {changelogTemplate && (
+        <div style={{ marginTop: "1rem", padding: "1rem", border: "1px solid #ccc" }}>
+          <h2>Changelog: {changelogTemplate.name}</h2>
+          <ChangelogView changelog={changelogTemplate.changelog} />
+          <button type="button" onClick={() => setChangelogTemplate(null)}>
+            Close
+          </button>
+        </div>
+      )}
+
+      {!showCreate && !editingTemplate && (
+        <button type="button" onClick={() => setShowCreate(true)}>
+          Create Template
+        </button>
+      )}
+
+      {isLoading ? (
+        <LoadingState message="Loading templates..." />
+      ) : (
+        <TemplateList
+          templates={templates ?? []}
+          onActivate={async (id) => {
+            try {
+              await activateMutation.mutateAsync(id);
+              setError(null);
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "Failed to activate");
+            }
+          }}
+          onDeactivate={async (id) => {
+            try {
+              await deactivateMutation.mutateAsync(id);
+              setError(null);
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "Failed to deactivate");
+            }
+          }}
+          onDelete={async (id) => {
+            const result = await deleteMutation.mutateAsync(id);
+            if (result.error) setError(result.error);
+            else setError(null);
+          }}
+          onEdit={(t) => setEditingTemplate(t)}
+          onReset={async (id) => {
+            const result = await resetMutation.mutateAsync(id);
+            if (result.error) setError(result.error);
+            else setError(null);
+          }}
+          onViewChangelog={(t) => setChangelogTemplate(t)}
+        />
+      )}
+    </Layout>
+  );
+}
+
+const templatesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/templates",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: TemplatesPage,
+});
+
 export const routeTree = rootRoute.addChildren([
   loginRoute,
   dashboardRoute,
@@ -871,6 +1038,7 @@ export const routeTree = rootRoute.addChildren([
   nodeDetailRoute,
   groupsRoute,
   registriesRoute,
+  templatesRoute,
   forgotPasswordRoute,
   resetPasswordRoute,
   securityRoute,
