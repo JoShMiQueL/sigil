@@ -1,4 +1,5 @@
 import type { Template } from "@sigilpanel/shared";
+import { ExportButton } from "./export-button";
 
 interface TemplateListProps {
   templates: Template[];
@@ -64,6 +65,7 @@ export function TemplateList({
               <button type="button" onClick={() => onViewChangelog(t)} style={{ marginLeft: "0.5rem" }}>
                 Changelog
               </button>
+              <ExportButton templateId={t.id} templateName={t.name} />
               <button type="button" onClick={() => onDelete(t.id)} style={{ marginLeft: "0.5rem" }}>
                 Delete
               </button>

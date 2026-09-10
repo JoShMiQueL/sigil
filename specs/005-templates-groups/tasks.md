@@ -199,14 +199,14 @@
 
 ### Tests for User Story 6
 
-- [ ] T062 [P] [US6] Unit test for YAML export in `apps/api/src/lib/yaml-utils.spec.ts` — serialize a template to YAML, parse it back, verify round-trip fidelity for all fields including changelog and resourceLimitsRange
+- [X] T062 [P] [US6] Unit test for YAML export in `apps/api/src/lib/yaml-utils.spec.ts` — serialize a template to YAML, parse it back, verify round-trip fidelity for all fields including changelog and resourceLimitsRange
 
 ### Implementation for User Story 6
 
-- [ ] T063 [US6] Create template export service in `apps/api/src/services/template-export.service.ts` — serialize template to native YAML using Bun.YAML.stringify, include all fields (image, startup, environment, portMappings, resourceLimits, resourceLimitsRange, changelog, variables, stopSignal) (depends on T021)
-- [ ] T064 [US6] Add export endpoint to templates API routes in `apps/api/src/routes/templates.ts` — GET /api/templates/:id/export, return Content-Type: application/x-yaml, body is YAML file (depends on T063, T044)
-- [ ] T065 [P] [US6] Create ExportButton component in `apps/panel/src/components/templates/export-button.tsx` — triggers download of YAML file from export endpoint
-- [ ] T066 [US6] Integrate ExportButton into TemplateList and template detail view in `apps/panel/src/routes/templates.tsx` (depends on T065, T050)
+- [X] T063 [US6] Create template export service in `apps/api/src/services/template-export.service.ts` — serialize template to native YAML using Bun.YAML.stringify, include all fields (image, startup, environment, portMappings, resourceLimits, resourceLimitsRange, changelog, variables, stopSignal) (depends on T021)
+- [X] T064 [US6] Add export endpoint to templates API routes in `apps/api/src/routes/templates.ts` — GET /api/templates/:id/export, return Content-Type: application/x-yaml, body is YAML file (depends on T063, T044)
+- [X] T065 [P] [US6] Create ExportButton component in `apps/panel/src/components/templates/export-button.tsx` — triggers download of YAML file from export endpoint
+- [X] T066 [US6] Integrate ExportButton into TemplateList and template detail view in `apps/panel/src/routes/templates.tsx` (depends on T065, T050)
 
 **Checkpoint**: User Story 6 is fully functional. Templates are portable via YAML export/import round-trip.
 

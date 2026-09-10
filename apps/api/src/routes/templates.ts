@@ -15,6 +15,7 @@ import {
 } from "../services/template.service";
 import { VariableValidationError } from "../services/variable-validation";
 import { importTemplateFile, ImportValidationError } from "../services/template-import.service";
+import { exportTemplate } from "../services/template-export.service";
 
 const templates = new Hono<AuthContext>();
 
@@ -38,6 +39,19 @@ templates.get("/:id", async (c) => {
   }
 
   return c.json(template);
+});
+
+templates.get("/:id/export", async (c) => {
+  const id = c.req.param("id");
+  const result = await exportTemplate(id);
+  if (!result) return c.json({ error: "Template not found" }, 404);
+
+  return new Response(result.yaml, {
+    headers: {
+      "Content-Type": "application/x-yaml",
+      "Content-Disposition": `attachment; filename="${result.filename}"`,
+    },
+  });
 });
 
 // Mutations are admin-only
