@@ -7,6 +7,8 @@ const OFFICIAL_REGISTRY_URL =
   process.env.OFFICIAL_REGISTRY_URL ??
   "https://raw.githubusercontent.com/JoShMiQueL/sigil/main/templates";
 
+const OFFICIAL_REGISTRY_TOKEN = process.env.OFFICIAL_REGISTRY_TOKEN ?? null;
+
 async function isTemplatesEmpty(): Promise<boolean> {
   const [result] = await db.select({ value: count() }).from(schema.templates);
   return (result?.value ?? 0) === 0;
@@ -36,7 +38,8 @@ async function ensureOfficialRegistry(): Promise<typeof schema.registries.$infer
     .values({
       url: OFFICIAL_REGISTRY_URL,
       name: "Official",
-      authMethod: "none",
+      authMethod: OFFICIAL_REGISTRY_TOKEN ? "token" : "none",
+      token: OFFICIAL_REGISTRY_TOKEN,
       status: "ok",
       isOfficial: true,
     })
