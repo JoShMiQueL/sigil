@@ -112,11 +112,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Add server-side filtering to listAllocations in `apps/api/src/services/allocation.service.ts` — support status, ip, port query params with indexed queries (already implemented in T010, verify and add tests if gaps) (depends on T010)
-- [ ] T032 [P] [US3] Add filter UI to AllocationList component in `apps/panel/src/components/allocations/allocation-list.tsx` — status dropdown (all/available/assigned), IP dropdown (distinct IPs for node), port search input, debounced (depends on T019)
-- [ ] T033 [US3] Add filtering tests to `apps/api/src/routes/allocations.spec.ts` — test GET with status filter, ip filter, port search, combined filters, pagination (depends on T031)
-- [ ] T034 [US3] MCP verification — add allocations on multiple IPs, filter by status, filter by IP, search by port, verify summary counts update correctly, verify filters work with SSE updates (depends on T032)
-- [ ] T035 [US3] Add filter E2E tests to `apps/panel/tests/e2e/allocations.spec.ts` — filter by status, filter by IP, search by port, verify correct subset displayed (depends on T034)
+- [X] T031 [US3] Add server-side filtering to listAllocations in `apps/api/src/services/allocation.service.ts` — support status, ip, port query params with indexed queries (already implemented in T010, verify and add tests if gaps) (depends on T010)
+- [X] T032 [P] [US3] Add filter UI to AllocationList component in `apps/panel/src/components/allocations/allocation-list.tsx` — status dropdown (all/available/assigned), IP dropdown (distinct IPs for node), port search input, debounced (depends on T019)
+- [X] T033 [US3] Add filtering tests to `apps/api/src/routes/allocations.spec.ts` — test GET with status filter, ip filter, port search, combined filters, pagination (depends on T031)
+- [X] T034 [US3] MCP verification — add allocations on multiple IPs, filter by status, filter by IP, search by port, verify summary counts update correctly, verify filters work with SSE updates (depends on T032)
+- [X] T035 [US3] Add filter E2E tests to `apps/panel/tests/e2e/allocations.spec.ts` — filter by status, filter by IP, search by port, verify correct subset displayed (depends on T034)
 
 **Checkpoint**: User Story 3 is fully functional — admin can efficiently find allocations in large pools.
 
@@ -130,14 +130,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Add auto-assign endpoint to allocations API in `apps/api/src/routes/allocations.ts` — POST /:nodeId/allocations/auto-assign (serverId) — finds first available allocation on primaryIp (or any if no primary), assigns as primary, returns allocation (depends on T010)
-- [ ] T037 [US4] Add PATCH /:nodeId primaryIp update to nodes API in `apps/api/src/routes/nodes.ts` — allow setting/clearing primaryIp on a node (depends on T007)
-- [ ] T038 [US4] Add auto-assign tests to `apps/api/src/routes/allocations.spec.ts` — test auto-assign with primaryIp set (picks from primaryIp), without primaryIp (picks any), no available (409), verify isPrimary=true (depends on T036)
+- [X] T036 [US4] Add auto-assign endpoint to allocations API in `apps/api/src/routes/allocations.ts` — POST /:nodeId/allocations/auto-assign (serverId) — finds first available allocation on primaryIp (or any if no primary), assigns as primary, returns allocation (depends on T010)
+- [X] T037 [US4] Add PATCH /:nodeId primaryIp update to nodes API in `apps/api/src/routes/nodes.ts` — allow setting/clearing primaryIp on a node (depends on T007)
+- [X] T038 [US4] Add auto-assign tests to `apps/api/src/routes/allocations.spec.ts` — test auto-assign with primaryIp set (picks from primaryIp), without primaryIp (picks any), no available (409), verify isPrimary=true (depends on T036)
 - [ ] T039 [US4] Add primaryIp update tests to `apps/api/src/routes/nodes.spec.ts` — test PATCH primaryIp (set, clear, invalid IP) (depends on T037)
-- [ ] T040 [P] [US4] Add useAutoAssignAllocation and useSetPrimaryIp mutations to `apps/panel/src/hooks/use-allocations.ts` (depends on T016)
-- [ ] T041 [US4] Add primary IP selector to node detail page in `apps/panel/src/routes/node-detail.tsx` — dropdown of distinct IPs on the node, "Set as primary" button, "Clear" button (depends on T040)
-- [ ] T042 [US4] MCP verification — set primary IP on a node, auto-assign an allocation via API, verify it picked from primary IP, verify isPrimary=true, clear primary IP, auto-assign again (picks any), verify no available allocations returns error (depends on T041)
-- [ ] T043 [US4] Add auto-assign E2E tests to `apps/panel/tests/e2e/allocations.spec.ts` — set primary IP, auto-assign via API, verify allocation assigned on primary IP, clear primary IP, auto-assign again (depends on T042)
+- [X] T040 [P] [US4] Add useAutoAssignAllocation and useSetPrimaryIp mutations to `apps/panel/src/hooks/use-allocations.ts` (depends on T016)
+- [X] T041 [US4] Add primary IP selector to node detail page in `apps/panel/src/routes/node-detail.tsx` — dropdown of distinct IPs on the node, "Set as primary" button, "Clear" button (depends on T040)
+- [X] T042 [US4] MCP verification — set primary IP on a node, auto-assign an allocation via API, verify it picked from primary IP, verify isPrimary=true, clear primary IP, auto-assign again (picks any), verify no available allocations returns error (depends on T041)
+- [X] T043 [US4] Add auto-assign E2E tests to `apps/panel/tests/e2e/allocations.spec.ts` — set primary IP, auto-assign via API, verify allocation assigned on primary IP, clear primary IP, auto-assign again (depends on T042)
 
 **Checkpoint**: User Story 4 is fully functional — auto-assignment works with primary IP preference.
 

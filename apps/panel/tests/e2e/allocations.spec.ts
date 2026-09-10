@@ -154,8 +154,8 @@ test.describe("R7: Allocations [US1: Admin manages IP allocations per node]", ()
     // Wait for allocations to load — verify 6 total
     await expect(page.locator("text=Showing 6 of 6")).toBeVisible({ timeout: 5000 });
 
-    // Filter by IP — select the IP filter dropdown (2nd select on the page after protocol)
-    const ipFilterSelect = page.locator("select").nth(2);
+    // Filter by IP — select the IP filter dropdown (has "All IPs" option)
+    const ipFilterSelect = page.locator('select:has(option:has-text("All IPs"))');
     await ipFilterSelect.selectOption("203.0.113.31");
 
     // Verify only 3 shown (203.0.113.31 ports)
@@ -257,9 +257,12 @@ test.describe("R7: Allocations [US1: Admin manages IP allocations per node]", ()
     const firstAllocId = list.allocations[0].id;
 
     // Assign via API
-    await page.request.post(`${API_URL}/api/admin/nodes/${nodeId}/allocations/${firstAllocId}/assign`, {
-      data: { serverId: "00000000-0000-4000-8000-000000000099", isPrimary: true },
-    });
+    await page.request.post(
+      `${API_URL}/api/admin/nodes/${nodeId}/allocations/${firstAllocId}/assign`,
+      {
+        data: { serverId: "00000000-0000-4000-8000-000000000099", isPrimary: true },
+      },
+    );
 
     // Navigate to node detail
     await page.click("button:has-text('Nodes')");
@@ -331,5 +334,64 @@ test.describe("R7: Allocations [US1: Admin manages IP allocations per node]", ()
     // The assigned allocation should show Unassign, not Assign
     // Verify the assigned allocation has Unassign button
     await expect(page.locator('button:has-text("Unassign")')).toBeVisible({ timeout: 5000 });
+  });
+
+  test("admin can set primary IP and auto-assign allocation", async ({ page }) => {
+    // Setup
+    const regionRes = await page.request.post(`${API_URL}/api/admin/regions`, {
+      data: { name: "alloc-auto-region" },
+    });
+    const region = await regionRes.json();
+
+    const tokenRes = await page.request.post(`${API_URL}/api/admin/pairing/tokens`, {
+      data: { regionId: region.id },
+    });
+    const token = await tokenRes.json();
+
+    const registerRes = await page.request.post(`${API_URL}/api/node/register`, {
+      data: {
+        pairingToken: token.token,
+        hostname: "alloc-auto-node",
+        ipAddress: "203.0.113.70",
+        capabilities: { docker: true },
+      },
+    });
+    const node = await registerRes.json();
+    const nodeId = node.nodeId;
+
+    // Add allocations on two IPs
+    await page.request.post(`${API_URL}/api/admin/nodes/${nodeId}/allocations`, {
+      data: { ip: "203.0.113.70", portStart: 25565, portEnd: 25567, protocol: "tcp" },
+    });
+    await page.request.post(`${API_URL}/api/admin/nodes/${nodeId}/allocations`, {
+      data: { ip: "203.0.113.71", portStart: 25565, portEnd: 25567, protocol: "tcp" },
+    });
+
+    // Set primary IP via API
+    await page.request.patch(`${API_URL}/api/admin/nodes/${nodeId}`, {
+      data: { primaryIp: "203.0.113.71" },
+    });
+
+    // Auto-assign via API
+    const autoRes = await page.request.post(
+      `${API_URL}/api/admin/nodes/${nodeId}/allocations/auto-assign`,
+      {
+        data: { serverId: "00000000-0000-4000-8000-000000000077" },
+      },
+    );
+    expect(autoRes.status()).toBe(200);
+    const autoBody = await autoRes.json();
+    expect(autoBody.allocation.ip).toBe("203.0.113.71");
+    expect(autoBody.allocation.isPrimary).toBe(true);
+    expect(autoBody.allocation.status).toBe("assigned");
+
+    // Navigate to node detail and verify primary IP badge
+    await page.click("button:has-text('Nodes')");
+    await page.waitForURL("/nodes");
+    await page.click("text=alloc-auto-node");
+    await page.waitForURL(`/nodes/${nodeId}`);
+
+    // Verify the assigned allocation shows on primary IP
+    await expect(page.locator("text=assigned (primary)").first()).toBeVisible({ timeout: 5000 });
   });
 });

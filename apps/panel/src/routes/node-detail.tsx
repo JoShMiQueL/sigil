@@ -10,7 +10,7 @@ import { Layout } from "../components/Layout";
 import { LoadingState } from "../components/LoadingState";
 import { NodeDetailPanel } from "../components/NodeDetailPanel";
 import { NodeEditDialog } from "../components/NodeEditDialog";
-import { useAllocationSummary } from "../hooks/use-allocations";
+import { useAllocationSummary, useAllocations, useSetPrimaryIp } from "../hooks/use-allocations";
 import {
   useDeleteNode,
   useNode,
@@ -34,10 +34,13 @@ export function NodeDetailPage() {
   const { data: node, isLoading } = useNode(nodeId);
   const { data: regionsData } = useRegions();
   const { data: allocationSummary } = useAllocationSummary(nodeId);
+  const { data: allocationsData } = useAllocations(nodeId);
   const updateMutation = useUpdateNode(nodeId);
   const deleteMutation = useDeleteNode(nodeId);
   const regenerateMutation = useRegenerateCredentials(nodeId);
   const revokeMutation = useRevokeCredentials(nodeId);
+  const setPrimaryIpMutation = useSetPrimaryIp(nodeId);
+  const [primaryIpSelect, setPrimaryIpSelect] = useState("");
 
   useSSE({
     invalidations: {
@@ -152,6 +155,74 @@ export function NodeDetailPage() {
       <div style={{ marginTop: "2rem" }}>
         <h2>Allocations</h2>
         <AllocationSummaryView summary={allocationSummary} />
+
+        {/* Primary IP selector (US4) */}
+        <div
+          style={{
+            margin: "0.5rem 0",
+            padding: "0.5rem",
+            border: "1px solid #333",
+            borderRadius: "4px",
+          }}
+        >
+          <label
+            htmlFor="primary-ip-select"
+            style={{ fontSize: "0.85rem", color: "#888", marginRight: "0.5rem" }}
+          >
+            Primary IP:
+          </label>
+          <select
+            id="primary-ip-select"
+            value={node.primaryIp ?? ""}
+            onChange={(e) => setPrimaryIpSelect(e.target.value)}
+            style={{ fontFamily: "monospace", minWidth: "160px" }}
+          >
+            <option value="">(none — auto-assign picks any)</option>
+            {[...new Set((allocationsData?.allocations ?? []).map((a) => a.ip))]
+              .sort()
+              .map((ip) => (
+                <option key={ip} value={ip}>
+                  {ip}
+                </option>
+              ))}
+          </select>
+          <button
+            type="button"
+            onClick={async () => {
+              const result = await setPrimaryIpMutation.mutateAsync(primaryIpSelect || null);
+              if ("error" in result && result.error) {
+                setError(result.error);
+              } else {
+                setMessage(
+                  primaryIpSelect ? `Primary IP set to ${primaryIpSelect}` : "Primary IP cleared",
+                );
+              }
+            }}
+            disabled={setPrimaryIpMutation.isPending}
+            style={{ marginLeft: "0.5rem" }}
+          >
+            {setPrimaryIpMutation.isPending ? "Saving..." : "Set Primary IP"}
+          </button>
+          {node.primaryIp && (
+            <button
+              type="button"
+              onClick={async () => {
+                const result = await setPrimaryIpMutation.mutateAsync(null);
+                if ("error" in result && result.error) {
+                  setError(result.error);
+                } else {
+                  setMessage("Primary IP cleared");
+                  setPrimaryIpSelect("");
+                }
+              }}
+              disabled={setPrimaryIpMutation.isPending}
+              style={{ marginLeft: "0.5rem" }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
         <AllocationForm nodeId={nodeId} />
         <AllocationList nodeId={nodeId} />
       </div>
