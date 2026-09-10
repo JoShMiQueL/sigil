@@ -25,7 +25,13 @@ export type AuditAction =
   | "server_start"
   | "server_stop"
   | "server_restart"
-  | "server_delete";
+  | "server_delete"
+  | "allocation_create"
+  | "allocation_delete"
+  | "allocation_assign"
+  | "allocation_unassign"
+  | "allocation_auto_assign"
+  | "allocation_release";
 
 export async function logAudit(opts: {
   userId?: string;

@@ -44,6 +44,7 @@ export function NodeEditDialog({
         ))}
       </select>
       <input
+        id="node-edit-name"
         type="text"
         value={editDisplayName}
         onChange={(e) => setEditDisplayName(e.target.value)}

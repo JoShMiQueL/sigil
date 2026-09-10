@@ -67,17 +67,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Create allocations API routes in `apps/api/src/routes/allocations.ts` — POST /:nodeId/allocations (add range), GET /:nodeId/allocations (list with filters), DELETE /:nodeId/allocations/:allocationId (delete, reject if assigned), GET /:nodeId/allocations/summary (counts + primaryIp) (depends on T010)
-- [ ] T013 [US1] Mount allocations routes in `apps/api/src/index.ts` under `/api/admin/nodes` (depends on T012)
-- [ ] T014 [US1] Create allocation route tests in `apps/api/src/routes/allocations.spec.ts` — test POST (create range, idempotent overlap, invalid IP, invalid port), GET (list, filter by status/ip/port, summary), DELETE (available ok, assigned 409) (depends on T012)
-- [ ] T015 [US1] Add SSE emission for allocation.create and allocation.delete in `apps/api/src/services/allocation.service.ts` — emit on bulk create (summary payload: nodeId, ip, count, portRange) and on delete (id, nodeId, deleted: true) (depends on T005, T010)
-- [ ] T016 [P] [US1] Create use-allocations hook in `apps/panel/src/hooks/use-allocations.ts` — useAllocations (list with filters), useAllocationSummary, useAddAllocations (mutation), useDeleteAllocation (mutation), invalidate on allocation.create/update/delete SSE events (depends on T001, T002)
-- [ ] T017 [P] [US1] Create AllocationSummary component in `apps/panel/src/components/allocations/allocation-summary.tsx` — display total/available/assigned counts, primary IP badge (depends on T002)
-- [ ] T018 [US1] Create AllocationForm component in `apps/panel/src/components/allocations/allocation-form.tsx` — form with IP input, portStart, portEnd (optional), protocol select (tcp/udp), submit via useAddAllocations, validation (IP format, port range), confirmation warning for large ranges (>100 ports) (depends on T016)
-- [ ] T019 [US1] Create AllocationList component in `apps/panel/src/components/allocations/allocation-list.tsx` — table with IP, port, protocol, status (badge), server ID (if assigned), delete button (disabled if assigned), filter by status, filter by IP, search by port, pagination (depends on T016, T017, T018)
-- [ ] T020 [US1] Integrate allocations section into node detail page in `apps/panel/src/routes/node-detail.tsx` — add "Allocations" tab/section showing AllocationSummary, AllocationForm, AllocationList; SSE-driven refresh on allocation events (depends on T016, T017, T018, T019)
-- [ ] T021 [US1] MCP verification — start dev services, login, navigate to node detail, add IP + port range, verify allocations appear, filter by status, search by port, delete available allocation, verify SSE updates without page reload, try to delete assigned allocation (should fail) (depends on T020)
-- [ ] T022 [US1] Create E2E test in `apps/panel/tests/e2e/allocations.spec.ts` — login, navigate to node, add IP + port range, verify allocations in list, filter by status, search by port, delete available allocation, verify deletion, verify assigned allocation cannot be deleted (depends on T021)
+- [X] T012 [US1] Create allocations API routes in `apps/api/src/routes/allocations.ts` — POST /:nodeId/allocations (add range), GET /:nodeId/allocations (list with filters), DELETE /:nodeId/allocations/:allocationId (delete, reject if assigned), GET /:nodeId/allocations/summary (counts + primaryIp) (depends on T010)
+- [X] T013 [US1] Mount allocations routes in `apps/api/src/index.ts` under `/api/admin/nodes` (depends on T012)
+- [X] T014 [US1] Create allocation route tests in `apps/api/src/routes/allocations.spec.ts` — test POST (create range, idempotent overlap, invalid IP, invalid port), GET (list, filter by status/ip/port, summary), DELETE (available ok, assigned 409) (depends on T012)
+- [X] T015 [US1] Add SSE emission for allocation.create and allocation.delete in `apps/api/src/services/allocation.service.ts` — emit on bulk create (summary payload: nodeId, ip, count, portRange) and on delete (id, nodeId, deleted: true) (depends on T005, T010)
+- [X] T016 [P] [US1] Create use-allocations hook in `apps/panel/src/hooks/use-allocations.ts` — useAllocations (list with filters), useAllocationSummary, useAddAllocations (mutation), useDeleteAllocation (mutation), invalidate on allocation.create/update/delete SSE events (depends on T001, T002)
+- [X] T017 [P] [US1] Create AllocationSummary component in `apps/panel/src/components/allocations/allocation-summary.tsx` — display total/available/assigned counts, primary IP badge (depends on T002)
+- [X] T018 [US1] Create AllocationForm component in `apps/panel/src/components/allocations/allocation-form.tsx` — form with IP input, portStart, portEnd (optional), protocol select (tcp/udp), submit via useAddAllocations, validation (IP format, port range), confirmation warning for large ranges (>100 ports) (depends on T016)
+- [X] T019 [US1] Create AllocationList component in `apps/panel/src/components/allocations/allocation-list.tsx` — table with IP, port, protocol, status (badge), server ID (if assigned), delete button (disabled if assigned), filter by status, filter by IP, search by port, pagination (depends on T016, T017, T018)
+- [X] T020 [US1] Integrate allocations section into node detail page in `apps/panel/src/routes/node-detail.tsx` — add "Allocations" tab/section showing AllocationSummary, AllocationForm, AllocationList; SSE-driven refresh on allocation events (depends on T016, T017, T018, T019)
+- [X] T021 [US1] MCP verification — start dev services, login, navigate to node detail, add IP + port range, verify allocations appear, filter by status, search by port, delete available allocation, verify SSE updates without page reload, try to delete assigned allocation (should fail) (depends on T020)
+- [X] T022 [US1] Create E2E test in `apps/panel/tests/e2e/allocations.spec.ts` — login, navigate to node, add IP + port range, verify allocations in list, filter by status, search by port, delete available allocation, verify deletion, verify assigned allocation cannot be deleted (depends on T021)
 
 **Checkpoint**: User Story 1 is fully functional — admin can manage the allocation pool via the panel UI with real-time updates.
 
@@ -147,9 +147,9 @@
 
 **Purpose**: Improvements that affect multiple user stories.
 
-- [ ] T044 [P] Add node deletion protection in `apps/api/src/routes/nodes.ts` — check for assigned allocations before deleting a node, return 409 if any exist (depends on T010)
+- [X] T044 [P] Add node deletion protection in `apps/api/src/routes/nodes.ts` — check for assigned allocations before deleting a node, return 409 if any exist (depends on T010)
 - [ ] T045 [P] Add node deletion protection tests to `apps/api/src/routes/nodes.spec.ts` — test delete node with assigned allocations (409), delete node with only available allocations (ok, cascades) (depends on T044)
-- [ ] T046 [P] Update test-cleanup endpoint in `apps/api/src/routes/test-cleanup.ts` — delete allocations except those assigned to the E2E daemon's server (if any) (depends on T009)
+- [X] T046 [P] Update test-cleanup endpoint in `apps/api/src/routes/test-cleanup.ts` — delete allocations except those assigned to the E2E daemon's server (if any) (depends on T009)
 - [ ] T047 Run `bun run check` (lint + format) and fix any issues
 - [ ] T048 Run `bun run typecheck` and fix any type errors
 - [ ] T049 Run `bun run test` and ensure all unit/integration tests pass

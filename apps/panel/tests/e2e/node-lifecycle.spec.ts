@@ -51,7 +51,7 @@ test.describe("US4: Node lifecycle management [T053b]", () => {
 
     // Edit display name
     await page.click("button:has-text('Edit Node')");
-    const nameInput = page.locator("input[type='text']").first();
+    const nameInput = page.locator("#node-edit-name");
     await nameInput.fill("My Renamed Node");
     await page.click("button:has-text('Save')");
     await expect(page.locator("text=Node updated")).toBeVisible({ timeout: 5000 });

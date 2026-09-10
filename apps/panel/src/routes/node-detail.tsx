@@ -2,11 +2,15 @@ import type { Node } from "@sigil/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { AllocationForm } from "../components/allocations/allocation-form";
+import { AllocationList } from "../components/allocations/allocation-list";
+import { AllocationSummaryView } from "../components/allocations/allocation-summary";
 import { ErrorState } from "../components/ErrorState";
 import { Layout } from "../components/Layout";
 import { LoadingState } from "../components/LoadingState";
 import { NodeDetailPanel } from "../components/NodeDetailPanel";
 import { NodeEditDialog } from "../components/NodeEditDialog";
+import { useAllocationSummary } from "../hooks/use-allocations";
 import {
   useDeleteNode,
   useNode,
@@ -29,6 +33,7 @@ export function NodeDetailPage() {
 
   const { data: node, isLoading } = useNode(nodeId);
   const { data: regionsData } = useRegions();
+  const { data: allocationSummary } = useAllocationSummary(nodeId);
   const updateMutation = useUpdateNode(nodeId);
   const deleteMutation = useDeleteNode(nodeId);
   const regenerateMutation = useRegenerateCredentials(nodeId);
@@ -38,6 +43,18 @@ export function NodeDetailPage() {
     invalidations: {
       "node.create": [["nodes"]],
       "node.delete": [["nodes"], ["node", nodeId ?? ""]],
+      "allocation.create": [
+        ["allocations", nodeId ?? ""],
+        ["allocation-summary", nodeId ?? ""],
+      ],
+      "allocation.update": [
+        ["allocations", nodeId ?? ""],
+        ["allocation-summary", nodeId ?? ""],
+      ],
+      "allocation.delete": [
+        ["allocations", nodeId ?? ""],
+        ["allocation-summary", nodeId ?? ""],
+      ],
     },
     handlers: {
       "node.update": (payload) => {
@@ -130,6 +147,14 @@ export function NodeDetailPage() {
       )}
 
       <NodeDetailPanel node={node} />
+
+      {/* Allocations Section (R7) */}
+      <div style={{ marginTop: "2rem" }}>
+        <h2>Allocations</h2>
+        <AllocationSummaryView summary={allocationSummary} />
+        <AllocationForm nodeId={nodeId} />
+        <AllocationList nodeId={nodeId} />
+      </div>
 
       <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
         {editing ? (
