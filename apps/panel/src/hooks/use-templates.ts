@@ -166,3 +166,37 @@ export function useImportTemplate() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["templates"] }),
   });
 }
+
+export function useApplyUpdate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/admin/templates/${id}/apply-update`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error?.message ?? "Failed to apply update" };
+      }
+      return {};
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["templates"] }),
+  });
+}
+
+export function useDismissUpdate() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`${API_URL}/api/admin/templates/${id}/dismiss-update`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error?.message ?? "Failed to dismiss update" };
+      }
+      return {};
+    },
+  });
+}

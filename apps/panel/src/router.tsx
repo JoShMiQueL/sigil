@@ -13,6 +13,7 @@ import { ChangelogView } from "./components/templates/changelog-view";
 import { ImportDialog } from "./components/templates/import-dialog";
 import { TemplateForm } from "./components/templates/template-form";
 import { TemplateList } from "./components/templates/template-list";
+import { UpdateNotification, type UpdateNotificationData } from "./components/templates/update-notification";
 import { Layout } from "./components/Layout";
 import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
@@ -36,6 +37,8 @@ import {
   useDeactivateTemplate,
   useDeleteTemplate,
   useImportTemplate,
+  useApplyUpdate,
+  useDismissUpdate,
   useResetTemplate,
   useTemplates,
   useUpdateTemplate,
@@ -895,17 +898,30 @@ function TemplatesPage() {
   const deactivateMutation = useDeactivateTemplate();
   const resetMutation = useResetTemplate();
   const importMutation = useImportTemplate();
+  const applyUpdateMutation = useApplyUpdate();
+  const dismissUpdateMutation = useDismissUpdate();
   const [showCreate, setShowCreate] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [changelogTemplate, setChangelogTemplate] = useState<Template | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [updateNotifications, setUpdateNotifications] = useState<UpdateNotificationData[]>([]);
 
   useSSE({
     invalidations: {
       "template.create": [["templates"]],
       "template.update": [["templates"]],
       "template.delete": [["templates"]],
+      "template.update_applied": [["templates"]],
+    },
+    handlers: {
+      "template.update_available": (data: unknown) => {
+        const payload = data as UpdateNotificationData;
+        setUpdateNotifications((prev) => {
+          const filtered = prev.filter((n) => n.templateId !== payload.templateId);
+          return [...filtered, payload];
+        });
+      },
     },
   });
 
@@ -913,6 +929,22 @@ function TemplatesPage() {
     <Layout>
       <h1>Templates</h1>
       {error && <ErrorState message={error} />}
+
+      <UpdateNotification
+        notifications={updateNotifications}
+        onApply={async (templateId) => {
+          const result = await applyUpdateMutation.mutateAsync(templateId);
+          if (result.error) setError(result.error);
+          else {
+            setError(null);
+            setUpdateNotifications((prev) => prev.filter((n) => n.templateId !== templateId));
+          }
+        }}
+        onDismiss={async (templateId) => {
+          await dismissUpdateMutation.mutateAsync(templateId);
+          setUpdateNotifications((prev) => prev.filter((n) => n.templateId !== templateId));
+        }}
+      />
 
       <div style={{ marginBottom: "1rem" }}>
         <label htmlFor="group-filter">

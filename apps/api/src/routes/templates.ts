@@ -16,6 +16,7 @@ import {
 import { VariableValidationError } from "../services/variable-validation";
 import { importTemplateFile, ImportValidationError } from "../services/template-import.service";
 import { exportTemplate } from "../services/template-export.service";
+import { applyUpdate } from "../services/registry-checker.service";
 
 const templates = new Hono<AuthContext>();
 
@@ -165,6 +166,28 @@ templates.post("/:id/reset", async (c) => {
     const message = err instanceof Error ? err.message : "Failed to reset template";
     return c.json({ error: message }, 502);
   }
+});
+
+templates.post("/:id/apply-update", async (c) => {
+  const id = c.req.param("id");
+  try {
+    const result = await applyUpdate(id);
+    if ("error" in result) {
+      return c.json({ error: result.error }, 400);
+    }
+    return c.json({ ok: true });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to apply update";
+    return c.json({ error: message }, 502);
+  }
+});
+
+templates.post("/:id/dismiss-update", async (c) => {
+  const id = c.req.param("id");
+  // Dismiss is a no-op in R8 — the notification is ephemeral via SSE.
+  // No persistent storage of "dismissed" state is needed since the
+  // checker will re-emit on the next cycle if the hash still differs.
+  return c.json({ ok: true });
 });
 
 templates.post("/import", async (c) => {

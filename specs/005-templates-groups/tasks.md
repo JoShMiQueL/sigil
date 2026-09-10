@@ -220,16 +220,16 @@
 
 ### Tests for User Story 7
 
-- [ ] T067 [P] [US7] Integration test for background checker in `apps/api/src/services/registry-checker.service.spec.ts` — detect sha256 change, emit SSE event, fetch template YAML for changelog, handle unreachable registry, handle auth failure, customized template not overwritten
-- [ ] T068 [P] [US7] Integration test for update apply/dismiss in `apps/api/src/routes/templates.spec.ts` — apply update on non-customized template, apply on customized (with warning), dismiss notification, verify template reflects new version and changelog
+- [X] T067 [P] [US7] Integration test for background checker in `apps/api/src/services/registry-checker.service.spec.ts` — detect sha256 change, emit SSE event, fetch template YAML for changelog, handle unreachable registry, handle auth failure, customized template not overwritten
+- [X] T068 [P] [US7] Integration test for update apply/dismiss in `apps/api/src/routes/templates.spec.ts` — apply update on non-customized template, apply on customized (with warning), dismiss notification, verify template reflects new version and changelog
 
 ### Implementation for User Story 7
 
-- [ ] T069 [US7] Create registry checker service in `apps/api/src/services/registry-checker.service.ts` — Bun.cron("@hourly") job, fetch all registry indexes, compare sha256 with templates.sourceHash, fetch template YAML on change, extract latest changelog entry, emit SSE template.update_available, update registry status on failure (depends on T019, T022, T010)
-- [ ] T070 [US7] Start background checker in API startup in `apps/api/src/index.ts` — register Bun.cron job after seed, skip in test environment (depends on T069, T023)
-- [ ] T071 [US7] Add apply/dismiss update endpoints to templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates/:id/apply-update (fetch latest from registry, overwrite local, set customized=false, emit SSE template.update_applied; NOTE: does NOT modify existing servers — that is R9 scope, no "servers need updating" indicator in R8), POST /api/templates/:id/dismiss-update (mark as seen, no change) (depends on T044, T069)
-- [ ] T072 [P] [US7] Create UpdateNotification component in `apps/panel/src/components/templates/update-notification.tsx` — SSE-driven toast/card showing oldVersion → newVersion, structured changes with badges, Apply/Dismiss buttons, warning for customized templates
-- [ ] T073 [US7] Integrate UpdateNotification into templates management page in `apps/panel/src/routes/templates.tsx` — listen for template.update_available SSE events, show notification, handle apply/dismiss (depends on T072, T050)
+- [X] T069 [US7] Create registry checker service in `apps/api/src/services/registry-checker.service.ts` — Bun.cron("@hourly") job, fetch all registry indexes, compare sha256 with templates.sourceHash, fetch template YAML on change, extract latest changelog entry, emit SSE template.update_available, update registry status on failure (depends on T019, T022, T010)
+- [X] T070 [US7] Start background checker in API startup in `apps/api/src/index.ts` — register Bun.cron job after seed, skip in test environment (depends on T069, T023)
+- [X] T071 [US7] Add apply/dismiss update endpoints to templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates/:id/apply-update (fetch latest from registry, overwrite local, set customized=false, emit SSE template.update_applied; NOTE: does NOT modify existing servers — that is R9 scope, no "servers need updating" indicator in R8), POST /api/templates/:id/dismiss-update (mark as seen, no change) (depends on T044, T069)
+- [X] T072 [P] [US7] Create UpdateNotification component in `apps/panel/src/components/templates/update-notification.tsx` — SSE-driven toast/card showing oldVersion → newVersion, structured changes with badges, Apply/Dismiss buttons, warning for customized templates
+- [X] T073 [US7] Integrate UpdateNotification into templates management page in `apps/panel/src/routes/templates.tsx` — listen for template.update_available SSE events, show notification, handle apply/dismiss (depends on T072, T050)
 
 **Checkpoint**: User Story 7 is fully functional. Admin receives real-time update notifications with structured changelogs and can apply or dismiss them.
 

@@ -84,4 +84,9 @@ if (process.env.NODE_ENV !== "test") {
       5 * 60 * 1000,
     );
   });
+
+  // Start registry update checker (hourly cron)
+  import("./services/registry-checker.service").then(({ startRegistryChecker }) => {
+    startRegistryChecker();
+  });
 }
