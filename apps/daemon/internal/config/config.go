@@ -15,6 +15,8 @@ type Config struct {
 	VolumeBasePath      string  `yaml:"volume_base_path"`
 	DockerSocket        string  `yaml:"docker_socket"`
 	ListenAddress       string  `yaml:"listen_address"`
+	AdvertiseIP         string  `yaml:"advertise_ip"`
+	Hostname            string  `yaml:"hostname"`
 	HeartbeatIntervalSec int     `yaml:"heartbeat_interval_sec"`
 	StopTimeoutSec      int     `yaml:"stop_timeout_sec"`
 	DiskFullThresholdPct int     `yaml:"disk_full_threshold_pct"`

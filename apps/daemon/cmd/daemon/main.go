@@ -78,13 +78,19 @@ func main() {
 		}
 
 		slog.Info("registering with panel...")
-		hostname, _ := os.Hostname()
+		hostname := cfg.Hostname
+		if hostname == "" {
+			hostname, _ = os.Hostname()
+		}
 		capabilities := map[string]bool{
 			"docker": dockerClient != nil,
 			"sftp":   false,
 		}
 
-		ipAddress := getOutboundIP()
+		ipAddress := cfg.AdvertiseIP
+		if ipAddress == "" {
+			ipAddress = getOutboundIP()
+		}
 
 		retryCfg := panel.DefaultRetryConfig()
 		err = panel.RetryWithBackoff(ctx, retryCfg, func() error {
