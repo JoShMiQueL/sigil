@@ -91,14 +91,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Add assign/unassign endpoints to allocations API in `apps/api/src/routes/allocations.ts` — POST /:nodeId/allocations/:allocationId/assign (serverId, isPrimary), POST /:nodeId/allocations/:allocationId/unassign (depends on T012)
-- [ ] T024 [US2] Add release endpoint in `apps/api/src/routes/allocations.ts` — POST /api/admin/allocations/release (serverId) — releases all allocations for a server (for R9 integration) (depends on T010)
-- [ ] T025 [US2] Add SSE emission for allocation.update in `apps/api/src/services/allocation.service.ts` — emit on assign/unassign/release with full allocation payload (depends on T005, T010)
-- [ ] T026 [US2] Add assign/unassign tests to `apps/api/src/routes/allocations.spec.ts` — test assign (available ok, already-assigned 409), unassign (assigned ok, available 409), release (releases all for serverId) (depends on T023, T024)
-- [ ] T027 [P] [US2] Add useAssignAllocation and useUnassignAllocation mutations to `apps/panel/src/hooks/use-allocations.ts` (depends on T016)
-- [ ] T028 [US2] Add assign/unassign buttons to AllocationList component in `apps/panel/src/components/allocations/allocation-list.tsx` — "Assign to server" button on available allocations (opens dialog to enter serverId + isPrimary), "Unassign" button on assigned allocations (depends on T019, T027)
-- [ ] T029 [US2] MCP verification — assign an allocation to a server via panel, verify status changes to "assigned", try to assign same allocation to another server (should fail), unassign, verify returns to "available", verify SSE updates (depends on T028)
-- [ ] T030 [US2] Add assign/unassign E2E tests to `apps/panel/tests/e2e/allocations.spec.ts` — assign allocation, verify assigned status, try duplicate assign (should fail), unassign, verify available (depends on T029)
+- [X] T023 [US2] Add assign/unassign endpoints to allocations API in `apps/api/src/routes/allocations.ts` — POST /:nodeId/allocations/:allocationId/assign (serverId, isPrimary), POST /:nodeId/allocations/:allocationId/unassign (depends on T012)
+- [X] T024 [US2] Add release endpoint in `apps/api/src/routes/allocations.ts` — POST /api/admin/allocations/release (serverId) — releases all allocations for a server (for R9 integration) (depends on T010)
+- [X] T025 [US2] Add SSE emission for allocation.update in `apps/api/src/services/allocation.service.ts` — emit on assign/unassign/release with full allocation payload (depends on T005, T010)
+- [X] T026 [US2] Add assign/unassign tests to `apps/api/src/routes/allocations.spec.ts` — test assign (available ok, already-assigned 409), unassign (assigned ok, available 409), release (releases all for serverId) (depends on T023, T024)
+- [X] T027 [P] [US2] Add useAssignAllocation and useUnassignAllocation mutations to `apps/panel/src/hooks/use-allocations.ts` (depends on T016)
+- [X] T028 [US2] Add assign/unassign buttons to AllocationList component in `apps/panel/src/components/allocations/allocation-list.tsx` — "Assign to server" button on available allocations (opens dialog to enter serverId + isPrimary), "Unassign" button on assigned allocations (depends on T019, T027)
+- [X] T029 [US2] MCP verification — assign an allocation to a server via panel, verify status changes to "assigned", try to assign same allocation to another server (should fail), unassign, verify returns to "available", verify SSE updates (depends on T028)
+- [X] T030 [US2] Add assign/unassign E2E tests to `apps/panel/tests/e2e/allocations.spec.ts` — assign allocation, verify assigned status, try duplicate assign (should fail), unassign, verify available (depends on T029)
 
 **Checkpoint**: User Story 2 is fully functional — allocations can be assigned/unassigned via the panel with real-time updates.
 

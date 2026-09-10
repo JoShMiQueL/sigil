@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useAllocations, useDeleteAllocation } from "../../hooks/use-allocations";
+import {
+  useAllocations,
+  useAssignAllocation,
+  useDeleteAllocation,
+  useUnassignAllocation,
+} from "../../hooks/use-allocations";
 
 interface AllocationListProps {
   nodeId: string | undefined;
@@ -10,6 +15,9 @@ export function AllocationList({ nodeId }: AllocationListProps) {
   const [ipFilter, setIpFilter] = useState("");
   const [portSearch, setPortSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [assigningId, setAssigningId] = useState<string | null>(null);
+  const [assignServerId, setAssignServerId] = useState("");
+  const [assignIsPrimary, setAssignIsPrimary] = useState(false);
 
   const filters: { status?: string; ip?: string; port?: number } = {};
   if (statusFilter) filters.status = statusFilter;
@@ -21,10 +29,40 @@ export function AllocationList({ nodeId }: AllocationListProps) {
 
   const { data, isLoading } = useAllocations(nodeId, filters);
   const deleteMutation = useDeleteAllocation(nodeId);
+  const assignMutation = useAssignAllocation(nodeId);
+  const unassignMutation = useUnassignAllocation(nodeId);
 
   const handleDelete = async (allocationId: string) => {
     setError(null);
     const result = await deleteMutation.mutateAsync(allocationId);
+    if ("error" in result && result.error) {
+      setError(result.error);
+    }
+  };
+
+  const handleAssign = async (allocationId: string) => {
+    setError(null);
+    if (!assignServerId.trim()) {
+      setError("Server ID is required");
+      return;
+    }
+    const result = await assignMutation.mutateAsync({
+      allocationId,
+      serverId: assignServerId.trim(),
+      isPrimary: assignIsPrimary,
+    });
+    if ("error" in result && result.error) {
+      setError(result.error);
+    } else {
+      setAssigningId(null);
+      setAssignServerId("");
+      setAssignIsPrimary(false);
+    }
+  };
+
+  const handleUnassign = async (allocationId: string) => {
+    setError(null);
+    const result = await unassignMutation.mutateAsync(allocationId);
     if ("error" in result && result.error) {
       setError(result.error);
     }
@@ -117,14 +155,38 @@ export function AllocationList({ nodeId }: AllocationListProps) {
                   {a.serverId ? a.serverId.slice(0, 8) + "..." : "—"}
                 </td>
                 <td style={{ padding: "0.5rem" }}>
-                  {a.status === "available" && (
+                  {a.status === "available" ? (
+                    <div style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAssigningId(a.id);
+                          setAssignServerId("");
+                          setAssignIsPrimary(false);
+                          setError(null);
+                        }}
+                        disabled={assignMutation.isPending}
+                        style={{ color: "#6af" }}
+                      >
+                        Assign
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(a.id)}
+                        disabled={deleteMutation.isPending}
+                        style={{ color: "#c00" }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => handleDelete(a.id)}
-                      disabled={deleteMutation.isPending}
-                      style={{ color: "#c00" }}
+                      onClick={() => handleUnassign(a.id)}
+                      disabled={unassignMutation.isPending}
+                      style={{ color: "#d92" }}
                     >
-                      Delete
+                      Unassign
                     </button>
                   )}
                 </td>
@@ -140,6 +202,85 @@ export function AllocationList({ nodeId }: AllocationListProps) {
           Showing {allocations.length} of {data.total} — {data.available} available, {data.assigned}{" "}
           assigned
         </p>
+      )}
+
+      {/* Assign dialog */}
+      {assigningId && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100,
+          }}
+          onClick={() => setAssigningId(null)}
+        >
+          <div
+            style={{
+              background: "#1a1a2e",
+              border: "1px solid #444",
+              borderRadius: "8px",
+              padding: "1.5rem",
+              minWidth: "360px",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ margin: "0 0 1rem 0" }}>Assign Allocation</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div>
+                <label
+                  htmlFor="assign-server-id"
+                  style={{
+                    display: "block",
+                    fontSize: "0.75rem",
+                    color: "#888",
+                    marginBottom: "0.25rem",
+                  }}
+                >
+                  Server ID
+                </label>
+                <input
+                  id="assign-server-id"
+                  type="text"
+                  value={assignServerId}
+                  onChange={(e) => setAssignServerId(e.target.value)}
+                  placeholder="00000000-0000-4000-8000-000000000000"
+                  style={{ width: "100%", fontFamily: "monospace", boxSizing: "border-box" }}
+                />
+              </div>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <input
+                  type="checkbox"
+                  checked={assignIsPrimary}
+                  onChange={(e) => setAssignIsPrimary(e.target.checked)}
+                />
+                Set as primary allocation
+              </label>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                marginTop: "1rem",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button type="button" onClick={() => setAssigningId(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAssign(assigningId)}
+                disabled={assignMutation.isPending || !assignServerId.trim()}
+              >
+                {assignMutation.isPending ? "Assigning..." : "Assign"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

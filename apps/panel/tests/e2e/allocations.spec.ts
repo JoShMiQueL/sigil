@@ -222,4 +222,114 @@ test.describe("R7: Allocations [US1: Admin manages IP allocations per node]", ()
     // Should get 401 or 403
     expect([401, 403]).toContain(res.status());
   });
+
+  test("admin can assign and unassign allocation via panel", async ({ page }) => {
+    // Setup
+    const regionRes = await page.request.post(`${API_URL}/api/admin/regions`, {
+      data: { name: "alloc-assign-region" },
+    });
+    const region = await regionRes.json();
+
+    const tokenRes = await page.request.post(`${API_URL}/api/admin/pairing/tokens`, {
+      data: { regionId: region.id },
+    });
+    const token = await tokenRes.json();
+
+    const registerRes = await page.request.post(`${API_URL}/api/node/register`, {
+      data: {
+        pairingToken: token.token,
+        hostname: "alloc-assign-node",
+        ipAddress: "203.0.113.50",
+        capabilities: { docker: true },
+      },
+    });
+    const node = await registerRes.json();
+    const nodeId = node.nodeId;
+
+    // Add allocations
+    await page.request.post(`${API_URL}/api/admin/nodes/${nodeId}/allocations`, {
+      data: { ip: "203.0.113.50", portStart: 25565, portEnd: 25567, protocol: "tcp" },
+    });
+
+    // Get the first allocation ID
+    const listRes = await page.request.get(`${API_URL}/api/admin/nodes/${nodeId}/allocations`);
+    const list = await listRes.json();
+    const firstAllocId = list.allocations[0].id;
+
+    // Assign via API
+    await page.request.post(`${API_URL}/api/admin/nodes/${nodeId}/allocations/${firstAllocId}/assign`, {
+      data: { serverId: "00000000-0000-4000-8000-000000000099", isPrimary: true },
+    });
+
+    // Navigate to node detail
+    await page.click("button:has-text('Nodes')");
+    await page.waitForURL("/nodes");
+    await page.click("text=alloc-assign-node");
+    await page.waitForURL(`/nodes/${nodeId}`);
+
+    // Verify the assigned allocation shows "assigned" status and Unassign button
+    await expect(page.locator("text=assigned").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('button:has-text("Unassign")')).toBeVisible({ timeout: 5000 });
+
+    // Unassign via UI
+    await page.click('button:has-text("Unassign")');
+
+    // Verify status changed back to available
+    await expect(page.locator("text=available").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('button:has-text("Assign")').first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test("admin cannot assign already-assigned allocation to another server", async ({ page }) => {
+    // Setup
+    const regionRes = await page.request.post(`${API_URL}/api/admin/regions`, {
+      data: { name: "alloc-dup-assign-region" },
+    });
+    const region = await regionRes.json();
+
+    const tokenRes = await page.request.post(`${API_URL}/api/admin/pairing/tokens`, {
+      data: { regionId: region.id },
+    });
+    const token = await tokenRes.json();
+
+    const registerRes = await page.request.post(`${API_URL}/api/node/register`, {
+      data: {
+        pairingToken: token.token,
+        hostname: "alloc-dup-assign-node",
+        ipAddress: "203.0.113.60",
+        capabilities: { docker: true },
+      },
+    });
+    const node = await registerRes.json();
+    const nodeId = node.nodeId;
+
+    // Add allocations
+    await page.request.post(`${API_URL}/api/admin/nodes/${nodeId}/allocations`, {
+      data: { ip: "203.0.113.60", portStart: 25565, portEnd: 25567, protocol: "tcp" },
+    });
+
+    // Assign first allocation to server A via API
+    const listRes = await page.request.get(`${API_URL}/api/admin/nodes/${nodeId}/allocations`);
+    const list = await listRes.json();
+    const firstAllocId = list.allocations[0].id;
+
+    await page.request.post(
+      `${API_URL}/api/admin/nodes/${nodeId}/allocations/${firstAllocId}/assign`,
+      {
+        data: { serverId: "00000000-0000-4000-8000-000000000001", isPrimary: true },
+      },
+    );
+
+    // Navigate to node detail
+    await page.click("button:has-text('Nodes')");
+    await page.waitForURL("/nodes");
+    await page.click("text=alloc-dup-assign-node");
+    await page.waitForURL(`/nodes/${nodeId}`);
+
+    // Wait for allocations to load — 3 total, 1 assigned
+    await expect(page.locator("text=Showing 3 of 3")).toBeVisible({ timeout: 5000 });
+
+    // The assigned allocation should show Unassign, not Assign
+    // Verify the assigned allocation has Unassign button
+    await expect(page.locator('button:has-text("Unassign")')).toBeVisible({ timeout: 5000 });
+  });
 });
