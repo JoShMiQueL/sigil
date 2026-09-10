@@ -23,9 +23,9 @@ const templates = new Hono<AuthContext>();
 // List and get are accessible to all authenticated users (active-only for non-admins)
 templates.get("/", async (c) => {
   const user = c.get("user");
-  const groupId = c.req.query("groupId");
+  const tag = c.req.query("tag");
   const activeOnly = user?.role !== "admin";
-  const result = await listTemplates({ groupId, activeOnly, role: user?.role });
+  const result = await listTemplates({ tag, activeOnly, role: user?.role });
   return c.json(result);
 });
 
@@ -91,7 +91,7 @@ templates.post("/", zValidator("json", TemplateCreateSchema), async (c) => {
         {
           error: {
             code: "TEMPLATE_NAME_EXISTS",
-            message: "A template with this name already exists in this group",
+            message: "A template with this name already exists",
           },
         },
         409,
@@ -130,7 +130,7 @@ templates.patch("/:id", zValidator("json", TemplateUpdateSchema), async (c) => {
         {
           error: {
             code: "TEMPLATE_NAME_EXISTS",
-            message: "A template with this name already exists in this group",
+            message: "A template with this name already exists",
           },
         },
         409,
@@ -208,16 +208,21 @@ templates.post("/:id/dismiss-update", async (c) => {
 templates.post("/import", async (c) => {
   const formData = await c.req.formData();
   const file = formData.get("file") as File | null;
-  const groupId = formData.get("groupId") as string | null;
+  const tagsRaw = formData.get("tags") as string | null;
   const conflict = (formData.get("conflict") as "overwrite" | "skip") || "skip";
 
   if (!file) return c.json({ error: "No file uploaded" }, 400);
-  if (!groupId) return c.json({ error: "groupId is required" }, 400);
+  const tags = tagsRaw
+    ? tagsRaw
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [];
 
   const content = await file.text();
 
   try {
-    const result = await importTemplateFile(content, groupId, conflict);
+    const result = await importTemplateFile(content, tags, conflict);
     const user = c.get("user");
     await logAudit({
       userId: user?.id,

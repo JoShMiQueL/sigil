@@ -44,25 +44,13 @@ async function ensureOfficialRegistry(): Promise<typeof schema.registries.$infer
   return row;
 }
 
-async function ensureGroup(groupName: string): Promise<typeof schema.groups.$inferSelect> {
-  const [existing] = await db
-    .select()
-    .from(schema.groups)
-    .where(eq(schema.groups.name, groupName))
-    .limit(1);
-  if (existing) return existing;
-
-  const [row] = await db.insert(schema.groups).values({ name: groupName }).returning();
-  return row;
-}
-
 async function readLocalTemplates(): Promise<
   Array<{
     entry: {
       id: string;
       name: string;
       description?: string;
-      group: string;
+      tags: string[];
       author?: string;
       version: string;
       file: string;
@@ -78,7 +66,7 @@ async function readLocalTemplates(): Promise<
       id: string;
       name: string;
       description?: string;
-      group: string;
+      tags: string[];
       author?: string;
       version: string;
       file: string;
@@ -107,7 +95,7 @@ export async function seedOfficialTemplates(): Promise<void> {
       id: string;
       name: string;
       description?: string;
-      group: string;
+      tags: string[];
       author?: string;
       version: string;
       file: string;
@@ -125,12 +113,10 @@ export async function seedOfficialTemplates(): Promise<void> {
   for (const { entry, content } of templates) {
     try {
       const parsed = parseTemplateYAML(content);
-      const group = await ensureGroup(entry.group);
 
       const [templateRow] = await db
         .insert(schema.templates)
         .values({
-          groupId: group.id,
           registryId: registry.id,
           sourceId: entry.id,
           sourceHash: entry.sha256,
@@ -146,6 +132,7 @@ export async function seedOfficialTemplates(): Promise<void> {
           resourceLimits: parsed.resourceLimits,
           resourceLimitsRange: parsed.resourceLimitsRange ?? null,
           changelog: parsed.changelog ?? [],
+          tags: [...new Set([...(entry.tags ?? []), ...(parsed.tags ?? [])])],
           active: true,
           customized: false,
         })

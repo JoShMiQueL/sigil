@@ -17,27 +17,17 @@ import {
   parseJson,
 } from "../test/helpers";
 
-async function createGroup(cookie: string | null, name: string): Promise<string> {
-  const res = await apiRequest(app, "/api/admin/groups", {
-    method: "POST",
-    cookie: cookie,
-    body: { name },
-  });
-  const body = await parseJson(res);
-  return body.id;
-}
-
 async function createTemplate(
   cookie: string | null,
-  groupId: string,
   name: string,
+  tags: string[] = [],
 ): Promise<string> {
   const res = await apiRequest(app, "/api/admin/templates", {
     method: "POST",
     cookie: cookie,
     body: {
-      groupId,
       name,
+      tags,
       image: "eclipse-temurin:21-jre",
       startupCommand: "java -jar server.jar",
       resourceLimits: { memoryMb: 1024, cpuLimit: 1.0, pidsLimit: 512 },
@@ -49,27 +39,25 @@ async function createTemplate(
 
 describe("templates routes [US3: template lifecycle]", () => {
   let adminCookie: string | null;
-  let groupId: string;
 
   beforeEach(async () => {
     await cleanupDatabase();
     await createAdmin("admin@test.local", "admin12345");
     const result = await loginAndGetCookie(app, "admin@test.local", "admin12345");
     adminCookie = result.cookie;
-    groupId = await createGroup(adminCookie, "Minecraft");
   });
 
   afterEach(async () => {
     await cleanupDatabase();
   });
 
-  it("admin can create a template", async () => {
+  it("admin can create a template with tags", async () => {
     const res = await apiRequest(app, "/api/admin/templates", {
       method: "POST",
       cookie: adminCookie,
       body: {
-        groupId,
         name: "Paper MC",
+        tags: ["minecraft", "java", "paper"],
         image: "eclipse-temurin:21-jre",
         startupCommand: "java -jar paper.jar nogui",
         resourceLimits: { memoryMb: 1024, cpuLimit: 1.0, pidsLimit: 512 },
@@ -79,13 +67,14 @@ describe("templates routes [US3: template lifecycle]", () => {
     expect(res.status).toBe(201);
     const body = await parseJson(res);
     expect(body.name).toBe("Paper MC");
+    expect(body.tags).toEqual(["minecraft", "java", "paper"]);
     expect(body.active).toBe(false);
     expect(body.customized).toBe(false);
   });
 
   it("admin can list templates", async () => {
-    await createTemplate(adminCookie, groupId, "Paper MC");
-    await createTemplate(adminCookie, groupId, "Vanilla MC");
+    await createTemplate(adminCookie, "Paper MC", ["minecraft"]);
+    await createTemplate(adminCookie, "Vanilla MC", ["minecraft"]);
 
     const res = await apiRequest(app, "/api/admin/templates", { cookie: adminCookie });
 
@@ -95,7 +84,7 @@ describe("templates routes [US3: template lifecycle]", () => {
   });
 
   it("admin can activate and deactivate a template", async () => {
-    const templateId = await createTemplate(adminCookie, groupId, "Paper MC");
+    const templateId = await createTemplate(adminCookie, "Paper MC", ["minecraft"]);
 
     const activateRes = await apiRequest(app, `/api/admin/templates/${templateId}/activate`, {
       method: "POST",
@@ -114,25 +103,24 @@ describe("templates routes [US3: template lifecycle]", () => {
     expect(deactivated.active).toBe(false);
   });
 
-  it("admin can edit a template and it gets marked customized", async () => {
-    const templateId = await createTemplate(adminCookie, groupId, "Paper MC");
+  it("admin can edit a template and its tags", async () => {
+    const templateId = await createTemplate(adminCookie, "Paper MC", ["minecraft"]);
 
     const res = await apiRequest(app, `/api/admin/templates/${templateId}`, {
       method: "PATCH",
       cookie: adminCookie,
-      body: { name: "Paper MC Custom" },
+      body: { name: "Paper MC Custom", tags: ["minecraft", "custom"] },
     });
 
     expect(res.status).toBe(200);
     const body = await parseJson(res);
     expect(body.name).toBe("Paper MC Custom");
-    // customized is only true for registry-installed templates
-    // locally created templates don't have registryId, so customized stays false
+    expect(body.tags).toEqual(["minecraft", "custom"]);
     expect(body.customized).toBe(false);
   });
 
   it("admin can delete a template", async () => {
-    const templateId = await createTemplate(adminCookie, groupId, "Paper MC");
+    const templateId = await createTemplate(adminCookie, "Paper MC", ["minecraft"]);
 
     const res = await apiRequest(app, `/api/admin/templates/${templateId}`, {
       method: "DELETE",
@@ -142,12 +130,11 @@ describe("templates routes [US3: template lifecycle]", () => {
     expect(res.status).toBe(200);
   });
 
-  it("admin can filter templates by group", async () => {
-    await createTemplate(adminCookie, groupId, "Paper MC");
-    const group2Id = await createGroup(adminCookie, "Rust");
-    await createTemplate(adminCookie, group2Id, "Rust Server");
+  it("admin can filter templates by tag", async () => {
+    await createTemplate(adminCookie, "Paper MC", ["minecraft", "java"]);
+    await createTemplate(adminCookie, "Rust Server", ["rust", "steamcmd"]);
 
-    const res = await apiRequest(app, `/api/admin/templates?groupId=${groupId}`, {
+    const res = await apiRequest(app, "/api/admin/templates?tag=minecraft", {
       cookie: adminCookie,
     });
 
@@ -158,12 +145,12 @@ describe("templates routes [US3: template lifecycle]", () => {
   });
 
   it("non-admin users only see active templates", async () => {
-    const templateId = await createTemplate(adminCookie, groupId, "Paper MC");
+    const templateId = await createTemplate(adminCookie, "Paper MC", ["minecraft"]);
     await apiRequest(app, `/api/admin/templates/${templateId}/activate`, {
       method: "POST",
       cookie: adminCookie,
     });
-    await createTemplate(adminCookie, groupId, "Vanilla MC");
+    await createTemplate(adminCookie, "Vanilla MC", ["minecraft"]);
 
     // Unauthenticated GET returns only active templates (activeOnly=true)
     const res = await apiRequest(app, "/api/admin/templates", {});
@@ -177,8 +164,8 @@ describe("templates routes [US3: template lifecycle]", () => {
     const res = await apiRequest(app, "/api/admin/templates", {
       method: "POST",
       body: {
-        groupId,
         name: "Test",
+        tags: [],
         image: "test",
         startupCommand: "test",
         resourceLimits: { memoryMb: 1, cpuLimit: 0.1 },

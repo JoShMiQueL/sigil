@@ -6,7 +6,6 @@ import { type AuthContext, authMiddleware } from "./middleware/auth";
 import { cspMiddleware } from "./middleware/security-headers";
 import apiKeysRoutes from "./routes/api-keys";
 import authRoutes from "./routes/auth";
-import groupsRoutes from "./routes/groups";
 import nodesRoutes from "./routes/nodes";
 import { adminPairing, heartbeatApp, default as pairingRoutes } from "./routes/pairing";
 import regionsRoutes from "./routes/regions";
@@ -41,7 +40,6 @@ if (process.env.NODE_ENV !== "production") {
 app.route("/api/auth", authRoutes);
 app.route("/api/admin/users", usersRoutes);
 app.route("/api/admin/regions", regionsRoutes);
-app.route("/api/admin/groups", groupsRoutes);
 app.route("/api/admin/registries", registriesRoutes);
 app.route("/api/admin/templates", templatesRoutes);
 app.route("/api/admin/nodes", nodesRoutes);

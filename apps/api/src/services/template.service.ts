@@ -17,7 +17,6 @@ function toTemplate(
 ): Template {
   return {
     id: row.id,
-    groupId: row.groupId,
     registryId: row.registryId,
     sourceId: row.sourceId,
     sourceHash: row.sourceHash,
@@ -33,6 +32,7 @@ function toTemplate(
     resourceLimits: row.resourceLimits as Template["resourceLimits"],
     resourceLimitsRange: row.resourceLimitsRange as Template["resourceLimitsRange"],
     changelog: row.changelog as Template["changelog"],
+    tags: row.tags ?? [],
     active: row.active,
     customized: row.customized,
     variables: vars.map((v) => ({
@@ -77,7 +77,6 @@ export async function createTemplate(input: TemplateCreate): Promise<Template> {
   const [row] = await db
     .insert(schema.templates)
     .values({
-      groupId: input.groupId,
       name: input.name,
       description: input.description ?? null,
       author: input.author ?? null,
@@ -90,6 +89,7 @@ export async function createTemplate(input: TemplateCreate): Promise<Template> {
       resourceLimits: input.resourceLimits,
       resourceLimitsRange: input.resourceLimitsRange ?? null,
       changelog: input.changelog,
+      tags: input.tags ?? [],
       active: false,
       customized: false,
     })
@@ -123,30 +123,15 @@ export async function createTemplate(input: TemplateCreate): Promise<Template> {
 }
 
 export async function listTemplates(opts: {
-  groupId?: string;
+  tag?: string;
   activeOnly?: boolean;
   role?: "admin" | "user";
 }): Promise<Template[]> {
-  const _conditions = [];
-  if (opts.groupId) {
-    const rows = await db
-      .select()
-      .from(schema.templates)
-      .where(eq(schema.templates.groupId, opts.groupId))
-      .orderBy(schema.templates.createdAt);
-    const result: Template[] = [];
-    for (const row of rows) {
-      if (opts.activeOnly && !row.active) continue;
-      const vars = await getTemplateVariables(row.id);
-      result.push(toTemplate(row, vars));
-    }
-    return result;
-  }
-
   const rows = await db.select().from(schema.templates).orderBy(schema.templates.createdAt);
   const result: Template[] = [];
   for (const row of rows) {
     if (opts.activeOnly && !row.active) continue;
+    if (opts.tag && !(row.tags ?? []).includes(opts.tag)) continue;
     const vars = await getTemplateVariables(row.id);
     result.push(toTemplate(row, vars));
   }
@@ -179,6 +164,7 @@ export async function updateTemplate(id: string, input: TemplateUpdate): Promise
   if (input.resourceLimitsRange !== undefined)
     updates.resourceLimitsRange = input.resourceLimitsRange ?? null;
   if (input.changelog !== undefined) updates.changelog = input.changelog;
+  if (input.tags !== undefined) updates.tags = input.tags;
 
   const [existing] = await db
     .select()
@@ -316,6 +302,7 @@ export async function resetToUpstream(id: string): Promise<Template | null> {
       resourceLimits: parsed.resourceLimits,
       resourceLimitsRange: parsed.resourceLimitsRange ?? null,
       changelog: parsed.changelog ?? [],
+      tags: parsed.tags ?? [],
       sourceHash: sha256,
       customized: false,
       updatedAt: new Date(),

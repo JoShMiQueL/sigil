@@ -26,6 +26,7 @@ interface TemplateYAML {
     date: string;
     changes: Array<{ type: string; description: string }>;
   }>;
+  tags?: string[];
   variables?: Array<{
     name: string;
     envVar: string;
@@ -67,6 +68,7 @@ export function serializeTemplateYAML(template: Template): string {
     resourceLimits: template.resourceLimits,
     resourceLimitsRange: template.resourceLimitsRange ?? undefined,
     changelog: template.changelog,
+    tags: template.tags,
     variables: template.variables.map((v) => ({
       name: v.name,
       envVar: v.envVar,

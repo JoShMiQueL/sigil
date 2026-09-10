@@ -5,7 +5,6 @@ import { parseTemplateYAML, serializeTemplateYAML } from "./yaml-utils";
 function makeTemplate(): Template {
   return {
     id: "test-id",
-    groupId: "group-id",
     registryId: null,
     sourceId: null,
     sourceHash: "abc123",
@@ -29,6 +28,7 @@ function makeTemplate(): Template {
         changes: [{ type: "added", description: "Initial release" }],
       },
     ],
+    tags: ["minecraft", "java", "paper"],
     active: true,
     customized: false,
     variables: [
@@ -116,5 +116,14 @@ describe("YAML serialization round-trip [US6]", () => {
     expect(pm?.internalPort).toBe(25565);
     expect(pm?.externalPort).toBe(25565);
     expect(pm?.protocol).toBe("tcp");
+  });
+
+  it("preserves tags", () => {
+    const template = makeTemplate();
+    const yaml = serializeTemplateYAML(template);
+    const parsed = parseTemplateYAML(yaml);
+
+    expect(parsed.tags).toBeDefined();
+    expect(parsed.tags).toEqual(["minecraft", "java", "paper"]);
   });
 });

@@ -177,21 +177,9 @@ export async function installTemplate(
   const parsed = parseTemplateYAML(yamlText);
   const sha256 = createHash("sha256").update(yamlText).digest("hex");
 
-  let group = await db
-    .select()
-    .from(schema.groups)
-    .where(eq(schema.groups.name, entry.group))
-    .limit(1);
-
-  if (group.length === 0) {
-    const [newGroup] = await db.insert(schema.groups).values({ name: entry.group }).returning();
-    group = [newGroup];
-  }
-
   const [templateRow] = await db
     .insert(schema.templates)
     .values({
-      groupId: group[0].id,
       registryId,
       sourceId: entry.id,
       sourceHash: sha256,
@@ -207,6 +195,7 @@ export async function installTemplate(
       resourceLimits: parsed.resourceLimits,
       resourceLimitsRange: parsed.resourceLimitsRange ?? null,
       changelog: parsed.changelog ?? [],
+      tags: [...new Set([...(entry.tags ?? []), ...(parsed.tags ?? [])])],
       active: false,
       customized: false,
     })

@@ -7,7 +7,7 @@ import { createResetToken } from "../services/password.service";
 
 export async function cleanupDatabase(): Promise<void> {
   await db.execute(
-    sql`TRUNCATE TABLE variables, templates, groups, registries, node_credentials, pairing_tokens, nodes, regions, audit_logs, sessions, api_keys, password_reset_tokens, users CASCADE`,
+    sql`TRUNCATE TABLE variables, templates, registries, node_credentials, pairing_tokens, nodes, regions, audit_logs, sessions, api_keys, password_reset_tokens, users CASCADE`,
   );
 }
 
