@@ -6,6 +6,7 @@ import { ApiKeyManager } from "./components/ApiKeyManager";
 import { CreateUserForm } from "./components/CreateUserForm";
 import { ErrorState } from "./components/ErrorState";
 import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
+import { GroupForm } from "./components/groups/group-form";
 import { Layout } from "./components/Layout";
 import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
@@ -14,6 +15,7 @@ import { TotpSetup } from "./components/TotpSetup";
 import { TwoFactorPrompt } from "./components/TwoFactorPrompt";
 import { UserTable } from "./components/UserTable";
 import { useAuth } from "./hooks/useAuth";
+import { useCreateGroup, useDeleteGroup, useGroups, useUpdateGroup } from "./hooks/use-groups";
 import { useSSE } from "./hooks/useSSE";
 import { NodeDetailPage } from "./routes/node-detail";
 import { NodesPage } from "./routes/nodes";
@@ -125,6 +127,13 @@ function DashboardPage() {
         <p>
           <button type="button" onClick={() => router.navigate({ to: "/nodes" })}>
             Manage Nodes
+          </button>
+        </p>
+      )}
+      {user.role === "admin" && (
+        <p>
+          <button type="button" onClick={() => router.navigate({ to: "/groups" })}>
+            Manage Template Groups
           </button>
         </p>
       )}
@@ -590,12 +599,126 @@ const nodeDetailRoute = createRoute({
   component: NodeDetailPage,
 });
 
+function GroupsPage() {
+  const { data: groups, isLoading } = useGroups();
+  const createMutation = useCreateGroup();
+  const updateMutation = useUpdateGroup();
+  const deleteMutation = useDeleteGroup();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useSSE({
+    invalidations: {
+      "group.create": [["groups"]],
+      "group.update": [["groups"]],
+      "group.delete": [["groups"]],
+    },
+  });
+
+  const editingGroup = groups?.find((g) => g.id === editingId) ?? null;
+
+  return (
+    <Layout>
+      <h1>Template Groups</h1>
+      {error && <ErrorState message={error} />}
+
+      {showCreate ? (
+        <GroupForm
+          onSubmit={async (input) => {
+            const result = await createMutation.mutateAsync(input);
+            if (result.error) {
+              setError(result.error);
+              return result;
+            }
+            setError(null);
+            setShowCreate(false);
+            return {};
+          }}
+          onCancel={() => setShowCreate(false)}
+        />
+      ) : editingGroup ? (
+        <GroupForm
+          group={editingGroup}
+          onSubmit={async (input) => {
+            const result = await updateMutation.mutateAsync({ id: editingGroup.id, input });
+            if (result.error) {
+              setError(result.error);
+              return result;
+            }
+            setError(null);
+            setEditingId(null);
+            return {};
+          }}
+          onCancel={() => setEditingId(null)}
+        />
+      ) : (
+        <button type="button" onClick={() => setShowCreate(true)}>
+          Create Group
+        </button>
+      )}
+
+      {isLoading ? (
+        <LoadingState message="Loading groups..." />
+      ) : groups && groups.length > 0 ? (
+        <table style={{ marginTop: "1rem", width: "100%" }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {groups.map((group) => (
+              <tr key={group.id}>
+                <td>{group.icon ? `${group.icon} ` : ""}{group.name}</td>
+                <td>{group.description ?? "—"}</td>
+                <td>
+                  <button type="button" onClick={() => setEditingId(group.id)}>
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const result = await deleteMutation.mutateAsync(group.id);
+                      if (result.error) setError(result.error);
+                      else setError(null);
+                    }}
+                    style={{ marginLeft: "0.5rem" }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No groups yet. Create one to get started.</p>
+      )}
+    </Layout>
+  );
+}
+
+const groupsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/groups",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: GroupsPage,
+});
+
 export const routeTree = rootRoute.addChildren([
   loginRoute,
   dashboardRoute,
   usersRoute,
   nodesRoute,
   nodeDetailRoute,
+  groupsRoute,
   forgotPasswordRoute,
   resetPasswordRoute,
   securityRoute,

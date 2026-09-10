@@ -88,10 +88,10 @@
 - [X] T025 [US1] Create group service in `apps/api/src/services/group.service.ts` — createGroup, listGroups, getGroupById, updateGroup, deleteGroup (reject if templates exist), audit log on all mutations (depends on T011)
 - [X] T026 [US1] Create groups API routes in `apps/api/src/routes/groups.ts` — POST /api/groups, GET /api/groups, GET /api/groups/:id, PATCH /api/groups/:id, DELETE /api/groups/:id, admin-only guard, zValidator with GroupSchema (depends on T001, T025)
 - [X] T027 [US1] Register groups routes in `apps/api/src/index.ts` (depends on T026)
-- [ ] T028 [P] [US1] Create useGroups hook in `apps/panel/src/hooks/use-groups.ts` — fetch groups, SSE subscription for group.create/group.update/group.delete
-- [ ] T029 [P] [US1] Create GroupForm component in `apps/panel/src/components/groups/group-form.tsx` — create/edit form with name, description, icon fields
-- [ ] T030 [US1] Create groups management page in `apps/panel/src/routes/groups.tsx` — list groups, create/edit/delete via GroupForm, SSE real-time updates (depends on T028, T029)
-- [ ] T031 [US1] Add groups route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T030)
+- [X] T028 [P] [US1] Create useGroups hook in `apps/panel/src/hooks/use-groups.ts` — fetch groups, SSE subscription for group.create/group.update/group.delete
+- [X] T029 [P] [US1] Create GroupForm component in `apps/panel/src/components/groups/group-form.tsx` — create/edit form with name, description, icon fields
+- [X] T030 [US1] Create groups management page in `apps/panel/src/routes/groups.tsx` — list groups, create/edit/delete via GroupForm, SSE real-time updates (depends on T028, T029)
+- [X] T031 [US1] Add groups route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T030)
 
 **Checkpoint**: User Story 1 is fully functional. Admin can manage groups through the UI with real-time SSE updates.
 
