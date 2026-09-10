@@ -25,6 +25,7 @@ export const NodeSchema = z.object({
   diskUsage: z.number().nullable(),
   containerCount: z.number().nullable(),
   lastHeartbeatAt: z.string().datetime().nullable(),
+  primaryIp: z.string().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
@@ -33,5 +34,6 @@ export type Node = z.infer<typeof NodeSchema>;
 export const NodeUpdateSchema = z.object({
   displayName: z.string().min(1).max(64).optional(),
   regionId: z.string().uuid().optional(),
+  primaryIp: z.string().nullable().optional(),
 });
 export type NodeUpdate = z.infer<typeof NodeUpdateSchema>;

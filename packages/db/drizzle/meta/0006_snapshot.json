@@ -1,9 +1,210 @@
 {
-  "id": "a1e7725e-fb04-4eb5-b2f5-f5e484bdd33a",
-  "prevId": "702d32d0-47cd-4b6e-9aa9-f809317a1000",
+  "id": "c651f174-4112-42a4-8518-473877103b04",
+  "prevId": "a1e7725e-fb04-4eb5-b2f5-f5e484bdd33a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.allocations": {
+      "name": "allocations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "node_id": {
+          "name": "node_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "port": {
+          "name": "port",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "protocol": {
+          "name": "protocol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'tcp'"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'available'"
+        },
+        "server_id": {
+          "name": "server_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_primary": {
+          "name": "is_primary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "allocations_node_ip_port_protocol_idx": {
+          "name": "allocations_node_ip_port_protocol_idx",
+          "columns": [
+            {
+              "expression": "node_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ip",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "port",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "protocol",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "allocations_node_status_idx": {
+          "name": "allocations_node_status_idx",
+          "columns": [
+            {
+              "expression": "node_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "allocations_node_ip_idx": {
+          "name": "allocations_node_ip_idx",
+          "columns": [
+            {
+              "expression": "node_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ip",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "allocations_node_port_idx": {
+          "name": "allocations_node_port_idx",
+          "columns": [
+            {
+              "expression": "node_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "port",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "allocations_server_id_idx": {
+          "name": "allocations_server_id_idx",
+          "columns": [
+            {
+              "expression": "server_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "allocations_node_id_nodes_id_fk": {
+          "name": "allocations_node_id_nodes_id_fk",
+          "tableFrom": "allocations",
+          "tableTo": "nodes",
+          "columnsFrom": ["node_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.api_keys": {
       "name": "api_keys",
       "schema": "",
@@ -294,6 +495,12 @@
         "last_heartbeat_at": {
           "name": "last_heartbeat_at",
           "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_ip": {
+          "name": "primary_ip",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -822,6 +1029,13 @@
           "notNull": true,
           "default": "'[]'"
         },
+        "tags": {
+          "name": "tags",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
         "active": {
           "name": "active",
           "type": "boolean",
@@ -849,13 +1063,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "tags": {
-          "name": "tags",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
         }
       },
       "indexes": {},

@@ -151,6 +151,9 @@ function connect(): void {
     "region.update",
     "user.update",
     "connected",
+    "allocation.create",
+    "allocation.update",
+    "allocation.delete",
   ];
 
   for (const type of eventTypes) {

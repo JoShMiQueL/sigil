@@ -32,15 +32,15 @@
 
 **Purpose**: Shared schemas, DB tables, and SSE event extensions that all user stories depend on.
 
-- [ ] T001 [P] Create AllocationSchema, AllocationCreateSchema (ip, portStart, portEnd, protocol), AllocationAssignSchema (serverId, isPrimary), AllocationStatusSchema, ProtocolSchema in `packages/shared/src/allocation/allocation.ts`
-- [ ] T002 [P] Create AllocationSummarySchema (total, available, assigned, primaryIp) in `packages/shared/src/allocation/allocation.ts`
-- [ ] T003 Create `packages/shared/src/allocation/index.ts` re-exporting all allocation schemas (depends on T001, T002)
-- [ ] T004 Update `packages/shared/src/index.ts` to export from `./allocation/index` (depends on T003)
-- [ ] T005 Update `packages/shared/src/sse/events.ts` to add `allocation.create`, `allocation.update`, `allocation.delete` event types and payload schemas (AllocationCreatePayloadSchema, AllocationDeletePayloadSchema) (depends on T001)
-- [ ] T006 [P] Create allocations table in `packages/db/src/schema/allocations.ts` — id, nodeId (FK → nodes ON DELETE CASCADE), ip, port (CHECK 1-65535), protocol (default tcp, CHECK tcp/udp), status (default available, CHECK available/assigned), serverId (nullable), isPrimary (default false), createdAt, updatedAt; unique constraint on (nodeId, ip, port, protocol); indexes on (nodeId, status), (nodeId, ip), (nodeId, port), (serverId)
-- [ ] T007 [P] Add `primaryIp` nullable text column to nodes table in `packages/db/src/schema/nodes.ts`
-- [ ] T008 Update `packages/db/src/schema/index.ts` to export allocations table (depends on T006)
-- [ ] T009 Generate Drizzle migration for allocations table + nodes.primaryIp column (depends on T006, T007, T008)
+- [X] T001 [P] Create AllocationSchema, AllocationCreateSchema (ip, portStart, portEnd, protocol), AllocationAssignSchema (serverId, isPrimary), AllocationStatusSchema, ProtocolSchema in `packages/shared/src/allocation/allocation.ts`
+- [X] T002 [P] Create AllocationSummarySchema (total, available, assigned, primaryIp) in `packages/shared/src/allocation/allocation.ts`
+- [X] T003 Create `packages/shared/src/allocation/index.ts` re-exporting all allocation schemas (depends on T001, T002)
+- [X] T004 Update `packages/shared/src/index.ts` to export from `./allocation/index` (depends on T003)
+- [X] T005 Update `packages/shared/src/sse/events.ts` to add `allocation.create`, `allocation.update`, `allocation.delete` event types and payload schemas (AllocationCreatePayloadSchema, AllocationDeletePayloadSchema) (depends on T001)
+- [X] T006 [P] Create allocations table in `packages/db/src/schema/allocations.ts` — id, nodeId (FK → nodes ON DELETE CASCADE), ip, port (CHECK 1-65535), protocol (default tcp, CHECK tcp/udp), status (default available, CHECK available/assigned), serverId (nullable), isPrimary (default false), createdAt, updatedAt; unique constraint on (nodeId, ip, port, protocol); indexes on (nodeId, status), (nodeId, ip), (nodeId, port), (serverId)
+- [X] T007 [P] Add `primaryIp` nullable text column to nodes table in `packages/db/src/schema/nodes.ts`
+- [X] T008 Update `packages/db/src/schema/index.ts` to export allocations table (depends on T006)
+- [X] T009 Generate Drizzle migration for allocations table + nodes.primaryIp column (depends on T006, T007, T008)
 
 **Checkpoint**: Shared schemas, DB tables, and SSE events are ready. User story implementation can begin.
 
@@ -52,8 +52,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T010 Create allocation service in `apps/api/src/services/allocation.service.ts` — addAllocations (expand port range, ON CONFLICT DO NOTHING, return created/skipped counts), listAllocations (filter by status/ip/port, pagination, summary counts), deleteAllocation (reject if assigned), assignAllocation (reject if already assigned, set serverId/isPrimary/status), unassignAllocation (clear serverId/isPrimary, set status=available), autoAssign (find first available on primaryIp or any, assign as primary), releaseAllocations (release all for a serverId), getSummary (total/available/assigned counts + primaryIp) (depends on T009)
-- [ ] T011 [P] Create allocation integration tests in `apps/api/src/services/allocation.service.spec.ts` — test addAllocations (single port, range, overlapping idempotent, invalid IP, invalid port range), listAllocations (filter by status/ip/port, pagination), deleteAllocation (available ok, assigned rejected), assignAllocation (available ok, already-assigned rejected), unassignAllocation, autoAssign (with primaryIp, without primaryIp, no available), releaseAllocations (depends on T010)
+- [X] T010 Create allocation service in `apps/api/src/services/allocation.service.ts` — addAllocations (expand port range, ON CONFLICT DO NOTHING, return created/skipped counts), listAllocations (filter by status/ip/port, pagination, summary counts), deleteAllocation (reject if assigned), assignAllocation (reject if already assigned, set serverId/isPrimary/status), unassignAllocation (clear serverId/isPrimary, set status=available), autoAssign (find first available on primaryIp or any, assign as primary), releaseAllocations (release all for a serverId), getSummary (total/available/assigned counts + primaryIp) (depends on T009)
+- [X] T011 [P] Create allocation integration tests in `apps/api/src/services/allocation.service.spec.ts` — test addAllocations (single port, range, overlapping idempotent, invalid IP, invalid port range), listAllocations (filter by status/ip/port, pagination), deleteAllocation (available ok, assigned rejected), assignAllocation (available ok, already-assigned rejected), unassignAllocation, autoAssign (with primaryIp, without primaryIp, no available), releaseAllocations (depends on T010)
 
 **Checkpoint**: Foundation ready — allocation service is operational with full test coverage. User story implementation can now begin.
 

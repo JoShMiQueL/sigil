@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  AllocationCreatePayloadSchema,
+  AllocationDeletePayloadSchema,
+  AllocationSchema,
+} from "../allocation/allocation";
 import { UserSchema } from "../auth/user";
 import { NodeSchema } from "../node/node";
 import { RegionWithCountsSchema } from "../node/region";
@@ -19,6 +24,9 @@ export const SSEEventTypeSchema = z.enum([
   "template.update_available",
   "template.update_applied",
   "registry.update",
+  "allocation.create",
+  "allocation.update",
+  "allocation.delete",
 ]);
 export type SSEEventType = z.infer<typeof SSEEventTypeSchema>;
 
@@ -93,6 +101,9 @@ export const SSEEventPayloadSchema = z.union([
   TemplateDeletePayloadSchema,
   TemplateUpdateAvailablePayloadSchema,
   TemplateUpdateAppliedPayloadSchema,
+  AllocationSchema,
+  AllocationCreatePayloadSchema,
+  AllocationDeletePayloadSchema,
 ]);
 export type SSEEventPayload = z.infer<typeof SSEEventPayloadSchema>;
 

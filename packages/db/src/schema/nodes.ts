@@ -17,6 +17,7 @@ export const nodes = pgTable("nodes", {
   diskUsage: real("disk_usage"),
   containerCount: integer("container_count"),
   lastHeartbeatAt: timestamp("last_heartbeat_at", { withTimezone: true }),
+  primaryIp: text("primary_ip"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().default(sql`now()`),
 });

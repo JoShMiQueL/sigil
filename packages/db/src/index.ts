@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { allocations } from "./schema/allocations";
 import { apiKeys } from "./schema/api-keys";
 import { auditLogs } from "./schema/audit-logs";
 import { nodeCredentials } from "./schema/node-credentials";
@@ -26,6 +27,7 @@ export const schema = {
   templates,
   variables,
   registries,
+  allocations,
 };
 
 const connectionString =

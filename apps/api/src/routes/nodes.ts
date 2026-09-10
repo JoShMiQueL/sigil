@@ -64,7 +64,10 @@ nodes.delete("/:id", async (c) => {
   const result = await deleteNode(id);
 
   if ("error" in result) {
-    const status = result.code === "NODE_HAS_SERVERS" ? 409 : 404;
+    const status =
+      result.code === "NODE_HAS_SERVERS" || result.code === "NODE_HAS_ASSIGNED_ALLOCATIONS"
+        ? 409
+        : 404;
     return c.json({ error: { code: result.code, message: result.error } }, status);
   }
 

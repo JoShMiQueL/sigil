@@ -1,6 +1,6 @@
 import { db, schema } from "@sigil/db";
 import type { Node, NodeUpdate } from "@sigil/shared";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { encrypt } from "../lib/crypto";
 import { emit } from "./sse.service";
@@ -20,6 +20,7 @@ function toNode(row: typeof schema.nodes.$inferSelect, regionName: string): Node
     diskUsage: row.diskUsage,
     containerCount: row.containerCount,
     lastHeartbeatAt: row.lastHeartbeatAt?.toISOString() ?? null,
+    primaryIp: row.primaryIp ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -66,6 +67,7 @@ export async function updateNode(id: string, input: NodeUpdate): Promise<Node | 
   const updates: Record<string, unknown> = { updatedAt: new Date() };
   if (input.displayName !== undefined) updates.displayName = input.displayName;
   if (input.regionId !== undefined) updates.regionId = input.regionId;
+  if (input.primaryIp !== undefined) updates.primaryIp = input.primaryIp;
 
   const [row] = await db
     .update(schema.nodes)
@@ -90,6 +92,15 @@ export async function deleteNode(
   const [row] = await db.select().from(schema.nodes).where(eq(schema.nodes.id, id)).limit(1);
   if (!row) return { error: "Node not found", code: "NODE_NOT_FOUND" };
 
+  // FR-017: Prevent deletion if node has assigned allocations (servers in use).
+  const assignedAllocations = await countAssignedAllocations(id);
+  if (assignedAllocations > 0) {
+    return {
+      error: "Cannot remove a node with assigned allocations",
+      code: "NODE_HAS_ASSIGNED_ALLOCATIONS",
+    };
+  }
+
   // FR-014: Prevent deletion if node has running servers.
   // The servers table is introduced in R9. Until then, this guard
   // always passes (0 servers). When R9 lands, replace this function
@@ -102,6 +113,15 @@ export async function deleteNode(
   await db.delete(schema.nodes).where(eq(schema.nodes.id, id));
   emit("node.delete", { id });
   return { ok: true };
+}
+
+// Count assigned allocations on a node (R7)
+async function countAssignedAllocations(nodeId: string): Promise<number> {
+  const [row] = await db
+    .select({ value: sql<number>`count(*)::int` })
+    .from(schema.allocations)
+    .where(and(eq(schema.allocations.nodeId, nodeId), eq(schema.allocations.status, "assigned")));
+  return row?.value ?? 0;
 }
 
 // Placeholder — returns 0 until R9 adds the servers table.

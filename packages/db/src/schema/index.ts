@@ -1,3 +1,4 @@
+export { allocations } from "./allocations";
 export { apiKeys } from "./api-keys";
 export { auditLogs } from "./audit-logs";
 export { nodeCredentials } from "./node-credentials";

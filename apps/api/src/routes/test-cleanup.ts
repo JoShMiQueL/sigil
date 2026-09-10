@@ -12,6 +12,12 @@ import { Hono } from "hono";
 const testCleanup = new Hono();
 
 testCleanup.post("/cleanup", async (c) => {
+  // Delete allocations except those on the E2E daemon node
+  await db
+    .delete(schema.allocations)
+    .where(
+      sql`${schema.allocations.nodeId} NOT IN (SELECT id FROM ${schema.nodes} WHERE hostname = 'e2e-daemon')`,
+    );
   await db.delete(schema.variables);
   await db.delete(schema.templates);
   await db.delete(schema.registries);
