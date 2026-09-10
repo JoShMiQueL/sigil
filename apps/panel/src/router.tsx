@@ -10,6 +10,7 @@ import { GroupForm } from "./components/groups/group-form";
 import { AvailableTemplates } from "./components/registries/available-templates";
 import { RegistryForm } from "./components/registries/registry-form";
 import { ChangelogView } from "./components/templates/changelog-view";
+import { ImportDialog } from "./components/templates/import-dialog";
 import { TemplateForm } from "./components/templates/template-form";
 import { TemplateList } from "./components/templates/template-list";
 import { Layout } from "./components/Layout";
@@ -34,6 +35,7 @@ import {
   useCreateTemplate,
   useDeactivateTemplate,
   useDeleteTemplate,
+  useImportTemplate,
   useResetTemplate,
   useTemplates,
   useUpdateTemplate,
@@ -892,7 +894,9 @@ function TemplatesPage() {
   const activateMutation = useActivateTemplate();
   const deactivateMutation = useDeactivateTemplate();
   const resetMutation = useResetTemplate();
+  const importMutation = useImportTemplate();
   const [showCreate, setShowCreate] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [changelogTemplate, setChangelogTemplate] = useState<Template | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -974,10 +978,38 @@ function TemplatesPage() {
         </div>
       )}
 
-      {!showCreate && !editingTemplate && (
-        <button type="button" onClick={() => setShowCreate(true)}>
-          Create Template
-        </button>
+      {!showCreate && !editingTemplate && !showImport && (
+        <>
+          <button type="button" onClick={() => setShowCreate(true)}>
+            Create Template
+          </button>
+          <button type="button" onClick={() => setShowImport(true)} style={{ marginLeft: "0.5rem" }}>
+            Import Template
+          </button>
+        </>
+      )}
+
+      {showImport && (groups ?? []).length > 0 && (
+        <ImportDialog
+          groupId={selectedGroupId ?? groups![0].id}
+          onImport={async (file, conflict) => {
+            const result = await importMutation.mutateAsync({
+              file,
+              groupId: selectedGroupId ?? groups![0].id,
+              conflict,
+            });
+            if ("error" in result && result.error) {
+              setError(result.error);
+              return { error: result.error };
+            }
+            setError(null);
+            return {
+              skippedFields: result.skippedFields,
+              conflict: result.conflict,
+            };
+          }}
+          onClose={() => setShowImport(false)}
+        />
       )}
 
       {isLoading ? (

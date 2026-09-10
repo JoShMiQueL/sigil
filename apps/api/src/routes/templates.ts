@@ -14,6 +14,7 @@ import {
   updateTemplate,
 } from "../services/template.service";
 import { VariableValidationError } from "../services/variable-validation";
+import { importTemplateFile, ImportValidationError } from "../services/template-import.service";
 
 const templates = new Hono<AuthContext>();
 
@@ -149,6 +150,39 @@ templates.post("/:id/reset", async (c) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to reset template";
     return c.json({ error: message }, 502);
+  }
+});
+
+templates.post("/import", async (c) => {
+  const formData = await c.req.formData();
+  const file = formData.get("file") as File | null;
+  const groupId = formData.get("groupId") as string | null;
+  const conflict = (formData.get("conflict") as "overwrite" | "skip") || "skip";
+
+  if (!file) return c.json({ error: "No file uploaded" }, 400);
+  if (!groupId) return c.json({ error: "groupId is required" }, 400);
+
+  const content = await file.text();
+
+  try {
+    const result = await importTemplateFile(content, groupId, conflict);
+    const user = c.get("user");
+    await logAudit({
+      userId: user?.id,
+      action: "template_import" as never,
+      targetType: "template",
+      targetId: result.templateId,
+      metadata: { conflict: result.conflict, skippedFields: result.skippedFields },
+    });
+    return c.json(result, 201);
+  } catch (err) {
+    if (err instanceof ImportValidationError) {
+      return c.json({ error: err.message }, 400);
+    }
+    if (err instanceof VariableValidationError) {
+      return c.json({ error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } }, 400);
+    }
+    throw err;
   }
 });
 

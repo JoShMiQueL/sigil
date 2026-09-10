@@ -136,3 +136,33 @@ export function useResetTemplate() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["templates"] }),
   });
 }
+
+export function useImportTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ file, groupId, conflict }: { file: File; groupId: string; conflict: "overwrite" | "skip" }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("groupId", groupId);
+      formData.append("conflict", conflict);
+
+      const res = await fetch(`${API_URL}/api/admin/templates/import`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        return { error: data.error?.message ?? data.error ?? "Failed to import template" };
+      }
+
+      const result = await res.json();
+      return {
+        skippedFields: result.skippedFields as string[],
+        conflict: result.conflict as string,
+      };
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["templates"] }),
+  });
+}

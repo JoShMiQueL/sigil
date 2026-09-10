@@ -177,15 +177,15 @@
 
 ### Tests for User Story 5
 
-- [ ] T056 [P] [US5] Unit test for PTDL_v2 rules parser in `apps/api/src/lib/ptdlv2-converter.spec.ts` — parse "required|integer|min:1|max:100", parse "required|string|regex:/^a-z+$/", parse "in:easy,normal,hard", visibility mapping, dataType inference
-- [ ] T057 [P] [US5] Integration test for PTDL_v2 import in `apps/api/src/routes/templates.spec.ts` — upload valid egg, verify converted fields, upload invalid JSON, verify rejection, upload egg with skipped fields, verify skippedFields report, overwrite vs skip conflict handling
+- [X] T056 [P] [US5] Unit test for PTDL_v2 rules parser in `apps/api/src/lib/ptdlv2-converter.spec.ts` — parse "required|integer|min:1|max:100", parse "required|string|regex:/^a-z+$/", parse "in:easy,normal,hard", visibility mapping, dataType inference
+- [X] T057 [P] [US5] Integration test for PTDL_v2 import in `apps/api/src/routes/templates.spec.ts` — upload valid egg, verify converted fields, upload invalid JSON, verify rejection, upload egg with skipped fields, verify skippedFields report, overwrite vs skip conflict handling
 
 ### Implementation for User Story 5
 
-- [ ] T058 [US5] Create template import service in `apps/api/src/services/template-import.service.ts` — parse uploaded file (JSON or YAML), detect format, validate with PTDLv2EggSchema or native TemplateSchema, convert PTDL_v2 fields to native, return skippedFields list, handle conflict (overwrite/skip) (depends on T020, T021)
-- [ ] T059 [US5] Add import endpoint to templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates/import, multipart/form-data file upload, groupId and conflict params, return created template + skippedFields (depends on T058, T044)
-- [ ] T060 [P] [US5] Create ImportDialog component in `apps/panel/src/components/templates/import-dialog.tsx` — file upload, group selection, conflict strategy (overwrite/skip), display skipped fields after import
-- [ ] T061 [US5] Integrate ImportDialog into templates management page in `apps/panel/src/routes/templates.tsx` — "Import Template" button opens dialog (depends on T060, T050)
+- [X] T058 [US5] Create template import service in `apps/api/src/services/template-import.service.ts` — parse uploaded file (JSON or YAML), detect format, validate with PTDLv2EggSchema or native TemplateSchema, convert PTDL_v2 fields to native, return skippedFields list, handle conflict (overwrite/skip) (depends on T020, T021)
+- [X] T059 [US5] Add import endpoint to templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates/import, multipart/form-data file upload, groupId and conflict params, return created template + skippedFields (depends on T058, T044)
+- [X] T060 [P] [US5] Create ImportDialog component in `apps/panel/src/components/templates/import-dialog.tsx` — file upload, group selection, conflict strategy (overwrite/skip), display skipped fields after import
+- [X] T061 [US5] Integrate ImportDialog into templates management page in `apps/panel/src/routes/templates.tsx` — "Import Template" button opens dialog (depends on T060, T050)
 
 **Checkpoint**: User Story 5 is fully functional. Admin can import Pterodactyl eggs with automatic field conversion.
 
