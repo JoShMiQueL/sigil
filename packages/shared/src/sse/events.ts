@@ -2,6 +2,9 @@ import { z } from "zod";
 import { UserSchema } from "../auth/user";
 import { NodeSchema } from "../node/node";
 import { RegionWithCountsSchema } from "../node/region";
+import { GroupSchema } from "../template/group";
+import { TemplateSchema } from "../template/template";
+import { ChangeSchema } from "../template/changelog";
 
 export const SSEEventTypeSchema = z.enum([
   "node.update",
@@ -11,6 +14,14 @@ export const SSEEventTypeSchema = z.enum([
   "server.state",
   "user.update",
   "connected",
+  "group.create",
+  "group.update",
+  "group.delete",
+  "template.create",
+  "template.update",
+  "template.delete",
+  "template.update_available",
+  "template.update_applied",
 ]);
 export type SSEEventType = z.infer<typeof SSEEventTypeSchema>;
 
@@ -47,6 +58,37 @@ export const ConnectedPayloadSchema = z.object({
 });
 export type ConnectedPayload = z.infer<typeof ConnectedPayloadSchema>;
 
+export const GroupDeletePayloadSchema = z.object({
+  id: z.string().uuid(),
+  deleted: z.literal(true),
+});
+export type GroupDeletePayload = z.infer<typeof GroupDeletePayloadSchema>;
+
+export const TemplateDeletePayloadSchema = z.object({
+  id: z.string().uuid(),
+  deleted: z.literal(true),
+});
+export type TemplateDeletePayload = z.infer<typeof TemplateDeletePayloadSchema>;
+
+export const TemplateUpdateAvailablePayloadSchema = z.object({
+  templateId: z.string().uuid(),
+  templateName: z.string(),
+  registryName: z.string(),
+  sourceId: z.string(),
+  oldVersion: z.string(),
+  newVersion: z.string(),
+  changes: z.array(ChangeSchema),
+  customized: z.boolean(),
+});
+export type TemplateUpdateAvailablePayload = z.infer<typeof TemplateUpdateAvailablePayloadSchema>;
+
+export const TemplateUpdateAppliedPayloadSchema = z.object({
+  templateId: z.string().uuid(),
+  templateName: z.string(),
+  newVersion: z.string(),
+});
+export type TemplateUpdateAppliedPayload = z.infer<typeof TemplateUpdateAppliedPayloadSchema>;
+
 export const SSEEventPayloadSchema = z.union([
   NodeSchema,
   NodeDeletePayloadSchema,
@@ -56,6 +98,12 @@ export const SSEEventPayloadSchema = z.union([
   UserDeletePayloadSchema,
   ServerStatePayloadSchema,
   ConnectedPayloadSchema,
+  GroupSchema,
+  GroupDeletePayloadSchema,
+  TemplateSchema,
+  TemplateDeletePayloadSchema,
+  TemplateUpdateAvailablePayloadSchema,
+  TemplateUpdateAppliedPayloadSchema,
 ]);
 export type SSEEventPayload = z.infer<typeof SSEEventPayloadSchema>;
 

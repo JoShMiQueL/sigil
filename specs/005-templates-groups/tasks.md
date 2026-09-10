@@ -34,16 +34,16 @@
 
 **Purpose**: Shared schemas, DB tables, and official template files that all user stories depend on.
 
-- [ ] T001 [P] Create GroupSchema in `packages/shared/src/template/group.ts`
-- [ ] T002 [P] Create VariableSchema, VariableDataTypeSchema, VariableVisibilitySchema in `packages/shared/src/template/variable.ts`
-- [ ] T003 [P] Create ChangelogSchema, ChangelogEntrySchema, ChangeSchema, ChangeTypeSchema in `packages/shared/src/template/changelog.ts`
-- [ ] T004 [P] Create ResourceLimitsRangeSchema in `packages/shared/src/template/template.ts` (alongside TemplateSchema)
-- [ ] T005 Create TemplateSchema (includes changelog, resourceLimitsRange, variables) in `packages/shared/src/template/template.ts` (depends on T001-T004)
-- [ ] T006 [P] Create RegistrySchema, RegistryIndexSchema, RegistryIndexEntrySchema, RegistryAuthMethodSchema, RegistryStatusSchema in `packages/shared/src/template/registry.ts`
-- [ ] T007 [P] Create PTDLv2EggSchema, PTDLv2VariableSchema in `packages/shared/src/template/ptdlv2.ts`
-- [ ] T008 Create `packages/shared/src/template/index.ts` re-exporting all template schemas (depends on T001-T007)
-- [ ] T009 Update `packages/shared/src/index.ts` to export from `./template/index` (depends on T008)
-- [ ] T010 Update `packages/shared/src/sse/events.ts` to add new SSE event types (template.create, template.update, template.delete, template.update_available, template.update_applied, group.create, group.update, group.delete) and payload schemas (depends on T003, T005)
+- [X] T001 [P] Create GroupSchema in `packages/shared/src/template/group.ts`
+- [X] T002 [P] Create VariableSchema, VariableDataTypeSchema, VariableVisibilitySchema in `packages/shared/src/template/variable.ts`
+- [X] T003 [P] Create ChangelogSchema, ChangelogEntrySchema, ChangeSchema, ChangeTypeSchema in `packages/shared/src/template/changelog.ts`
+- [X] T004 [P] Create ResourceLimitsRangeSchema in `packages/shared/src/template/template.ts` (alongside TemplateSchema)
+- [X] T005 Create TemplateSchema (includes changelog, resourceLimitsRange, variables) in `packages/shared/src/template/template.ts` (depends on T001-T004)
+- [X] T006 [P] Create RegistrySchema, RegistryIndexSchema, RegistryIndexEntrySchema, RegistryAuthMethodSchema, RegistryStatusSchema in `packages/shared/src/template/registry.ts`
+- [X] T007 [P] Create PTDLv2EggSchema, PTDLv2VariableSchema in `packages/shared/src/template/ptdlv2.ts`
+- [X] T008 Create `packages/shared/src/template/index.ts` re-exporting all template schemas (depends on T001-T007)
+- [X] T009 Update `packages/shared/src/index.ts` to export from `./template/index` (depends on T008)
+- [X] T010 Update `packages/shared/src/sse/events.ts` to add new SSE event types (template.create, template.update, template.delete, template.update_available, template.update_applied, group.create, group.update, group.delete) and payload schemas (depends on T003, T005)
 - [ ] T011 [P] Create groups table in `packages/db/src/schema/groups.ts`
 - [ ] T012 [P] Create templates table (includes resourceLimitsRange, changelog jsonb fields) in `packages/db/src/schema/templates.ts`
 - [ ] T013 [P] Create variables table in `packages/db/src/schema/variables.ts`
