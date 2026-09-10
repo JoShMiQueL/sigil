@@ -1,0 +1,83 @@
+name: CS:GO
+description: Counter-Strike: Global Offensive dedicated server
+author: SigilPanel
+version: "1.0.0"
+image: cm2network/csgo
+startupCommand: ./srcds_run -game csgo -console -usercon +game_type 0 +game_mode 1 +mapgroup mg_active +map de_dust2
+stopSignal: "SIGTERM"
+environment:
+  STEAM_ACC: ""
+  SERVER_NAME: "My CS:GO Server"
+  RCON_PASSWORD: "changeme"
+  MAX_PLAYERS: "10"
+portMappings:
+  - name: game
+    protocol: udp
+    internalPort: 27015
+    externalPort: 27015
+  - name: rcon
+    protocol: tcp
+    internalPort: 27015
+    externalPort: 27015
+  - name: source-tv
+    protocol: udp
+    internalPort: 27020
+    externalPort: 27020
+resourceLimits:
+  memoryMb: 2048
+  cpuLimit: 2.0
+  pidsLimit: 256
+resourceLimitsRange:
+  memoryMb:
+    min: 1024
+    max: 8192
+    recommended: 2048
+  cpuLimit:
+    min: 1.0
+    max: 4.0
+    recommended: 2.0
+  pidsLimit:
+    min: 128
+    max: 512
+    recommended: 256
+changelog:
+  - version: "1.0.0"
+    date: "2026-09-10"
+    changes:
+      - type: added
+        description: "Initial release"
+variables:
+  - name: Server Name
+    envVar: SERVER_NAME
+    dataType: string
+    defaultValue: "My CS:GO Server"
+    required: true
+    minLength: 1
+    maxLength: 100
+    visibility: editable
+    sortOrder: 0
+  - name: RCON Password
+    envVar: RCON_PASSWORD
+    dataType: string
+    defaultValue: "changeme"
+    required: true
+    minLength: 5
+    maxLength: 32
+    visibility: editable
+    sortOrder: 1
+  - name: Max Players
+    envVar: MAX_PLAYERS
+    dataType: integer
+    defaultValue: "10"
+    required: true
+    minValue: 2
+    maxValue: 64
+    visibility: editable
+    sortOrder: 2
+  - name: Steam Account Token
+    envVar: STEAM_ACC
+    dataType: string
+    defaultValue: ""
+    required: false
+    visibility: editable
+    sortOrder: 3

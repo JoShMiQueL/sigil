@@ -1,0 +1,90 @@
+name: Rust
+description: Rust dedicated server
+author: SigilPanel
+version: "1.0.0"
+image: didstopia/rust
+startupCommand: ./RustDedicated -batchmode +server.port 28015 +rcon.port 28016 +server.identity sigilpanel +server.hostname "{{SERVER_NAME}}" +server.maxplayers {{MAX_PLAYERS}}
+stopSignal: "SIGTERM"
+environment:
+  SERVER_NAME: "My Rust Server"
+  RCON_PASSWORD: "changeme"
+  MAX_PLAYERS: "50"
+  SERVER_SEED: "1234"
+  WORLD_SIZE: "4000"
+portMappings:
+  - name: game
+    protocol: udp
+    internalPort: 28015
+    externalPort: 28015
+  - name: rcon
+    protocol: tcp
+    internalPort: 28016
+    externalPort: 28016
+resourceLimits:
+  memoryMb: 4096
+  cpuLimit: 2.0
+  pidsLimit: 512
+resourceLimitsRange:
+  memoryMb:
+    min: 2048
+    max: 16384
+    recommended: 4096
+  cpuLimit:
+    min: 1.0
+    max: 8.0
+    recommended: 2.0
+  pidsLimit:
+    min: 256
+    max: 1024
+    recommended: 512
+changelog:
+  - version: "1.0.0"
+    date: "2026-09-10"
+    changes:
+      - type: added
+        description: "Initial release"
+variables:
+  - name: Server Name
+    envVar: SERVER_NAME
+    dataType: string
+    defaultValue: "My Rust Server"
+    required: true
+    minLength: 1
+    maxLength: 100
+    visibility: editable
+    sortOrder: 0
+  - name: RCON Password
+    envVar: RCON_PASSWORD
+    dataType: string
+    defaultValue: "changeme"
+    required: true
+    minLength: 5
+    maxLength: 32
+    visibility: editable
+    sortOrder: 1
+  - name: Max Players
+    envVar: MAX_PLAYERS
+    dataType: integer
+    defaultValue: "50"
+    required: true
+    minValue: 1
+    maxValue: 200
+    visibility: editable
+    sortOrder: 2
+  - name: Server Seed
+    envVar: SERVER_SEED
+    dataType: integer
+    defaultValue: "1234"
+    required: true
+    minValue: 1
+    maxValue: 999999999
+    visibility: editable
+    sortOrder: 3
+  - name: World Size
+    envVar: WORLD_SIZE
+    dataType: select
+    defaultValue: "4000"
+    required: true
+    allowedValues: ["1000", "2000", "3000", "4000", "5000", "6000"]
+    visibility: editable
+    sortOrder: 4

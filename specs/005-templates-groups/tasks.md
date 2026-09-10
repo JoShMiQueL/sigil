@@ -50,8 +50,8 @@
 - [X] T014 [P] Create registries table in `packages/db/src/schema/registries.ts`
 - [X] T015 Update `packages/db/src/schema/index.ts` to export groups, templates, variables, registries (depends on T011-T014)
 - [X] T016 Generate Drizzle migration for groups, templates, variables, registries tables (depends on T015)
-- [ ] T017 [P] Create official templates directory structure: `templates/index.yaml`, `templates/minecraft/paper-mc.yaml`, `templates/minecraft/vanilla-mc.yaml`, `templates/source-engine/csgo.yaml`, `templates/rust/rust.yaml`
-- [ ] T018 [P] Write `templates/index.yaml` with entries for all official templates (id, name, description, group, author, version, file, sha256)
+- [X] T017 [P] Create official templates directory structure: `templates/index.yaml`, `templates/minecraft/paper-mc.yaml`, `templates/minecraft/vanilla-mc.yaml`, `templates/source-engine/csgo.yaml`, `templates/rust/rust.yaml`
+- [X] T018 [P] Write `templates/index.yaml` with entries for all official templates (id, name, description, group, author, version, file, sha256)
 
 **Checkpoint**: Shared schemas, DB tables, and official template files are ready. User story implementation can begin.
 

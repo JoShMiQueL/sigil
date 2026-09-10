@@ -1,0 +1,83 @@
+name: Paper MC
+description: High-performance Minecraft server with plugin support
+author: SigilPanel
+version: "1.0.0"
+image: eclipse-temurin:21-jre
+startupCommand: java -Xms{{memoryMb}}M -Xmx{{memoryMb}}M -jar paper.jar nogui
+stopSignal: "^C"
+environment:
+  EULA: "false"
+  SERVER_NAME: "My Paper Server"
+  MAX_PLAYERS: "20"
+  DIFFICULTY: "normal"
+  WORLD_TYPE: "default"
+portMappings:
+  - name: main
+    protocol: tcp
+    internalPort: 25565
+    externalPort: 25565
+resourceLimits:
+  memoryMb: 1024
+  cpuLimit: 1.0
+  pidsLimit: 512
+resourceLimitsRange:
+  memoryMb:
+    min: 512
+    max: 4096
+    recommended: 1024
+  cpuLimit:
+    min: 0.5
+    max: 4.0
+    recommended: 1.0
+  pidsLimit:
+    min: 128
+    max: 1024
+    recommended: 512
+changelog:
+  - version: "1.0.0"
+    date: "2026-09-10"
+    changes:
+      - type: added
+        description: "Initial release"
+variables:
+  - name: EULA
+    envVar: EULA
+    dataType: boolean
+    defaultValue: "false"
+    required: true
+    visibility: editable
+    sortOrder: 0
+  - name: Server Name
+    envVar: SERVER_NAME
+    dataType: string
+    defaultValue: "My Paper Server"
+    required: true
+    minLength: 1
+    maxLength: 50
+    visibility: editable
+    sortOrder: 1
+  - name: Max Players
+    envVar: MAX_PLAYERS
+    dataType: integer
+    defaultValue: "20"
+    required: true
+    minValue: 1
+    maxValue: 100
+    visibility: editable
+    sortOrder: 2
+  - name: Difficulty
+    envVar: DIFFICULTY
+    dataType: select
+    defaultValue: "normal"
+    required: true
+    allowedValues: ["peaceful", "easy", "normal", "hard"]
+    visibility: editable
+    sortOrder: 3
+  - name: World Type
+    envVar: WORLD_TYPE
+    dataType: select
+    defaultValue: "default"
+    required: true
+    allowedValues: ["default", "flat", "largebiomes", "amplified"]
+    visibility: editable
+    sortOrder: 4
