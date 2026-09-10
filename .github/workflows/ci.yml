@@ -29,6 +29,22 @@ jobs:
       - run: bun --filter @sigilpanel/db db:generate
       - run: bun run test
 
+  daemon:
+    name: Daemon Build & Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.27"
+      - name: Build daemon
+        run: cd apps/daemon && go build ./...
+      - name: Run unit tests
+        run: cd apps/daemon && go test ./internal/... -v -short
+      - name: Run integration tests
+        run: cd apps/daemon && go test ./internal/... -v -tags integration -timeout 120s
+
   e2e:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
