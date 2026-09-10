@@ -1,4 +1,4 @@
-# Implementation Plan: Templates & Groups
+# Implementation Plan: Templates & Tags
 
 **Branch**: `005-templates-groups` | **Date**: 2026-09-10 | **Spec**: [spec.md](./spec.md)
 
@@ -6,7 +6,7 @@
 
 ## Summary
 
-R8 implements the template catalog system for SigilPanel: groups, templates with variables, registry management with multiple sources (official + community + private), PTDL_v2 egg import with field conversion, YAML export, background update detection with SSE notifications, and template activation/deactivation for user visibility control. Templates are stored in PostgreSQL, use YAML as the native file format, and are distributed via git repos served over HTTP. The official registry is pre-seeded on fresh deployments.
+R8 implements the template catalog system for SigilPanel: templates with inline tags (no separate group entity), variables, registry management with multiple sources (official + community + private), PTDL_v2 egg import with field conversion, YAML export, background update detection with SSE notifications, and template activation/deactivation for user visibility control. Templates are stored in PostgreSQL, use YAML as the native file format, and are distributed via git repos served over HTTP. The official registry is pre-seeded on fresh deployments. Tags are free-form strings on each template (`tags: string[]`); the source of truth for registry-installed templates is the registry index entry's `tags` field, while locally created templates have user-defined tags. The panel filters by tag instead of by group.
 
 ## Technical Context
 
@@ -14,7 +14,7 @@ R8 implements the template catalog system for SigilPanel: groups, templates with
 
 **Primary Dependencies**: Hono 4.13 (API), React 19.2 + Vite 8 (panel), Drizzle ORM 0.45 (DB), Zod 4.5 (validation), `Bun.YAML` (built-in YAML parsing/serialization), `Bun.cron` (built-in cron scheduler)
 
-**Storage**: PostgreSQL 18 (groups, templates, variables, registries tables), Redis 8 (SSE pub/sub — existing)
+**Storage**: PostgreSQL 18 (templates, variables, registries tables — templates includes `tags text[]` column), Redis 8 (SSE pub/sub — existing)
 
 **Testing**: Vitest 5 (unit/integration under Bun), Testcontainers 12 (PostgreSQL integration), Playwright 1.62 (E2E)
 
@@ -26,7 +26,7 @@ R8 implements the template catalog system for SigilPanel: groups, templates with
 
 **Constraints**: No polling for state (SSE only). Credentials redacted in logs and API responses. No Docker imports in panel. No DB imports in daemon.
 
-**Scale/Scope**: 50+ groups, 500+ templates, 10+ registries. 7 user stories, 34 functional requirements.
+**Scale/Scope**: 500+ templates, 10+ registries. 7 user stories, 34 functional requirements.
 
 ## Constitution Check
 
@@ -38,7 +38,7 @@ R8 is entirely panel-side (API + DB + UI). The daemon is not modified. Templates
 
 ### Principle II: Shared Contracts as Source of Truth — PASS
 
-All template, group, variable, and registry data shapes are defined as Zod schemas in `packages/shared/src/template/`. Both API and panel import from shared. The PTDL_v2 import schema and registry index schema also live in shared. See [contracts/shared-schemas.md](./contracts/shared-schemas.md).
+All template, variable, and registry data shapes are defined as Zod schemas in `packages/shared/src/template/`. Both API and panel import from shared. The PTDL_v2 import schema and registry index schema also live in shared. See [contracts/shared-schemas.md](./contracts/shared-schemas.md).
 
 ### Principle III: Security-First Container Isolation — PASS
 
@@ -51,8 +51,8 @@ All template, group, variable, and registry data shapes are defined as Zod schem
 ### Principle IV: Test Against Real Infrastructure — PASS
 
 - Unit tests: PTDL_v2 rules parsing, variable validation, YAML serialization, registry index parsing.
-- Integration tests: Group/template/variable/registry CRUD against Testcontainers PostgreSQL.
-- MCP verification: Full UI flows (create group, create template, activate, import egg, export, registry management).
+- Integration tests: Template/variable/registry CRUD against Testcontainers PostgreSQL.
+- MCP verification: Full UI flows (create template with tags, activate, import egg, export, registry management, tag filtering).
 - E2E tests: Playwright regression for critical flows.
 - Test isolation: Each test creates its own data and cleans up. No test depends on another.
 
@@ -62,8 +62,8 @@ This plan follows the spec at `specs/005-templates-groups/spec.md`. Research, da
 
 ### Principle VI: Real-time Protocol Selection — PASS
 
-- HTTP for all CRUD actions (groups, templates, registries, import, export).
-- SSE for template/group CRUD notifications and template update availability notifications.
+- HTTP for all CRUD actions (templates, registries, import, export).
+- SSE for template CRUD notifications and template update availability notifications.
 - No polling. The background checker runs server-side and pushes via SSE.
 - No WebSocket needed in R8 (no console, no SFTP).
 
@@ -91,10 +91,9 @@ specs/005-templates-groups/
 
 ```text
 packages/shared/src/template/
-├── group.ts             # GroupSchema
 ├── variable.ts          # VariableSchema, VariableDataTypeSchema, VariableVisibilitySchema
 ├── changelog.ts         # ChangelogSchema, ChangelogEntrySchema, ChangeSchema, ChangeTypeSchema
-├── template.ts          # TemplateSchema (includes changelog + resourceLimitsRange)
+├── template.ts          # TemplateSchema, TemplateCreateSchema, TemplateUpdateSchema, TemplateYAMLSchema, ResourceLimitsRangeSchema (includes changelog + tags)
 ├── registry.ts          # RegistrySchema, RegistryIndexSchema, RegistryAuthMethodSchema
 ├── ptdlv2.ts            # PTDLv2EggSchema, PTDLv2VariableSchema
 └── index.ts             # re-export all
@@ -103,19 +102,16 @@ packages/shared/src/sse/
 └── events.ts            # Updated: new SSE event types and payloads
 
 packages/db/src/schema/
-├── groups.ts            # groups table
-├── templates.ts         # templates table
+├── templates.ts         # templates table (includes tags text[] column with GIN index)
 ├── variables.ts         # variables table
 └── registries.ts        # registries table
 
 apps/api/src/routes/
-├── groups.ts            # Group CRUD endpoints
 ├── templates.ts         # Template CRUD, activate/deactivate, import/export, reset
 └── registries.ts        # Registry CRUD, available, install, check
 
 apps/api/src/services/
-├── group.service.ts          # Group business logic
-├── template.service.ts       # Template business logic
+├── template.service.ts       # Template business logic (includes tag filtering)
 ├── template-import.service.ts # PTDL_v2 import + conversion
 ├── template-export.service.ts # YAML export
 ├── registry.service.ts       # Registry CRUD + fetch
@@ -127,25 +123,22 @@ apps/api/src/lib/
 
 apps/panel/src/
 ├── routes/
-│   ├── templates.tsx    # Template management page (admin)
-│   ├── groups.tsx      # Group management page (admin)
+│   ├── templates.tsx    # Template management page (admin) — includes tag filter
 │   └── registries.tsx  # Registry management page (admin)
 ├── components/
 │   ├── templates/
 │   │   ├── template-form.tsx
+│   │   ├── tag-input.tsx
 │   │   ├── variable-editor.tsx
 │   │   ├── template-list.tsx
 │   │   ├── changelog-view.tsx
 │   │   ├── import-dialog.tsx
 │   │   └── export-button.tsx
-│   ├── groups/
-│   │   └── group-form.tsx
 │   └── registries/
 │       ├── registry-form.tsx
 │       └── available-templates.tsx
 └── hooks/
     ├── use-templates.ts
-    ├── use-groups.ts
     └── use-registries.ts
 
 apps/panel/tests/e2e/
@@ -154,7 +147,7 @@ apps/panel/tests/e2e/
 └── registry-management.spec.ts
 
 templates/                         # Official templates (in monorepo, not separate repo)
-├── index.yaml                     # Registry index manifest
+├── index.yaml                     # Registry index manifest (entries have tags: string[])
 ├── minecraft/
 │   ├── paper-mc.yaml
 │   └── vanilla-mc.yaml

@@ -1,83 +1,9 @@
-# API Contracts: Templates & Groups
+# API Contracts: Templates & Tags
 
 **Feature**: 005-templates-groups (R8)
 **Date**: 2026-09-10
 
 All endpoints are under `/api` and require authentication (session cookie or API key). Admin-only routes require `user.role === "admin"`.
-
-## Groups
-
-### POST /api/groups
-Create a group. Admin-only.
-
-**Request**:
-```json
-{
-  "name": "Minecraft",
-  "description": "Java and Bedrock servers",
-  "icon": null
-}
-```
-
-**Response** (201):
-```json
-{
-  "id": "uuid",
-  "name": "Minecraft",
-  "description": "Java and Bedrock servers",
-  "icon": null,
-  "createdAt": "2026-09-10T...",
-  "updatedAt": "2026-09-10T..."
-}
-```
-
-**Errors**: 409 if name already exists.
-
-### GET /api/groups
-List all groups. Admin and user (users see groups that contain active templates).
-
-**Response** (200):
-```json
-{
-  "groups": [
-    { "id": "uuid", "name": "Minecraft", "description": "...", "icon": null, "templateCount": 3 }
-  ]
-}
-```
-
-### GET /api/groups/:id
-Get a group with its templates. Admin sees all templates; user sees only active templates.
-
-**Response** (200):
-```json
-{
-  "id": "uuid",
-  "name": "Minecraft",
-  "description": "...",
-  "icon": null,
-  "templates": [
-    { "id": "uuid", "name": "Paper MC", "description": "...", "active": true, "version": "1.0.0" }
-  ]
-}
-```
-
-### PATCH /api/groups/:id
-Edit a group. Admin-only.
-
-**Request**:
-```json
-{
-  "name": "Minecraft Java",
-  "description": "Updated description"
-}
-```
-
-**Response** (200): Updated group object.
-
-### DELETE /api/groups/:id
-Delete a group. Admin-only.
-
-**Errors**: 409 if group contains templates.
 
 ## Templates
 
@@ -87,7 +13,7 @@ Create a template manually. Admin-only.
 **Request**:
 ```json
 {
-  "groupId": "uuid",
+  "tags": ["minecraft", "java"],
   "name": "Paper MC",
   "description": "High-performance Minecraft server",
   "author": "admin",
@@ -114,7 +40,7 @@ Create a template manually. Admin-only.
 ### GET /api/templates
 List templates. Admin sees all; users see only active.
 
-**Query params**: `groupId` (filter by group), `active` (filter by active state).
+**Query params**: `tag` (filter by tag), `active` (filter by active state).
 
 **Response** (200):
 ```json
@@ -122,14 +48,13 @@ List templates. Admin sees all; users see only active.
   "templates": [
     {
       "id": "uuid",
-      "groupId": "uuid",
+      "tags": ["minecraft", "java"],
       "name": "Paper MC",
       "description": "...",
       "version": "1.0.0",
       "image": "ghcr.io/papermc/paper:latest",
       "active": true,
-      "customized": false,
-      "groupName": "Minecraft"
+      "customized": false
     }
   ]
 }
@@ -179,7 +104,7 @@ Import a PTDL_v2 egg (JSON) or native YAML template. Admin-only.
 
 **Request** (`multipart/form-data`):
 - `file`: the template file (JSON or YAML)
-- `groupId`: target group UUID
+- `tags`: comma-separated tag string (e.g., `"minecraft,java"`); optional
 - `conflict`: `"overwrite"` or `"skip"` (default: `"skip"`)
 
 **Response** (201):
@@ -269,7 +194,7 @@ List available templates from a registry (not yet installed). Admin-only.
       "sourceId": "rust",
       "name": "Rust",
       "description": "Rust dedicated server",
-      "group": "rust",
+      "tags": ["rust"],
       "author": "Community",
       "version": "1.0.0",
       "sha256": "abc123...",
@@ -340,18 +265,7 @@ Emitted on template CRUD operations. Follows the existing pattern of `node.creat
 ```json
 {
   "type": "template.create",
-  "payload": { "id": "uuid", "name": "Paper MC", "groupId": "uuid", "active": false },
-  "timestamp": "2026-09-10T..."
-}
-```
-
-### group.create / group.update / group.delete
-Emitted on group CRUD operations.
-
-```json
-{
-  "type": "group.create",
-  "payload": { "id": "uuid", "name": "Minecraft" },
+  "payload": { "id": "uuid", "name": "Paper MC", "tags": ["minecraft", "java"], "active": false },
   "timestamp": "2026-09-10T..."
 }
 ```
@@ -365,7 +279,9 @@ templates:
   - id: paper-mc
     name: "Paper MC"
     description: "High-performance Minecraft server"
-    group: minecraft
+    tags:
+      - minecraft
+      - java
     author: SigilPanel
     version: "1.1.0"
     file: minecraft/paper-mc.yaml
@@ -382,6 +298,9 @@ name: "Paper MC"
 description: "High-performance Minecraft server"
 author: SigilPanel
 version: "1.0.0"
+tags:
+  - minecraft
+  - java
 image: "ghcr.io/papermc/paper:latest"
 startupCommand: "java -Xms128M -Xmx{{SERVER_MEMORY}}M -jar {{SERVER_JARFILE}}"
 stopSignal: "^C"

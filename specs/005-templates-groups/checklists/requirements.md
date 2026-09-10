@@ -1,4 +1,4 @@
-# Specification Quality Checklist: Templates & Groups
+# Specification Quality Checklist: Templates & Tags
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-09-10

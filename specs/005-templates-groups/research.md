@@ -1,7 +1,22 @@
-# Research: Templates & Groups
+# Research: Templates & Tags
 
 **Feature**: 005-templates-groups (R8)
 **Date**: 2026-09-10
+
+> **Groups → Tags Refactor (post-implementation)**: The original R8 research and design assumed database-backed template **groups** — a `groups` table with full CRUD, a dedicated admin UI, and a `groupId` foreign key on templates. After implementation, this was refactored to a **tags** model. The decision and its rationale are recorded below so the historical design context is preserved alongside the current model.
+>
+> **What changed**:
+> - Templates now carry a `tags: string[]` column (`text[] NOT NULL DEFAULT '{}'` with a GIN index) instead of a `groupId` FK.
+> - There is no `groups` table, no groups API (`/api/groups`), and no groups UI page.
+> - Tags are managed **inline** on each template (the admin edits the template's tag list directly in the template form).
+> - A template can have **multiple** tags (e.g., `["minecraft", "java"]`), whereas a group was a single membership.
+> - The **source of truth** for tags on registry-installed templates is registry metadata: the registry index entry changed from `group: string` to `tags: string[]`. Locally created templates have user-defined tags.
+> - The panel **filters by tag** (`GET /api/templates?tag=minecraft`) instead of by group.
+> - Template name uniqueness is now enforced **across the panel** (previously unique within a group).
+>
+> **Why tags over groups**: Groups required a separate CRUD surface (table, API, UI, hook, form, navigation) purely to act as a categorization label. Tags provide the same categorization with far less machinery — no extra entity, no "cannot delete a non-empty group" constraint, no reassignment workflow, and a template can belong to multiple categories at once (a group forced single membership). Filtering by tag via a GIN index is as fast as filtering by a FK. The registry index contract becomes richer (multiple tags) without adding complexity. The net effect is a simpler data model, simpler API, and simpler UI while strictly increasing expressiveness.
+>
+> **Impact on the research below**: R3 (registry index format) and R6 (seeding) originally referenced a `group` field; those references are updated to `tags` to reflect the current contract. The rest of the research (PTDL_v2 mapping, YAML parsing, registry fetch, background checker, credential storage, resource limits range, changelog format) is unaffected by the refactor.
 
 ## R1: PTDL_v2 Field Mapping to SigilPanel Native Format
 
@@ -111,7 +126,9 @@ templates:
   - id: paper-mc
     name: "Paper MC"
     description: "High-performance Minecraft server"
-    group: minecraft
+    tags:
+      - minecraft
+      - java
     author: SigilPanel
     version: "1.1.0"
     file: minecraft/paper-mc.yaml
@@ -216,7 +233,7 @@ On first boot (detected by checking if the `templates` table is empty), the API:
 1. Creates the official registry entry in the DB, pointing to the monorepo's `templates/` directory via GitHub raw URL.
 2. Fetches `templates/index.yaml` from the official registry URL.
 3. Installs all templates from the official registry with `active: true`, `customized: false`.
-4. Creates groups as needed (from the `group` field in the index).
+4. Copies the `tags` array from each registry index entry onto the installed template (registry metadata is the source of truth for tags on registry-installed templates).
 
 ### Rationale
 

@@ -1,4 +1,4 @@
-# Tasks: Templates & Groups
+# Tasks: Templates & Tags
 
 **Input**: Design documents from `/specs/005-templates-groups/`
 
@@ -7,6 +7,8 @@
 **Tests**: Tests are included per Constitution Principle IV (Test Against Real Infrastructure). Unit tests use Vitest, integration tests use Testcontainers PostgreSQL, E2E tests use Playwright after MCP verification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+
+> **Groups → Tags Refactor (post-implementation)**: The original R8 design used database-backed template groups (a `groups` table with full CRUD, a dedicated UI, and a `groupId` FK on templates). After implementation, this was refactored to a **tags** model: templates now carry a `tags: string[]` column, there is no `groups` table, no groups API, and no groups UI. Tags are managed inline on each template. Registry-installed templates inherit tags from registry metadata (the registry index entry has `tags: string[]`); locally created templates have user-defined tags. The panel filters by tag instead of by group. As a result, the User Story 1 tasks (T024-T031) that built the groups CRUD are superseded — see the notes on those tasks and on Phase 3 below. The tags functionality is folded into the template lifecycle (US3) work: template create/edit forms include a tag input, and the template list offers a tag filter.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -34,24 +36,24 @@
 
 **Purpose**: Shared schemas, DB tables, and official template files that all user stories depend on.
 
-- [X] T001 [P] Create GroupSchema in `packages/shared/src/template/group.ts`
+- [X] T001 [P] ~~Create GroupSchema in `packages/shared/src/template/group.ts`~~ **REPLACED by tags model** — no GroupSchema; tags are a `string[]` field on TemplateSchema/TemplateCreateSchema/TemplateUpdateSchema/TemplateYAMLSchema (see T005)
 - [X] T002 [P] Create VariableSchema, VariableDataTypeSchema, VariableVisibilitySchema in `packages/shared/src/template/variable.ts`
 - [X] T003 [P] Create ChangelogSchema, ChangelogEntrySchema, ChangeSchema, ChangeTypeSchema in `packages/shared/src/template/changelog.ts`
 - [X] T004 [P] Create ResourceLimitsRangeSchema in `packages/shared/src/template/template.ts` (alongside TemplateSchema)
-- [X] T005 Create TemplateSchema (includes changelog, resourceLimitsRange, variables) in `packages/shared/src/template/template.ts` (depends on T001-T004)
-- [X] T006 [P] Create RegistrySchema, RegistryIndexSchema, RegistryIndexEntrySchema, RegistryAuthMethodSchema, RegistryStatusSchema in `packages/shared/src/template/registry.ts`
+- [X] T005 Create TemplateSchema (includes changelog, resourceLimitsRange, variables, `tags: string[]`) plus TemplateCreateSchema, TemplateUpdateSchema, TemplateYAMLSchema in `packages/shared/src/template/template.ts` (depends on T002-T004)
+- [X] T006 [P] Create RegistrySchema, RegistryIndexSchema, RegistryIndexEntrySchema (with `tags: string[]`), RegistryAuthMethodSchema, RegistryStatusSchema in `packages/shared/src/template/registry.ts`
 - [X] T007 [P] Create PTDLv2EggSchema, PTDLv2VariableSchema in `packages/shared/src/template/ptdlv2.ts`
 - [X] T008 Create `packages/shared/src/template/index.ts` re-exporting all template schemas (depends on T001-T007)
 - [X] T009 Update `packages/shared/src/index.ts` to export from `./template/index` (depends on T008)
-- [X] T010 Update `packages/shared/src/sse/events.ts` to add new SSE event types (template.create, template.update, template.delete, template.update_available, template.update_applied, group.create, group.update, group.delete) and payload schemas (depends on T003, T005)
-- [X] T011 [P] Create groups table in `packages/db/src/schema/groups.ts`
-- [X] T012 [P] Create templates table (includes resourceLimitsRange, changelog jsonb fields) in `packages/db/src/schema/templates.ts`
+- [X] T010 Update `packages/shared/src/sse/events.ts` to add new SSE event types (template.create, template.update, template.delete, template.update_available, template.update_applied) and payload schemas (group.* events removed in the tags refactor) (depends on T003, T005)
+- [X] T011 [P] ~~Create groups table in `packages/db/src/schema/groups.ts`~~ **REPLACED by tags model** — no groups table; templates table carries `tags text[] NOT NULL DEFAULT '{}'` with a GIN index (see T012)
+- [X] T012 [P] Create templates table (includes `tags text[]` column with GIN index, resourceLimitsRange, changelog jsonb fields) in `packages/db/src/schema/templates.ts`
 - [X] T013 [P] Create variables table in `packages/db/src/schema/variables.ts`
 - [X] T014 [P] Create registries table in `packages/db/src/schema/registries.ts`
-- [X] T015 Update `packages/db/src/schema/index.ts` to export groups, templates, variables, registries (depends on T011-T014)
-- [X] T016 Generate Drizzle migration for groups, templates, variables, registries tables (depends on T015)
+- [X] T015 Update `packages/db/src/schema/index.ts` to export templates, variables, registries (depends on T011-T014)
+- [X] T016 Generate Drizzle migration for templates, variables, registries tables (includes tags GIN index, unique index on templates.name) (depends on T015)
 - [X] T017 [P] Create official templates directory structure: `templates/index.yaml`, `templates/minecraft/paper-mc.yaml`, `templates/minecraft/vanilla-mc.yaml`, `templates/source-engine/csgo.yaml`, `templates/rust/rust.yaml`
-- [X] T018 [P] Write `templates/index.yaml` with entries for all official templates (id, name, description, group, author, version, file, sha256)
+- [X] T018 [P] Write `templates/index.yaml` with entries for all official templates (id, name, description, tags, author, version, file, sha256)
 
 **Checkpoint**: Shared schemas, DB tables, and official template files are ready. User story implementation can begin.
 
@@ -73,27 +75,29 @@
 
 ---
 
-## Phase 3: User Story 1 - Admin Manages Template Groups (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Admin Tags Templates Inline (Priority: P1) 🎯 MVP
 
-**Goal**: Admin can create, edit, list, and delete template groups. Groups are the organizational foundation for templates.
+> **Groups → Tags Refactor**: This phase originally implemented User Story 1 as "Admin Manages Template Groups" with a full groups CRUD (service, routes, hook, form, page, navigation). That work (T024-T031) is **superseded by the tags model** — there is no groups table, API, or UI. Tags are now managed inline on templates: the template create/edit form includes a tag input, and the template list offers a tag filter. The tags functionality was folded into the User Story 3 (template lifecycle) implementation. The T024-T031 entries below are retained for traceability and marked as replaced.
 
-**Independent Test**: Create a group named "Minecraft", verify it appears in the group list, edit its description, delete it when empty, and verify deletion is rejected when it contains templates.
+**Goal**: Admin can tag templates inline (add/remove/edit tags on each template) and filter the template list by tag. Tags are the organizational foundation for templates.
+
+**Independent Test**: Create a template with tags `["minecraft", "java"]`, verify both tags appear and the tag filter works, edit the tags to `["minecraft"]`, and confirm the template no longer appears under the "java" filter.
 
 ### Tests for User Story 1
 
-- [X] T024 [P] [US1] Integration test for group CRUD in `apps/api/src/routes/groups.spec.ts` — create, list, get, edit, delete, duplicate name rejection, non-empty deletion rejection (Testcontainers PostgreSQL)
+- [X] T024 [P] ~~[US1] Integration test for group CRUD in `apps/api/src/routes/groups.spec.ts`~~ **REPLACED by tags model** — group CRUD no longer exists. Tag behavior is covered by the template CRUD/lifecycle tests in `apps/api/src/routes/templates.spec.ts` (T042): tags set on create, updated on edit, filtered via `?tag=` query param.
 
 ### Implementation for User Story 1
 
-- [X] T025 [US1] Create group service in `apps/api/src/services/group.service.ts` — createGroup, listGroups, getGroupById, updateGroup, deleteGroup (reject if templates exist), audit log on all mutations (depends on T011)
-- [X] T026 [US1] Create groups API routes in `apps/api/src/routes/groups.ts` — POST /api/groups, GET /api/groups, GET /api/groups/:id, PATCH /api/groups/:id, DELETE /api/groups/:id, admin-only guard, zValidator with GroupSchema (depends on T001, T025)
-- [X] T027 [US1] Register groups routes in `apps/api/src/index.ts` (depends on T026)
-- [X] T028 [P] [US1] Create useGroups hook in `apps/panel/src/hooks/use-groups.ts` — fetch groups, SSE subscription for group.create/group.update/group.delete
-- [X] T029 [P] [US1] Create GroupForm component in `apps/panel/src/components/groups/group-form.tsx` — create/edit form with name, description, icon fields
-- [X] T030 [US1] Create groups management page in `apps/panel/src/routes/groups.tsx` — list groups, create/edit/delete via GroupForm, SSE real-time updates (depends on T028, T029)
-- [X] T031 [US1] Add groups route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T030)
+- [X] T025 ~~[US1] Create group service in `apps/api/src/services/group.service.ts`~~ **REPLACED by tags model** — no group service. Tag persistence/filtering lives in `apps/api/src/services/template.service.ts` (T043): createTemplate/listTemplates accept and store `tags`, listTemplates filters by `?tag=` using the `tags` GIN index.
+- [X] T026 ~~[US1] Create groups API routes in `apps/api/src/routes/groups.ts`~~ **REPLACED by tags model** — no `/api/groups` endpoints. Tags are accepted on `POST /api/templates`, `PATCH /api/templates/:id`, and `POST /api/templates/import` (tags as comma-separated form string), and filtered via `GET /api/templates?tag=` (see T044, T059).
+- [X] T027 ~~[US1] Register groups routes in `apps/api/src/index.ts`~~ **REPLACED by tags model** — nothing to register; groups routes do not exist.
+- [X] T028 ~~[P] [US1] Create useGroups hook in `apps/panel/src/hooks/use-groups.ts`~~ **REPLACED by tags model** — no useGroups hook. Tag data is part of the template object exposed by `useTemplates` (T046); the tag filter is a query param on the templates list.
+- [X] T029 ~~[P] [US1] Create GroupForm component in `apps/panel/src/components/groups/group-form.tsx`~~ **REPLACED by tags model** — no GroupForm. A `TagInput` component (`apps/panel/src/components/templates/tag-input.tsx`) is integrated into `TemplateForm` (T047) for inline tag editing.
+- [X] T030 ~~[US1] Create groups management page in `apps/panel/src/routes/groups.tsx`~~ **REPLACED by tags model** — no groups page. Tag filtering is part of the templates management page (`apps/panel/src/routes/templates.tsx`, T050).
+- [X] T031 ~~[US1] Add groups route to panel navigation in `apps/panel/src/routes/__root.tsx`~~ **REPLACED by tags model** — no groups route to add. The templates route (T051) is the single entry point for template + tag management.
 
-**Checkpoint**: User Story 1 is fully functional. Admin can manage groups through the UI with real-time SSE updates.
+**Checkpoint**: User Story 1 is fully functional via the tags model. Admin can tag templates inline and filter by tag through the templates UI with real-time SSE updates.
 
 ---
 
@@ -125,24 +129,24 @@
 
 ## Phase 5: User Story 3 - Admin Activates, Edits, and Manages Installed Templates (Priority: P3)
 
-**Goal**: Admin can activate/deactivate templates, edit them (marking as customized), reset to upstream, delete them, and filter by group. Users see only active templates.
+**Goal**: Admin can activate/deactivate templates, edit them (marking as customized), reset to upstream, delete them, and filter by tag. Users see only active templates.
 
 **Independent Test**: Install a template, verify it is inactive, activate it, verify a user can see it, deactivate it, verify user can no longer see it. Edit a template and verify customized=true. Reset to upstream and verify customized=false.
 
 ### Tests for User Story 3
 
-- [X] T042 [P] [US3] Integration test for template CRUD and lifecycle in `apps/api/src/routes/templates.spec.ts` — create, list, get, edit, delete, activate, deactivate, reset, customized flag, active filtering for users, group filter, delete rejection when servers use it (NOTE: servers table is R9, so in R8 delete always succeeds — test the rejection logic structure for when R9 adds the FK) (Testcontainers PostgreSQL)
+- [X] T042 [P] [US3] Integration test for template CRUD and lifecycle in `apps/api/src/routes/templates.spec.ts` — create, list, get, edit, delete, activate, deactivate, reset, customized flag, active filtering for users, tag filter (`?tag=`), tags set on create/updated on edit, delete rejection when servers use it (NOTE: servers table is R9, so in R8 delete always succeeds — test the rejection logic structure for when R9 adds the FK) (Testcontainers PostgreSQL)
 
 ### Implementation for User Story 3
 
 - [X] T043 [US3] Create template service in `apps/api/src/services/template.service.ts` — createTemplate, listTemplates (admin sees all, user sees active only), getTemplateById, updateTemplate (set customized=true if registryId exists), deleteTemplate (reject if servers use it — NOTE: servers table is R9, so in R8 this check always passes; the FK constraint is added in R9), activateTemplate, deactivateTemplate, resetToUpstream (re-fetch from registry, set customized=false) (depends on T012, T019)
-- [X] T044 [US3] Create templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates, GET /api/templates (with groupId and active filters), GET /api/templates/:id, PATCH /api/templates/:id, DELETE /api/templates/:id, POST /api/templates/:id/activate, POST /api/templates/:id/deactivate, POST /api/templates/:id/reset, admin-only for mutations, user-accessible for list/get (depends on T005, T043)
+- [X] T044 [US3] Create templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates (accepts tags), GET /api/templates (with `tag` and active filters), GET /api/templates/:id, PATCH /api/templates/:id (accepts tags), DELETE /api/templates/:id, POST /api/templates/:id/activate, POST /api/templates/:id/deactivate, POST /api/templates/:id/reset, admin-only for mutations, user-accessible for list/get (depends on T005, T043)
 - [X] T045 [US3] Register templates routes in `apps/api/src/index.ts` (depends on T044)
 - [X] T046 [P] [US3] Create useTemplates hook in `apps/panel/src/hooks/use-templates.ts` — fetch templates (admin/user modes), activate/deactivate/edit/delete actions, SSE subscription for template events
 - [X] T047 [P] [US3] Create TemplateForm component in `apps/panel/src/components/templates/template-form.tsx` — all template fields including resourceLimits, resourceLimitsRange, changelog editor, variables editor
-- [X] T048 [P] [US3] Create TemplateList component in `apps/panel/src/components/templates/template-list.tsx` — list with group filter, active/inactive badges, customized indicator, activate/deactivate/delete actions
+- [X] T048 [P] [US3] Create TemplateList component in `apps/panel/src/components/templates/template-list.tsx` — list with tag filter, active/inactive badges, customized indicator, activate/deactivate/delete actions
 - [X] T049 [P] [US3] Create ChangelogView component in `apps/panel/src/components/templates/changelog-view.tsx` — render changelog entries with typed change badges (added=green, changed=blue, deprecated=yellow, removed=red, fixed=purple, security=orange)
-- [X] T050 [US3] Create templates management page in `apps/panel/src/routes/templates.tsx` — list templates, create/edit via TemplateForm, activate/deactivate, reset to upstream, view changelog, filter by group (depends on T046, T047, T048, T049)
+- [X] T050 [US3] Create templates management page in `apps/panel/src/routes/templates.tsx` — list templates, create/edit via TemplateForm (with inline tag input), activate/deactivate, reset to upstream, view changelog, filter by tag (depends on T046, T047, T048, T049)
 - [X] T051 [US3] Add templates route to panel navigation in `apps/panel/src/routes/__root.tsx` (depends on T050)
 
 **Checkpoint**: User Story 3 is fully functional. Admin can manage the full template lifecycle. Users see only active templates.
@@ -183,8 +187,8 @@
 ### Implementation for User Story 5
 
 - [X] T058 [US5] Create template import service in `apps/api/src/services/template-import.service.ts` — parse uploaded file (JSON or YAML), detect format, validate with PTDLv2EggSchema or native TemplateSchema, convert PTDL_v2 fields to native, return skippedFields list, handle conflict (overwrite/skip) (depends on T020, T021)
-- [X] T059 [US5] Add import endpoint to templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates/import, multipart/form-data file upload, groupId and conflict params, return created template + skippedFields (depends on T058, T044)
-- [X] T060 [P] [US5] Create ImportDialog component in `apps/panel/src/components/templates/import-dialog.tsx` — file upload, group selection, conflict strategy (overwrite/skip), display skipped fields after import
+- [X] T059 [US5] Add import endpoint to templates API routes in `apps/api/src/routes/templates.ts` — POST /api/templates/import, multipart/form-data file upload, `tags` (comma-separated string) and conflict params, return created template + skippedFields (depends on T058, T044)
+- [X] T060 [P] [US5] Create ImportDialog component in `apps/panel/src/components/templates/import-dialog.tsx` — file upload, tag input (comma-separated), conflict strategy (overwrite/skip), display skipped fields after import
 - [X] T061 [US5] Integrate ImportDialog into templates management page in `apps/panel/src/routes/templates.tsx` — "Import Template" button opens dialog (depends on T060, T050)
 
 **Checkpoint**: User Story 5 is fully functional. Admin can import Pterodactyl eggs with automatic field conversion.
@@ -195,7 +199,7 @@
 
 **Goal**: Admin can export a template as a YAML file in SigilPanel's native format. The exported file can be re-imported into another instance.
 
-**Independent Test**: Export a template to YAML, verify the file contains correct native structure (image, startup, variables, resourceLimits, resourceLimitsRange, changelog), import it back into a different group, verify all fields match.
+**Independent Test**: Export a template to YAML, verify the file contains correct native structure (image, startup, variables, resourceLimits, resourceLimitsRange, changelog, tags), import it back into another instance, verify all fields match.
 
 ### Tests for User Story 6
 
@@ -239,7 +243,7 @@
 
 **Purpose**: E2E tests, CI integration, and final validation across all user stories.
 
-- [X] T074 [P] Write E2E test for group CRUD in `apps/panel/tests/e2e/templates-crud.spec.ts` — login as admin, create group, edit, delete, verify SSE updates (after MCP verification)
+- [X] T074 [P] ~~Write E2E test for group CRUD in `apps/panel/tests/e2e/templates-crud.spec.ts`~~ **REPLACED by tags model** — no group CRUD to test. Inline tagging is covered by the template lifecycle E2E test (T075): create template with tags, edit tags, filter by tag.
 - [X] T075 [P] Write E2E test for template lifecycle in `apps/panel/tests/e2e/templates-crud.spec.ts` — create template, add variables, activate, verify user visibility, deactivate, edit (customized), reset to upstream, delete (after MCP verification)
 - [X] T076 [P] Write E2E test for import/export in `apps/panel/tests/e2e/template-import-export.spec.ts` — import PTDL_v2 egg, verify skipped fields, export as YAML, re-import, verify round-trip (after MCP verification)
 - [X] T077 [P] Write E2E test for registry management in `apps/panel/tests/e2e/registry-management.spec.ts` — view official registry, add community registry, list available, install template, verify inactive, delete registry, verify templates remain (after MCP verification)
@@ -261,9 +265,9 @@
 - **Setup (Phase 1)**: No dependencies — can start immediately. Creates shared schemas, DB tables, official template files.
 - **Foundational (Phase 2)**: Depends on Setup completion — BLOCKS all user stories. Creates registry fetch, PTDL_v2 converter, YAML utils, seed service.
 - **User Stories (Phase 3-9)**: All depend on Foundational phase completion.
-  - US1 (Groups) has no dependencies on other stories — can start immediately after Foundational.
-  - US2 (Registries) depends on US1 for group creation during install (group from registry index).
-  - US3 (Template lifecycle) depends on US2 for installed templates to manage.
+  - US1 (Tags) has no dependencies on other stories — tags are inline on templates, folded into US3. The original US1 (Groups) CRUD is superseded (see Phase 3 note).
+  - US2 (Registries) depends on the templates table (tags column) for install — registry index entries carry `tags` which are copied onto the installed template.
+  - US3 (Template lifecycle) depends on US2 for installed templates to manage; it also delivers the inline tag editing and tag filter (US1 functionality).
   - US4 (Variables) depends on US3 for template create/edit form.
   - US5 (PTDL_v2 import) depends on US3 for template creation, US4 for variable validation.
   - US6 (Export) depends on US3 for template existence.
@@ -272,12 +276,12 @@
 
 ### User Story Dependencies
 
-- **US1 (P1)**: Foundational → US1 (no other story dependencies)
-- **US2 (P2)**: Foundational → US1 → US2 (registry install creates groups)
-- **US3 (P3)**: Foundational → US2 → US3 (manages installed templates)
+- **US1 (P1)**: Foundational → US1 folded into US3 (tags inline on templates — no separate group entity)
+- **US2 (P2)**: Foundational → US2 (registry install copies `tags` from the index entry onto the template)
+- **US3 (P3)**: Foundational → US2 → US3 (manages installed templates; delivers inline tag editing + tag filter)
 - **US4 (P4)**: Foundational → US3 → US4 (variables are part of template form)
-- **US5 (P5)**: Foundational → US3 → US5 (import creates templates)
-- **US6 (P6)**: Foundational → US3 → US6 (export serializes templates)
+- **US5 (P5)**: Foundational → US3 → US5 (import creates templates with tags)
+- **US6 (P6)**: Foundational → US3 → US6 (export serializes templates including tags)
 - **US7 (P7)**: Foundational → US2, US3 → US7 (checker fetches registries, updates templates)
 
 ### Within Each User Story
@@ -316,34 +320,33 @@ Task: "Create ChangelogView component in apps/panel/src/components/templates/cha
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### MVP First (User Story 1 + 3 — Tags via Template Lifecycle)
 
 1. Complete Phase 1: Setup (shared schemas, DB tables, official templates)
 2. Complete Phase 2: Foundational (registry fetch, PTDL_v2 converter, YAML utils, seed)
-3. Complete Phase 3: User Story 1 (Groups)
-4. **STOP and VALIDATE**: Test group CRUD independently with curl + MCP
+3. Complete Phase 3+5: User Story 1 (Tags) is delivered as part of User Story 3 (template lifecycle) — inline tag input + tag filter
+4. **STOP and VALIDATE**: Test template CRUD with tags and tag filtering independently with curl + MCP
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Setup + Foundational → Foundation ready, official templates seeded
-2. Add US1 (Groups) → Test independently → Demo (MVP!)
-3. Add US2 (Registries) → Test independently → Demo (admin can install templates)
-4. Add US3 (Template lifecycle) → Test independently → Demo (admin manages templates)
-5. Add US4 (Variables) → Test independently → Demo (templates have typed variables)
-6. Add US5 (PTDL_v2 import) → Test independently → Demo (Pterodactyl migration path)
-7. Add US6 (Export) → Test independently → Demo (templates are portable)
-8. Add US7 (Update detection) → Test independently → Demo (auto-update notifications)
-9. Polish → E2E tests, CI integration, final validation
+2. Add US2 (Registries) → Test independently → Demo (admin can install templates, tags inherited from registry index)
+3. Add US3 (Template lifecycle + inline tags) → Test independently → Demo (admin manages templates, tags inline, tag filter) (MVP!)
+4. Add US4 (Variables) → Test independently → Demo (templates have typed variables)
+5. Add US5 (PTDL_v2 import) → Test independently → Demo (Pterodactyl migration path, tags on import)
+6. Add US6 (Export) → Test independently → Demo (templates are portable, tags included)
+7. Add US7 (Update detection) → Test independently → Demo (auto-update notifications)
+8. Polish → E2E tests, CI integration, final validation
 
 ### Parallel Team Strategy
 
 With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: US1 → US2 → US7 (registry chain)
-   - Developer B: US3 → US4 → US5 → US6 (template chain)
-3. Stories integrate at US3 (templates need groups from US1 and registries from US2)
+   - Developer A: US2 → US7 (registry chain)
+   - Developer B: US3 (includes inline tags from US1) → US4 → US5 → US6 (template chain)
+3. Stories integrate at US3 (templates need registries from US2 for install; US1 tags are delivered inline in US3)
 
 ---
 

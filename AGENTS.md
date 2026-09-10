@@ -97,7 +97,7 @@ This project uses neutral, descriptive names instead of Pterodactyl's branded vo
 ### Game configuration
 | Concept | Name | Description |
 |---------|------|-------------|
-| Template category | `group` | Groups related templates (e.g. "Minecraft") |
+| Template category | `tag` | Tags categorize templates (e.g. "minecraft", "java") — multiple tags per template, no separate entity |
 | Game server config | `template` | Defines how a game is installed and run (e.g. "Paper") |
 | Template parameter | `variable` | Editable parameter exposed to users |
 | Docker base images | `images` | Base Docker images (Java, Python, Wine, etc.) |

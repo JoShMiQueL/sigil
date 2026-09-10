@@ -1,4 +1,4 @@
-# Feature Specification: Templates & Groups
+# Feature Specification: Templates & Tags
 
 **Feature Branch**: `005-templates-groups`
 
@@ -6,25 +6,27 @@
 
 **Status**: Draft
 
-**Input**: Parent roadmap: `ROADMAP.md` -> entry **R8**. Templates & Groups — game catalog, template schema, PTDL_v2 egg import. Depends on R2 (Images), R4 (Node Management).
+**Input**: Parent roadmap: `ROADMAP.md` -> entry **R8**. Templates & Tags — game catalog, template schema, PTDL_v2 egg import. Depends on R2 (Images), R4 (Node Management).
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Admin Manages Template Groups (Priority: P1)
+### User Story 1 - Admin Tags Templates Inline (Priority: P1)
 
-An admin creates, edits, and deletes template groups to organize the game catalog. Groups are categories that collect related templates — for example "Minecraft", "Source Engine", "Rust". Each group has a name, an optional description, and an optional icon. Groups are visible to all admins. A group cannot be deleted if it still contains templates; the admin must reassign or delete its templates first.
+> **Note**: The original R8 design included database-backed template groups (a `groups` table with full CRUD, a dedicated UI, and a `groupId` foreign key on templates). This was refactored to a **tags** model after implementation: templates now carry a `tags: string[]` column, there is no groups table, no groups API, and no groups UI. Tags are managed inline on each template (the admin edits the template's tag list directly). Registry-installed templates inherit their tags from registry metadata (the registry index entry has `tags: string[]`); locally created templates have user-defined tags. A template can have multiple tags, and the panel filters by tag instead of by group. See the "Groups → Tags Refactor" note in `research.md` for the full rationale.
 
-**Why this priority**: Groups are the organizational foundation. Without groups, templates are a flat list with no way to browse or filter by game. This must exist before templates can be created.
+An admin organizes the game catalog by tagging templates. Tags are free-form strings (e.g., "minecraft", "java", "source-engine") assigned directly on each template — there is no separate group entity to create or maintain. A template can carry multiple tags, so "Paper MC" might be tagged `["minecraft", "java"]`. The admin adds, removes, or edits tags inline on the template edit form. The template list panel offers a tag filter so the admin (and users) can narrow the catalog by tag. Tags are visible to all admins and to users browsing the catalog.
 
-**Independent Test**: Can be tested by creating a group named "Minecraft", verifying it appears in the group list, editing its description, and deleting it when empty.
+**Why this priority**: Tags are the organizational foundation. Without them, templates are a flat list with no way to browse or filter by game. Tags must exist before templates can be meaningfully organized.
+
+**Independent Test**: Can be tested by creating a template with tags `["minecraft", "java"]`, verifying both tags appear on the template and in the tag filter, editing the tags to `["minecraft"]`, and confirming the template no longer appears under the "java" filter.
 
 **Acceptance Scenarios**:
 
-1. **Given** the admin is logged in, **When** they create a group with name "Minecraft" and description "Java and Bedrock servers", **Then** the group appears in the group list with the correct name and description.
-2. **Given** a group named "Minecraft" exists, **When** the admin edits its name to "Minecraft Java", **Then** the group list reflects the new name.
-3. **Given** a group exists with no templates, **When** the admin deletes it, **Then** the group is removed from the list.
-4. **Given** a group contains one or more templates, **When** the admin attempts to delete it, **Then** the deletion is rejected with a message indicating the group is not empty.
-5. **Given** the admin is viewing the group list, **When** they navigate to a group, **Then** they see all templates within that group.
+1. **Given** the admin is creating or editing a template, **When** they set its tags to `["minecraft", "java"]`, **Then** the template is saved with both tags and appears under each tag in the panel's tag filter.
+2. **Given** a template is tagged `["minecraft", "java"]`, **When** the admin removes the "java" tag and saves, **Then** the template's tags become `["minecraft"]` and it no longer appears under the "java" filter.
+3. **Given** multiple templates share a tag, **When** the admin filters the template list by that tag, **Then** only templates carrying that tag are shown.
+4. **Given** a template is installed from a registry, **When** the registry index entry lists `tags: ["minecraft", "java"]`, **Then** the installed template inherits those tags and they cannot be removed while the template tracks the registry (editing tags marks the template `customized: true`).
+5. **Given** the admin is viewing the template list, **When** they select a tag filter, **Then** they see all templates (active for users, all for admins) carrying that tag.
 
 ---
 
@@ -39,7 +41,7 @@ An admin configures one or more template registries — git repositories served 
 **Acceptance Scenarios**:
 
 1. **Given** a fresh panel deployment, **When** the admin views registries, **Then** the official SigilPanel registry is listed and its templates are already installed and active.
-2. **Given** the admin adds a public community registry URL, **When** the panel fetches its index, **Then** the registry's templates appear in the "Available templates" section with name, description, group, and author.
+2. **Given** the admin adds a public community registry URL, **When** the panel fetches its index, **Then** the registry's templates appear in the "Available templates" section with name, description, tags, and author.
 3. **Given** the admin adds a private registry requiring a token, **When** the panel fetches its index using the provided token, **Then** the registry's templates appear in "Available templates". If the token is invalid, the fetch fails with a descriptive error.
 4. **Given** templates are listed in "Available", **When** the admin clicks "Install" on a template, **Then** the template is copied to the panel database and appears in "Installed templates" with `active: false`.
 5. **Given** the admin removes a configured registry, **When** the removal is confirmed, **Then** the registry is removed from the list. Templates already installed from that registry remain in the database and continue to function.
@@ -65,7 +67,7 @@ Installed templates are inactive by default (except the official seeded ones, wh
 6. **Given** a customized template, **When** the admin clicks "Reset to upstream", **Then** the local changes are discarded and the template reverts to the registry version, `customized: false`.
 7. **Given** a template with no servers using it, **When** the admin deletes it, **Then** the template is removed from the database.
 8. **Given** a template with one or more servers using it, **When** the admin attempts to delete it, **Then** the deletion is rejected with a message indicating the template is in use.
-9. **Given** the admin is viewing the installed template list, **When** they filter by group "Minecraft", **Then** only templates in that group are shown.
+9. **Given** the admin is viewing the installed template list, **When** they filter by tag "minecraft", **Then** only templates carrying that tag are shown.
 
 ---
 
@@ -90,17 +92,17 @@ An admin defines variables for a template. Variables are editable parameters exp
 
 ### User Story 5 - Admin Imports PTDL_v2 Eggs (Priority: P5)
 
-An admin imports Pterodactyl egg files (PTDL_v2 format, JSON) to create templates. The import parses the JSON egg file, extracts the image, startup command, environment variables, and variable definitions, and creates a template with all fields populated in SigilPanel's native format. The admin selects which group to import into. If a template with the same name already exists in the group, the admin chooses to overwrite or skip. Invalid egg files are rejected with a descriptive error indicating which field failed validation. The import converts PTDL_v2-specific fields to SigilPanel's modernized equivalents: `rules` strings become structured validation, `field_type` becomes a proper data type, and `user_viewable`/`user_editable` booleans become a single `visibility` enum. Deferred PTDL_v2 fields (install scripts, config file parsers, file denylist, features) are silently ignored and the admin is informed which fields were skipped.
+An admin imports Pterodactyl egg files (PTDL_v2 format, JSON) to create templates. The import parses the JSON egg file, extracts the image, startup command, environment variables, and variable definitions, and creates a template with all fields populated in SigilPanel's native format. The admin assigns tags to the imported template (the egg format has no tag concept, so tags come from the admin's input or a default derived from the egg name). If a template with the same name already exists, the admin chooses to overwrite or skip. Invalid egg files are rejected with a descriptive error indicating which field failed validation. The import converts PTDL_v2-specific fields to SigilPanel's modernized equivalents: `rules` strings become structured validation, `field_type` becomes a proper data type, and `user_viewable`/`user_editable` booleans become a single `visibility` enum. Deferred PTDL_v2 fields (install scripts, config file parsers, file denylist, features) are silently ignored and the admin is informed which fields were skipped.
 
 **Why this priority**: Migration from Pterodactyl is a key adoption path. Existing Pterodactyl users have dozens of eggs they want to import without manual re-entry.
 
-**Independent Test**: Can be tested by importing a sample PTDL_v2 egg JSON file into a group, verifying the created template has the correct image, startup command, and variables extracted from the egg, with PTDL_v2 fields correctly converted to native format.
+**Independent Test**: Can be tested by importing a sample PTDL_v2 egg JSON file with tags `["minecraft"]`, verifying the created template has the correct image, startup command, and variables extracted from the egg, with PTDL_v2 fields correctly converted to native format.
 
 **Acceptance Scenarios**:
 
-1. **Given** the admin has a valid PTDL_v2 egg file, **When** they upload it and select a group, **Then** a template is created with the egg's name, image, startup command, environment variables, and variable definitions, converted to native format.
-2. **Given** a template with the same name already exists in the target group, **When** the admin imports and chooses "overwrite", **Then** the existing template is replaced with the imported one.
-3. **Given** a template with the same name already exists in the target group, **When** the admin imports and chooses "skip", **Then** the existing template is left unchanged.
+1. **Given** the admin has a valid PTDL_v2 egg file, **When** they upload it and assign tags `["minecraft"]`, **Then** a template is created with the egg's name, image, startup command, environment variables, and variable definitions, converted to native format, and carrying the assigned tags.
+2. **Given** a template with the same name already exists, **When** the admin imports and chooses "overwrite", **Then** the existing template is replaced with the imported one.
+3. **Given** a template with the same name already exists, **When** the admin imports and chooses "skip", **Then** the existing template is left unchanged.
 4. **Given** the admin uploads an invalid JSON file, **When** the import is attempted, **Then** the import is rejected with an error indicating the file is not a valid PTDL_v2 egg.
 5. **Given** the admin uploads a valid egg with missing required fields (e.g., no startup command), **When** the import is attempted, **Then** the import is rejected with a descriptive error indicating which field is missing.
 6. **Given** a PTDL_v2 egg has a variable with `rules: "required|integer|min:1|max:100"`, **When** the egg is imported, **Then** the created template has a variable with type "integer", required: true, min: 1, max: 100.
@@ -115,7 +117,7 @@ An admin exports a template as a YAML file in SigilPanel's native format. The ex
 
 **Why this priority**: Export enables sharing and backup of templates. It completes the import/export round-trip and makes templates portable between SigilPanel instances.
 
-**Independent Test**: Can be tested by exporting a template to a YAML file, verifying the file contains the correct native structure, and importing it back into a different group.
+**Independent Test**: Can be tested by exporting a template to a YAML file, verifying the file contains the correct native structure, and importing it back into another SigilPanel instance.
 
 **Acceptance Scenarios**:
 
@@ -147,7 +149,7 @@ The panel periodically checks all configured registries for changes to installed
 
 ### Edge Cases
 
-- What happens when an admin creates a group with a duplicate name? The system rejects it with a validation error — group names must be unique within the panel.
+- What happens when an admin creates a group with a duplicate name? N/A — there are no groups in the tags model. Tags are free-form strings on templates; duplicate tag values across templates are expected and desirable (that is how filtering works).
 - What happens when an admin uploads a file that is valid JSON but not a PTDL_v2 egg (missing the `meta` field with `version`)? The import is rejected with a descriptive error.
 - What happens when a template's referenced Docker image no longer exists in the registry? The template remains valid — image existence is checked at server creation time (R9), not at template creation time.
 - What happens when a variable's default value violates its own validation rules (e.g., default 0 when min is 1)? The save is rejected with a validation error.
@@ -162,17 +164,17 @@ The panel periodically checks all configured registries for changes to installed
 
 ### Functional Requirements
 
-- **FR-001**: System MUST allow admins to create template groups with a unique name, optional description, and optional icon.
-- **FR-002**: System MUST allow admins to edit group name and description.
-- **FR-003**: System MUST prevent deletion of a group that contains templates.
+- **FR-001**: System MUST allow admins to assign one or more tags to a template. Tags are free-form strings managed inline on the template (no separate group entity).
+- **FR-002**: System MUST allow admins to edit a template's tags (add, remove, change) inline on the template edit form.
+- **FR-003**: System MUST allow admins to filter the template list by tag.
 - **FR-004**: System MUST pre-configure the official SigilPanel registry on fresh deployments and seed its templates as installed and active.
 - **FR-005**: System MUST allow admins to add additional registries with a URL and optional authentication (token or basic auth).
 - **FR-006**: System MUST store registry credentials securely and redact them in logs (Constitution Principle III, rule 4).
-- **FR-007**: System MUST fetch a registry's index and display available templates (not yet installed) with name, description, group, and author.
+- **FR-007**: System MUST fetch a registry's index and display available templates (not yet installed) with name, description, tags, and author.
 - **FR-008**: System MUST allow admins to install a template from any configured registry, copying it to the panel database with `active: false` and `customized: false`.
 - **FR-009**: System MUST allow admins to remove a configured registry. Templates already installed from that registry remain in the database and continue to function.
 - **FR-010**: System MUST allow admins to activate or deactivate an installed template. Active templates are visible to users in the server creation flow. Inactive templates are only visible to admins.
-- **FR-011**: System MUST allow admins to create and edit templates within a group, specifying: name, description, Docker image, startup command, environment variables, port mappings, resource limits (memory, CPU, PIDs), resource limits range (min/max/recommended per resource, optional), stop signal, and changelog (structured array of version entries with typed changes: added/changed/deprecated/removed/fixed/security).
+- **FR-011**: System MUST allow admins to create and edit templates, specifying: name, description, tags, Docker image, startup command, environment variables, port mappings, resource limits (memory, CPU, PIDs), resource limits range (min/max/recommended per resource, optional), stop signal, and changelog (structured array of version entries with typed changes: added/changed/deprecated/removed/fixed/security).
 - **FR-012**: System MUST mark a template as `customized: true` when the admin edits any field of an installed template.
 - **FR-013**: System MUST allow admins to "Reset to upstream" on a customized template, discarding local changes and restoring the registry version, setting `customized: false`.
 - **FR-014**: System MUST prevent deletion of a template that is in use by one or more servers.
@@ -183,12 +185,12 @@ The panel periodically checks all configured registries for changes to installed
 - **FR-019**: System MUST convert PTDL_v2 `rules` strings (e.g., `required|integer|min:1|max:100`) into structured validation (type, required, min, max).
 - **FR-020**: System MUST convert PTDL_v2 `user_viewable`/`user_editable` booleans into a single `visibility` enum (hidden, viewable, editable).
 - **FR-021**: System MUST silently ignore deferred PTDL_v2 fields (install scripts, config file parsers, file denylist, features) and inform the admin which fields were skipped.
-- **FR-022**: System MUST support overwrite and skip conflict resolution when importing an egg with a name that already exists in the target group.
+- **FR-022**: System MUST support overwrite and skip conflict resolution when importing an egg with a name that already exists.
 - **FR-023**: System MUST reject invalid PTDL_v2 egg files with a descriptive error indicating which field failed validation.
 - **FR-024**: System MUST allow admins to export a template as a YAML file in SigilPanel's native format.
-- **FR-025**: System MUST display groups, templates, and registries in the panel UI with real-time updates via SSE (no polling).
-- **FR-026**: System MUST enforce that group names are unique across the panel.
-- **FR-027**: System MUST enforce that template names are unique within a group.
+- **FR-025**: System MUST display templates and registries in the panel UI with real-time updates via SSE (no polling).
+- **FR-026**: System MUST enforce that template names are unique across the panel.
+- **FR-027**: System MUST treat registry metadata as the source of truth for tags on registry-installed templates (the registry index entry's `tags: string[]`). Locally created templates have user-defined tags. Editing tags on a registry-installed template marks it `customized: true`.
 - **FR-028**: System MUST periodically check all configured registries for updates to installed templates, in the background, without user action.
 - **FR-029**: System MUST send an SSE notification to the admin when a template update is detected from a registry, including the old version, new version, and a structured changelog (array of typed changes: added/changed/deprecated/removed/fixed/security with descriptions).
 - **FR-030**: System MUST allow the admin to apply or dismiss a template update notification. Applying overwrites the local template (with a warning if customized).
@@ -196,12 +198,11 @@ The panel periodically checks all configured registries for changes to installed
 - **FR-031**: System MUST NOT automatically modify existing servers when a template is updated. The admin sees an indicator that servers may need updating (handled by R9).
 - **FR-032**: System MUST fail silently and log the error when a registry is unreachable, without crashing or notifying the admin.
 - **FR-033**: System MUST show the registry status (e.g., "OK", "Auth failed", "Unreachable") in the registry list.
-- **FR-034**: All template, group, variable, and registry data shapes MUST be defined as Zod schemas in `packages/shared` (Constitution Principle II).
+- **FR-034**: All template, variable, and registry data shapes MUST be defined as Zod schemas in `packages/shared` (Constitution Principle II).
 
 ### Key Entities *(include if feature involves data)*
 
-- **Group**: A category that collects related templates. Key attributes: unique name, description, icon, creation timestamp. Has many templates.
-- **Template**: A blueprint for creating game servers. Key attributes: name, description, version, Docker image, startup command, environment variables, port mappings, resource limits (defaults), resource limits range (min/max/recommended per resource, optional), stop signal, changelog (structured array of version entries with typed changes), active (boolean), customized (boolean), registryId (FK to registries, nullable — null for locally created templates), sourceId (stable ID from the registry index, nullable). Belongs to one group. Has many variables. Has many servers (via R9). One version installed at a time — git history of the monorepo or external registry serves as version history.
+- **Template**: A blueprint for creating game servers. Key attributes: name, description, tags (string array — free-form categorization, e.g. `["minecraft", "java"]`; multiple tags per template, no separate group entity), version, Docker image, startup command, environment variables, port mappings, resource limits (defaults), resource limits range (min/max/recommended per resource, optional), stop signal, changelog (structured array of version entries with typed changes), active (boolean), customized (boolean), registryId (FK to registries, nullable — null for locally created templates), sourceId (stable ID from the registry index, nullable). Has many variables. Has many servers (via R9). One version installed at a time — git history of the monorepo or external registry serves as version history. The source of truth for tags on registry-installed templates is the registry index entry's `tags: string[]`; locally created templates have user-defined tags.
 - **Variable**: An editable parameter exposed when creating a server from a template. Key attributes: name, display label, data type (string, integer, boolean, select), default value, validation rules (required, min, max, regex, allowed values), visibility (hidden, viewable, editable), sort order. Belongs to one template. Maps to an environment variable or startup command argument.
 - **Registry**: An HTTP endpoint serving YAML template files and an index. The official registry points to the monorepo's `templates/` directory via GitHub raw URLs. Community and private registries can point to any external HTTP endpoint. Key attributes: URL, name, authentication method (none, token, basic), credentials (redacted), status, isOfficial (boolean). Has many available templates.
 
@@ -209,10 +210,10 @@ The panel periodically checks all configured registries for changes to installed
 
 ### Measurable Outcomes
 
-- **SC-001**: Admins can create a template group in under 30 seconds (name + description).
+- **SC-001**: Admins can tag a template (add one or more tags inline) in under 10 seconds.
 - **SC-002**: Admins can create a complete template with 5 variables in under 2 minutes.
 - **SC-003**: Admins can import a PTDL_v2 egg file and have a ready-to-use template in under 10 seconds.
-- **SC-004**: The template catalog supports at least 50 groups and 500 templates with template list rendering in under 200ms.
+- **SC-004**: The template catalog supports at least 500 templates with template list rendering in under 200ms, including tag filtering.
 - **SC-005**: 95% of valid PTDL_v2 egg files from the Pterodactyl ecosystem import successfully without manual correction.
 - **SC-006**: Exported templates round-trip: export → import produces an identical template in all fields.
 - **SC-007**: Template update notifications from registries are delivered to the admin within 1 hour of the upstream change.

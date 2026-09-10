@@ -1,4 +1,4 @@
-# Shared Schemas Contract: Templates & Groups
+# Shared Schemas Contract: Templates & Tags
 
 **Feature**: 005-templates-groups (R8)
 **Date**: 2026-09-10
@@ -6,19 +6,6 @@
 All schemas live in `packages/shared/src/template/` and are re-exported from `packages/shared/src/index.ts`.
 
 ## Schemas
-
-### GroupSchema
-
-```typescript
-export const GroupSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  description: z.string().nullable(),
-  icon: z.string().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-});
-```
 
 ### VariableSchema
 
@@ -98,7 +85,7 @@ export const ChangelogSchema = z.array(ChangelogEntrySchema);
 ```typescript
 export const TemplateSchema = z.object({
   id: z.string().uuid(),
-  groupId: z.string().uuid(),
+  tags: z.array(z.string()).default([]),
   registryId: z.string().uuid().nullable(),
   sourceId: z.string().nullable(),
   sourceHash: z.string().nullable(),
@@ -119,6 +106,71 @@ export const TemplateSchema = z.object({
   variables: z.array(VariableSchema).default([]),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+});
+```
+
+### TemplateCreateSchema
+
+```typescript
+export const TemplateCreateSchema = z.object({
+  tags: z.array(z.string()).default([]),
+  name: z.string().min(1).max(100),
+  description: z.string().nullable().default(null),
+  author: z.string().nullable().default(null),
+  version: z.string().default("1.0.0"),
+  image: z.string().min(1),
+  startupCommand: z.string().min(1),
+  stopSignal: z.string().default("^C"),
+  environment: z.record(z.string(), z.string()).default({}),
+  portMappings: z.array(PortMappingSchema).default([]),
+  resourceLimits: ResourceLimitsSchema,
+  resourceLimitsRange: ResourceLimitsRangeSchema.nullable().default(null),
+  changelog: ChangelogSchema.default([]),
+  variables: z.array(VariableSchema).default([]),
+});
+```
+
+### TemplateUpdateSchema
+
+```typescript
+export const TemplateUpdateSchema = z.object({
+  tags: z.array(z.string()).optional(),
+  name: z.string().min(1).max(100).optional(),
+  description: z.string().nullable().optional(),
+  author: z.string().nullable().optional(),
+  version: z.string().optional(),
+  image: z.string().min(1).optional(),
+  startupCommand: z.string().min(1).optional(),
+  stopSignal: z.string().optional(),
+  environment: z.record(z.string(), z.string()).optional(),
+  portMappings: z.array(PortMappingSchema).optional(),
+  resourceLimits: ResourceLimitsSchema.optional(),
+  resourceLimitsRange: ResourceLimitsRangeSchema.nullable().optional(),
+  changelog: ChangelogSchema.optional(),
+  variables: z.array(VariableSchema).optional(),
+});
+```
+
+### TemplateYAMLSchema
+
+```typescript
+// Shape used for native YAML template files (export/import round-trip).
+// Mirrors TemplateCreateSchema plus the identifying fields stored in the file.
+export const TemplateYAMLSchema = z.object({
+  tags: z.array(z.string()).default([]),
+  name: z.string().min(1).max(100),
+  description: z.string().nullable().default(null),
+  author: z.string().nullable().default(null),
+  version: z.string().default("1.0.0"),
+  image: z.string().min(1),
+  startupCommand: z.string().min(1),
+  stopSignal: z.string().default("^C"),
+  environment: z.record(z.string(), z.string()).default({}),
+  portMappings: z.array(PortMappingSchema).default([]),
+  resourceLimits: ResourceLimitsSchema,
+  resourceLimitsRange: ResourceLimitsRangeSchema.nullable().default(null),
+  changelog: ChangelogSchema.default([]),
+  variables: z.array(VariableSchema).default([]),
 });
 ```
 
@@ -151,7 +203,7 @@ export const RegistryIndexEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  group: z.string(),
+  tags: z.array(z.string()).default([]),
   author: z.string().optional(),
   version: z.string(),
   file: z.string(),
@@ -215,9 +267,6 @@ export const PTDLv2EggSchema = z.object({
 "template.delete",
 "template.update_available",
 "template.update_applied",
-"group.create",
-"group.update",
-"group.delete",
 
 // New payload schemas:
 export const TemplateUpdateAvailablePayloadSchema = z.object({
@@ -240,13 +289,8 @@ export const TemplateUpdateAppliedPayloadSchema = z.object({
 export const TemplateCRUDPayloadSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
-  groupId: z.string().uuid(),
+  tags: z.array(z.string()),
   active: z.boolean(),
-});
-
-export const GroupCRUDPayloadSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
 });
 ```
 
@@ -254,10 +298,9 @@ export const GroupCRUDPayloadSchema = z.object({
 
 ```
 packages/shared/src/template/
-├── group.ts        # GroupSchema
 ├── variable.ts     # VariableSchema, VariableDataTypeSchema, VariableVisibilitySchema
 ├── changelog.ts    # ChangelogSchema, ChangelogEntrySchema, ChangeSchema, ChangeTypeSchema
-├── template.ts     # TemplateSchema (includes changelog)
+├── template.ts     # TemplateSchema, TemplateCreateSchema, TemplateUpdateSchema, TemplateYAMLSchema, ResourceLimitsRangeSchema (includes changelog)
 ├── registry.ts     # RegistrySchema, RegistryIndexSchema, RegistryAuthMethodSchema, RegistryStatusSchema
 ├── ptdlv2.ts       # PTDLv2EggSchema, PTDLv2VariableSchema
 └── index.ts        # re-export all
@@ -265,7 +308,6 @@ packages/shared/src/template/
 
 Update `packages/shared/src/index.ts` to add:
 ```typescript
-export * from "./template/group";
 export * from "./template/variable";
 export * from "./template/changelog";
 export * from "./template/template";
