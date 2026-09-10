@@ -86,8 +86,8 @@ describe("useSSE event dispatch", () => {
     const nodePayload = { id: "node-1", status: "online" };
     const regionPayload = { id: "region-1", name: "EU" };
 
-    es!.simulateEvent("node.update", nodePayload);
-    es!.simulateEvent("region.update", regionPayload);
+    es?.simulateEvent("node.update", nodePayload);
+    es?.simulateEvent("region.update", regionPayload);
 
     expect(nodeHandler).toHaveBeenCalledWith(nodePayload);
     expect(regionHandler).toHaveBeenCalledWith(regionPayload);
@@ -106,7 +106,7 @@ describe("useSSE event dispatch", () => {
 
     const es = MockEventSource.lastInstance;
     expect(es).not.toBeNull();
-    es!.simulateEvent("user.update", { id: "user-1" });
+    es?.simulateEvent("user.update", { id: "user-1" });
 
     expect(consoleError).not.toHaveBeenCalled();
     consoleError.mockRestore();
@@ -138,7 +138,7 @@ describe("useSSE event dispatch", () => {
 
     const es = MockEventSource.lastInstance;
     expect(es).not.toBeNull();
-    es!.simulateEvent("node.update", { id: "node-1" });
+    es?.simulateEvent("node.update", { id: "node-1" });
 
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["nodes"] });
 
@@ -173,7 +173,7 @@ describe("useSSE event dispatch", () => {
     const es = MockEventSource.lastInstance;
     expect(es).not.toBeNull();
     const payload = { id: "node-1" };
-    es!.simulateEvent("node.update", payload);
+    es?.simulateEvent("node.update", payload);
 
     expect(handler1).toHaveBeenCalledWith(payload);
     expect(handler2).toHaveBeenCalledWith(payload);

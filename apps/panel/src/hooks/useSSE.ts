@@ -64,7 +64,7 @@ function dispatchEvent(type: SSEEventType, payload: unknown): void {
 
 function addListener(type: SSEEventType, listener: Listener): void {
   if (!listenersByType.has(type)) listenersByType.set(type, new Set());
-  listenersByType.get(type)!.add(listener);
+  listenersByType.get(type)?.add(listener);
 }
 
 function removeListener(type: SSEEventType, listener: Listener): void {
