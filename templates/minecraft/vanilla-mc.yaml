@@ -38,6 +38,10 @@ changelog:
     changes:
       - type: added
         description: "Initial release"
+tags:
+  - minecraft
+  - java
+  - vanilla
 variables:
   - name: EULA
     envVar: EULA

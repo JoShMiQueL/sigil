@@ -46,6 +46,10 @@ changelog:
     changes:
       - type: added
         description: "Initial release"
+tags:
+  - source-engine
+  - steamcmd
+  - fps
 variables:
   - name: Server Name
     envVar: SERVER_NAME

@@ -39,6 +39,10 @@ changelog:
     changes:
       - type: added
         description: "Initial release"
+tags:
+  - minecraft
+  - java
+  - paper
 variables:
   - name: EULA
     envVar: EULA

@@ -43,6 +43,10 @@ changelog:
     changes:
       - type: added
         description: "Initial release"
+tags:
+  - rust
+  - steamcmd
+  - survival
 variables:
   - name: Server Name
     envVar: SERVER_NAME

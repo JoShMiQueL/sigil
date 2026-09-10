@@ -2,32 +2,44 @@ templates:
   - id: paper-mc
     name: Paper MC
     description: High-performance Minecraft server with plugin support
-    group: Minecraft
+    tags:
+      - minecraft
+      - java
+      - paper
     author: SigilPanel
     version: "1.0.0"
     file: minecraft/paper-mc.yaml
-    sha256: 4a4ac9816385c801e9b5c5ae37278bf1ba44aa66c545fe27ad9f456e34949bfc
+    sha256: e3f7e81686b6f109265fa1392955f62e7f7afa7db2e3b81f6d23df62778568f8
   - id: vanilla-mc
     name: Vanilla MC
     description: Official Minecraft server (vanilla)
-    group: Minecraft
+    tags:
+      - minecraft
+      - java
+      - vanilla
     author: SigilPanel
     version: "1.0.0"
     file: minecraft/vanilla-mc.yaml
-    sha256: ebe76a6fc97426013d37223cafc9210ee96169e04e8b460f1a28ea901eb085e1
+    sha256: 1a01e15390922c3795381e78dc8fc0dea8df30bc05e07ef68de509f61f897cf9
   - id: csgo
     name: CS:GO
     description: "Counter-Strike: Global Offensive dedicated server"
-    group: Source Engine
+    tags:
+      - source-engine
+      - steamcmd
+      - fps
     author: SigilPanel
     version: "1.0.0"
     file: source-engine/csgo.yaml
-    sha256: e202b3ef216586a4597463be37a91d383d9d0a504d0835c4deb92475b66fcc30
+    sha256: 3ffa493f483da7e6cebae6be4019e7df14b027920fb3a123d65f6e9f8c1e911e
   - id: rust
     name: Rust
     description: Rust dedicated server
-    group: Rust
+    tags:
+      - rust
+      - steamcmd
+      - survival
     author: SigilPanel
     version: "1.0.0"
     file: rust/rust.yaml
-    sha256: 385fe524124020496a4ae471c3f3c2f86b6aa33d144d2c082a7baeca6e893631
+    sha256: 2f50fa44e6679c0a0de7ddcb783f50112e4a4cf673d909888202dfa351196fe8
