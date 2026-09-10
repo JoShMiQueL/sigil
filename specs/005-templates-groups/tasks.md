@@ -63,11 +63,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T019 Create registry HTTP fetch utility in `apps/api/src/lib/registry-fetch.ts` — fetch index.yaml and template files with none/token/basic auth, redact credentials in logs (depends on T006)
-- [ ] T020 Create PTDL_v2 rules parser in `apps/api/src/lib/ptdlv2-converter.ts` — parse Laravel pipe-delimited rules strings into structured validation, map field_type to dataType, map user_viewable/user_editable to visibility (depends on T007)
-- [ ] T021 Create YAML serialization utility using `Bun.YAML.parse()` and `Bun.YAML.stringify()` in `apps/api/src/lib/yaml-utils.ts` — parse template YAML files, serialize templates to YAML for export (depends on T005)
-- [ ] T022 Create template seed service in `apps/api/src/services/template-seed.service.ts` — on first boot (empty templates table), create official registry entry, fetch index, install all official templates with active=true (depends on T016, T019)
-- [ ] T023 Hook template seed service into API startup in `apps/api/src/index.ts` — run seed after DB connection is established, before server starts (depends on T022)
+- [X] T019 Create registry HTTP fetch utility in `apps/api/src/lib/registry-fetch.ts` — fetch index.yaml and template files with none/token/basic auth, redact credentials in logs (depends on T006)
+- [X] T020 Create PTDL_v2 rules parser in `apps/api/src/lib/ptdlv2-converter.ts` — parse Laravel pipe-delimited rules strings into structured validation, map field_type to dataType, map user_viewable/user_editable to visibility (depends on T007)
+- [X] T021 Create YAML serialization utility using `Bun.YAML.parse()` and `Bun.YAML.stringify()` in `apps/api/src/lib/yaml-utils.ts` — parse template YAML files, serialize templates to YAML for export (depends on T005)
+- [X] T022 Create template seed service in `apps/api/src/services/template-seed.service.ts` — on first boot (empty templates table), create official registry entry, fetch index, install all official templates with active=true (depends on T016, T019)
+- [X] T023 Hook template seed service into API startup in `apps/api/src/index.ts` — run seed after DB connection is established, before server starts (depends on T022)
 
 **Checkpoint**: Foundation ready — registry fetch, PTDL_v2 conversion, YAML utils, and seeding are operational. User story implementation can now begin.
 

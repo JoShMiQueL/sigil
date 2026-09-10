@@ -60,6 +60,13 @@ if (process.env.NODE_ENV !== "test") {
     startHeartbeatSweep(30);
   });
 
+  // Seed official templates on first boot
+  import("./services/template-seed.service").then(({ seedOfficialTemplates }) => {
+    seedOfficialTemplates().catch((err) => {
+      console.error("Failed to seed official templates:", err);
+    });
+  });
+
   // Start expired pairing token cleanup (every 5 min)
   import("./services/pairing.service").then(({ cleanupExpiredPairingTokens }) => {
     setInterval(
