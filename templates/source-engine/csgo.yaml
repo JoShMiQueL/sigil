@@ -1,5 +1,5 @@
-name: CS:GO
-description: Counter-Strike: Global Offensive dedicated server
+name: "CS:GO"
+description: "Counter-Strike: Global Offensive dedicated server"
 author: SigilPanel
 version: "1.0.0"
 image: cm2network/csgo

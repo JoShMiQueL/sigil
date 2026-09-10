@@ -17,6 +17,8 @@ jobs:
       - run: bun install
       - run: bun run check
       - run: bun run typecheck
+      - name: Validate template YAML files
+        run: bun apps/api/src/lib/validate-templates.ts
 
   unit-integration:
     name: Unit & Integration Tests

@@ -110,3 +110,47 @@ export const TemplateUpdateSchema = z.object({
     .optional(),
 });
 export type TemplateUpdate = z.infer<typeof TemplateUpdateSchema>;
+
+export const TemplateYAMLSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().optional(),
+  author: z.string().optional(),
+  version: z.string().default("1.0.0"),
+  image: z.string().min(1),
+  startupCommand: z.string().min(1),
+  stopSignal: z.string().default("^C"),
+  environment: z.record(z.string(), z.string()).default({}),
+  portMappings: z
+    .array(
+      z.object({
+        name: z.string(),
+        protocol: z.string(),
+        internalPort: z.number().int(),
+        externalPort: z.number().int(),
+      }),
+    )
+    .default([]),
+  resourceLimits: ResourceLimitsSchema,
+  resourceLimitsRange: ResourceLimitsRangeSchema.optional(),
+  changelog: ChangelogSchema.default([]),
+  variables: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(100),
+        envVar: z.string().min(1).max(100),
+        dataType: z.enum(["string", "integer", "boolean", "select"]),
+        defaultValue: z.string(),
+        required: z.boolean().default(false),
+        minValue: z.number().int().nullable().optional(),
+        maxValue: z.number().int().nullable().optional(),
+        minLength: z.number().int().nullable().optional(),
+        maxLength: z.number().int().nullable().optional(),
+        regexPattern: z.string().nullable().optional(),
+        allowedValues: z.array(z.string()).nullable().optional(),
+        visibility: z.enum(["hidden", "viewable", "editable"]).default("editable"),
+        sortOrder: z.number().int().default(0),
+      }),
+    )
+    .default([]),
+});
+export type TemplateYAML = z.infer<typeof TemplateYAMLSchema>;

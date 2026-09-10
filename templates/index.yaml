@@ -17,7 +17,7 @@ templates:
     sha256: ebe76a6fc97426013d37223cafc9210ee96169e04e8b460f1a28ea901eb085e1
   - id: csgo
     name: CS:GO
-    description: Counter-Strike: Global Offensive dedicated server
+    description: "Counter-Strike: Global Offensive dedicated server"
     group: Source Engine
     author: SigilPanel
     version: "1.0.0"

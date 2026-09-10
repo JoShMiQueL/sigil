@@ -244,10 +244,10 @@
 - [ ] T076 [P] Write E2E test for import/export in `apps/panel/tests/e2e/template-import-export.spec.ts` — import PTDL_v2 egg, verify skipped fields, export as YAML, re-import, verify round-trip (after MCP verification)
 - [ ] T077 [P] Write E2E test for registry management in `apps/panel/tests/e2e/registry-management.spec.ts` — view official registry, add community registry, list available, install template, verify inactive, delete registry, verify templates remain (after MCP verification)
 - [ ] T078 [P] Write E2E test for update detection in `apps/panel/tests/e2e/registry-management.spec.ts` — trigger manual check, verify SSE notification with changelog badges, apply update, verify template updated, test customized protection (after MCP verification)
-- [ ] T079 Update CI workflow in `.github/workflows/ci.yml` — add path filter for `templates/` directory to only run template validation job when templates change, ensure template YAML files are validated against schema in CI
-- [ ] T080 [P] Add template YAML schema validation script in `apps/api/src/lib/validate-templates.ts` — validate all files in `templates/` against RegistryIndexSchema and TemplateSchema, run as part of CI
-- [ ] T081 Run `bun run check` and `bun run typecheck` — fix any lint or type errors across all new files
-- [ ] T082 Run `bun run test` — ensure all unit and integration tests pass
+- [X] T079 Update CI workflow in `.github/workflows/ci.yml` — add path filter for `templates/` directory to only run template validation job when templates change, ensure template YAML files are validated against schema in CI
+- [X] T080 [P] Add template YAML schema validation script in `apps/api/src/lib/validate-templates.ts` — validate all files in `templates/` against RegistryIndexSchema and TemplateSchema, run as part of CI
+- [X] T081 Run `bun run check` and `bun run typecheck` — fix any lint or type errors across all new files
+- [X] T082 Run `bun run test` — ensure all unit and integration tests pass
 - [ ] T083 Run `bun run test:e2e` — ensure all E2E tests pass (after MCP verification of all flows)
 - [ ] T084 Run quickstart.md validation scenarios 1-7 manually with curl and chrome-devtools MCP
 - [ ] T085 Update `ROADMAP.md` — mark R8 status as complete
