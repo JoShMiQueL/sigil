@@ -1,4 +1,4 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { ne } from "drizzle-orm";
 import { Hono } from "hono";
 
@@ -22,7 +22,7 @@ testCleanup.post("/cleanup", async (c) => {
   await db.delete(schema.auditLogs);
   await db.delete(schema.passwordResetTokens);
   await db.delete(schema.sessions);
-  await db.delete(schema.users).where(ne(schema.users.email, "admin@sigilpanel.local"));
+  await db.delete(schema.users).where(ne(schema.users.email, "admin@sigil.local"));
 
   return c.json({ status: "ok" });
 });

@@ -7,15 +7,15 @@
 
 - Docker running (for PostgreSQL + Redis dev services)
 - R1 (User Auth) implemented and working
-- Admin account seeded (`admin@sigilpanel.local` / `admin12345`)
+- Admin account seeded (`admin@sigil.local` / `admin12345`)
 
 ## Setup
 
 ```bash
 bun dev:services          # Start PostgreSQL + Redis
-bun --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
-bun --filter @sigilpanel/db db:migrate   # Run migrations
-bun --filter @sigilpanel/api db:seed     # Seed admin user
+bun --filter @sigil/db db:generate  # Generate Drizzle migrations
+bun --filter @sigil/db db:migrate   # Run migrations
+bun --filter @sigil/api db:seed     # Seed admin user
 bun dev                   # Start API (:3000) + panel (:5173)
 ```
 

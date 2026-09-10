@@ -1,4 +1,4 @@
-import type { ApiKeyScope } from "@sigilpanel/shared";
+import type { ApiKeyScope } from "@sigil/shared";
 import { createMiddleware } from "hono/factory";
 import type { AuthContext } from "./auth";
 

@@ -37,9 +37,9 @@ type PortMapping struct {
 
 // Label keys for managed containers
 const (
-	LabelServerID = "sigilpanel.server-id"
-	LabelNodeID   = "sigilpanel.node-id"
-	LabelManaged  = "sigilpanel.managed"
+	LabelServerID = "sigil.server-id"
+	LabelNodeID   = "sigil.node-id"
+	LabelManaged  = "sigil.managed"
 )
 
 type LifecycleManager struct {

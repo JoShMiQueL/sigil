@@ -1,4 +1,4 @@
-import type { User } from "@sigilpanel/shared";
+import type { User } from "@sigil/shared";
 import { useRouter } from "@tanstack/react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useSSE } from "../hooks/useSSE";

@@ -1,4 +1,4 @@
-import type { Template, TemplateCreate, TemplateUpdate } from "@sigilpanel/shared";
+import type { Template, TemplateCreate, TemplateUpdate } from "@sigil/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";

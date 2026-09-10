@@ -1,4 +1,4 @@
-import type { RegionWithCounts } from "@sigilpanel/shared";
+import type { RegionWithCounts } from "@sigil/shared";
 
 interface RegionListProps {
   regions: RegionWithCounts[];

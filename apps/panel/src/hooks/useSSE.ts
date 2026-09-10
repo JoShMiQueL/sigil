@@ -1,4 +1,4 @@
-import type { SSEEventType } from "@sigilpanel/shared";
+import type { SSEEventType } from "@sigil/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 

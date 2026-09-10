@@ -27,7 +27,7 @@ SigilPanel is a self-hosted game server management panel that runs game servers 
 ## Monorepo Structure
 
 ```
-sigilpanel/
+sigil/
 ├── apps/
 │   ├── panel/          # React 19 + Vite frontend (panel UI)
 │   ├── api/            # Hono API (auth, server CRUD, JWT mint, schedules)
@@ -62,7 +62,7 @@ Browser
   │  (short JWT signed by the API)    │  SFTP :2022                  │
   │  (browser→daemon direct)          │  Docker Engine API → containers
   └────────────────────────────────▶└──────────────────────────────┘
-                                           /var/lib/sigilpanel/volumes/<uuid>
+                                           /var/lib/sigil/volumes/<uuid>
 ```
 
 ### Protocol selection (Constitution Principle VI)
@@ -167,9 +167,9 @@ The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on
 
 Jobs:
 1. **Lint & Typecheck** — `bun run check` + `bun run typecheck`
-2. **Unit & Integration** — `bun --filter @sigilpanel/db db:generate` + `bun run test` (Testcontainers auto-starts PostgreSQL, no external services needed)
+2. **Unit & Integration** — `bun --filter @sigil/db db:generate` + `bun run test` (Testcontainers auto-starts PostgreSQL, no external services needed)
 3. **Daemon** — `go build ./...` + `go test ./internal/... -short` (unit) + `go test ./internal/... -tags integration` (integration, needs Docker)
-4. **E2E** — `bun --filter @sigilpanel/db db:generate` + `bun run test:e2e` (Testcontainers auto-starts PostgreSQL + Redis, no external services needed)
+4. **E2E** — `bun --filter @sigil/db db:generate` + `bun run test:e2e` (Testcontainers auto-starts PostgreSQL + Redis, no external services needed)
 
 The E2E job uses the same `scripts/run-e2e.ts` Testcontainers orchestrator as local development — no GitHub Actions service containers, no separate CI setup. The Playwright config detects `CI` env var and uses Playwright's bundled Chromium instead of system Chromium.
 
@@ -278,19 +278,19 @@ The verification flow is **MCP-first, Playwright-last**. This means:
 
 ```bash
 bun dev:services          # PostgreSQL + Redis via Docker Compose
-bun --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
-bun --filter @sigilpanel/db db:migrate   # Run migrations
-bun --filter @sigilpanel/api db:seed       # Seed admin user
-RATE_LIMIT_DISABLED=1 bun --filter @sigilpanel/api dev &  # API on :3000
-bun --filter @sigilpanel/panel dev &        # Panel on :5173
+bun --filter @sigil/db db:generate  # Generate Drizzle migrations
+bun --filter @sigil/db db:migrate   # Run migrations
+bun --filter @sigil/api db:seed       # Seed admin user
+RATE_LIMIT_DISABLED=1 bun --filter @sigil/api dev &  # API on :3000
+bun --filter @sigil/panel dev &        # Panel on :5173
 ```
 
 Or simply:
 
 ```bash
 bun dev:services
-bun --filter @sigilpanel/db db:migrate
-bun --filter @sigilpanel/api db:seed
+bun --filter @sigil/db db:migrate
+bun --filter @sigil/api db:seed
 bun dev
 ```
 
@@ -318,7 +318,7 @@ All tests are fully automatic — no manual server startup, seeding, or Redis fl
 
 ```bash
 bun run test                                          # All workspace tests
-bun --filter @sigilpanel/api test                 # API tests only
+bun --filter @sigil/api test                 # API tests only
 ```
 
 ### E2E tests (`bun run test:e2e`)

@@ -1,4 +1,4 @@
-import type { VariableCreate } from "@sigilpanel/shared";
+import type { VariableCreate } from "@sigil/shared";
 import { describe, expect, it } from "vitest";
 import {
   VariableValidationError,

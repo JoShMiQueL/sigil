@@ -42,7 +42,7 @@ test.describe("R6 US2: Server lifecycle via daemon API", () => {
         environment: {},
         portMappings: [],
         resourceLimits: { memoryMb: 64, cpuLimit: 0.5 },
-        volumePath: `/tmp/sigilpanel/volumes/${serverId}`,
+        volumePath: `/tmp/sigil/volumes/${serverId}`,
       }),
     });
     expect(createRes.status()).toBe(201);
@@ -145,7 +145,7 @@ async function getAdminCookie(): Promise<string> {
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "admin@sigilpanel.local", password: "admin12345" }),
+    body: JSON.stringify({ email: "admin@sigil.local", password: "admin12345" }),
   });
   const setCookie = res.headers.get("set-cookie") ?? "";
   return setCookie.split(";")[0];

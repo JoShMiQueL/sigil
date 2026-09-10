@@ -1,5 +1,5 @@
-import { db, schema } from "@sigilpanel/db";
-import type { Node, NodeUpdate } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { Node, NodeUpdate } from "@sigil/shared";
 import { and, eq, isNull } from "drizzle-orm";
 import { generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { encrypt } from "../lib/crypto";

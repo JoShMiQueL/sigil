@@ -1,4 +1,4 @@
-import type { Template } from "@sigilpanel/shared";
+import type { Template } from "@sigil/shared";
 import { ExportButton } from "./export-button";
 
 interface TemplateListProps {

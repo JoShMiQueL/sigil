@@ -1,5 +1,5 @@
-import { db, schema } from "@sigilpanel/db";
-import type { Region, RegionCreate, RegionWithCounts } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { Region, RegionCreate, RegionWithCounts } from "@sigil/shared";
 import { count, eq } from "drizzle-orm";
 import { emit } from "./sse.service";
 

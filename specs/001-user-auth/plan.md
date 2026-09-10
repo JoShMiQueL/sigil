@@ -123,4 +123,4 @@ packages/
         └── index.ts              # DB client + schema exports
 ```
 
-**Structure Decision**: Monorepo with Hono API in `apps/api`, React UI in `apps/panel`, shared Zod schemas in `packages/shared`, and Drizzle schema/migrations in `packages/db`. The API imports `@sigilpanel/shared` for request/response validation and `@sigilpanel/db` for database access. The panel imports `@sigilpanel/shared` for type-safe API calls.
+**Structure Decision**: Monorepo with Hono API in `apps/api`, React UI in `apps/panel`, shared Zod schemas in `packages/shared`, and Drizzle schema/migrations in `packages/db`. The API imports `@sigil/shared` for request/response validation and `@sigil/db` for database access. The panel imports `@sigil/shared` for type-safe API calls.

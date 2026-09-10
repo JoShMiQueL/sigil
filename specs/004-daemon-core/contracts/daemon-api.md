@@ -49,7 +49,7 @@ Create a new server container. Validates configuration, pulls image if needed, c
     "cpuLimit": 1.0,
     "pidsLimit": 256
   },
-  "volumePath": "/var/lib/sigilpanel/volumes/uuid"
+  "volumePath": "/var/lib/sigil/volumes/uuid"
 }
 ```
 

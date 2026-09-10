@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/auth"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/auth"
+	"github.com/sigil/sigil/apps/daemon/internal/docker"
 )
 
 type Client struct {

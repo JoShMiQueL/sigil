@@ -1,5 +1,5 @@
-import { db, schema } from "@sigilpanel/db";
-import type { ApiKeyScope, User } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { ApiKeyScope, User } from "@sigil/shared";
 import { eq } from "drizzle-orm";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";

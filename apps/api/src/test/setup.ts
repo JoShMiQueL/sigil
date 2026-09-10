@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const URI_FILE = join(tmpdir(), "sigilpanel-test-db-uri.txt");
+const URI_FILE = join(tmpdir(), "sigil-test-db-uri.txt");
 
-// Ensure DATABASE_URL is set before any test file imports @sigilpanel/db
+// Ensure DATABASE_URL is set before any test file imports @sigil/db
 try {
   const uri = readFileSync(URI_FILE, "utf-8").trim();
   if (uri) {

@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/jail"
+	"github.com/sigil/sigil/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/jail"
 )
 
 type ServerEntry struct {

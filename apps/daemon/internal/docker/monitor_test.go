@@ -38,7 +38,7 @@ func TestMonitorStartDieStopEvents(t *testing.T) {
 		ServerID:       serverID,
 		Image:          "alpine:latest",
 		StartupCommand: "sleep 2",
-		VolumePath:     fmt.Sprintf("/tmp/sigilpanel-test-%d", time.Now().UnixNano()),
+		VolumePath:     fmt.Sprintf("/tmp/sigil-test-%d", time.Now().UnixNano()),
 		MemoryMB:       64,
 		CPULimit:       0.5,
 	}
@@ -100,7 +100,7 @@ func TestMonitorDestroyEvent(t *testing.T) {
 		ServerID:       serverID,
 		Image:          "alpine:latest",
 		StartupCommand: "sleep infinity",
-		VolumePath:     fmt.Sprintf("/tmp/sigilpanel-destroy-%d", time.Now().UnixNano()),
+		VolumePath:     fmt.Sprintf("/tmp/sigil-destroy-%d", time.Now().UnixNano()),
 		MemoryMB:       64,
 		CPULimit:       0.5,
 	}

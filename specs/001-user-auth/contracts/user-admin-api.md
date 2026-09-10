@@ -3,7 +3,7 @@
 **Feature**: 001-user-auth
 **Base path**: `/api/admin/users`
 
-All endpoints require `admin` role. All request bodies validated against Zod schemas from `@sigilpanel/shared`.
+All endpoints require `admin` role. All request bodies validated against Zod schemas from `@sigil/shared`.
 
 ## GET /api/admin/users
 

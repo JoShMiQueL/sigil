@@ -177,7 +177,7 @@ Every container the daemon creates runs with minimal privileges and security con
 - The daemon does not implement SFTP (R11), backups (R12), file manager UI (R11), or WebSocket console (R10). These are separate specs that build on R6.
 - The daemon does not implement server creation from templates (R8). Server configuration is received as a complete JSON payload from the panel. Template expansion happens in the panel.
 - Allocations (R7) are managed by the panel. The daemon receives port mappings as part of server configuration and applies them to the container.
-- The daemon stores its configuration and credentials in a standard location (e.g., `/etc/sigilpanel/daemon.yaml` and `/var/lib/sigilpanel/daemon/credentials.json` with restricted permissions).
+- The daemon stores its configuration and credentials in a standard location (e.g., `/etc/sigil/daemon.yaml` and `/var/lib/sigil/daemon/credentials.json` with restricted permissions).
 - Docker is installed on the node and the daemon connects via the Unix socket (`/var/run/docker.sock`) or a configurable TCP endpoint.
-- Server volumes are stored under `/var/lib/sigilpanel/volumes/<server-uuid>/` on the host, bind-mounted into containers.
+- Server volumes are stored under `/var/lib/sigil/volumes/<server-uuid>/` on the host, bind-mounted into containers.
 - The daemon is tested against a real Docker daemon (Constitution Principle IV: no mocks for Docker). Integration tests use Testcontainers or a real Docker daemon in CI.

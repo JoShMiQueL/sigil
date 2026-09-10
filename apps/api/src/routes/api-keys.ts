@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { ApiKeyCreateSchema } from "@sigilpanel/shared";
+import { ApiKeyCreateSchema } from "@sigil/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import { createApiKey, listApiKeys, revokeApiKey } from "../services/api-key.service";

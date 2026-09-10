@@ -43,7 +43,7 @@ func TestServerConfigurationSchemaCompatibility(t *testing.T) {
 
 	// Validate with Node/Bun script
 	cmd := exec.Command("bun", "run", "-e", `
-const { ServerConfigSchema } = require("@sigilpanel/shared");
+const { ServerConfigSchema } = require("@sigil/shared");
 const fs = require("fs");
 const data = JSON.parse(fs.readFileSync(process.argv[2], "utf-8"));
 const result = ServerConfigSchema.safeParse(data);
@@ -98,7 +98,7 @@ func TestStateChangeEventSchemaCompatibility(t *testing.T) {
 	tmpFile.Close()
 
 	cmd := exec.Command("bun", "run", "-e", `
-const { StateChangeEventSchema } = require("@sigilpanel/shared");
+const { StateChangeEventSchema } = require("@sigil/shared");
 const fs = require("fs");
 const data = JSON.parse(fs.readFileSync(process.argv[2], "utf-8"));
 const result = StateChangeEventSchema.safeParse(data);

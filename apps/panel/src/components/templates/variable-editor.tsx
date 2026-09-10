@@ -1,4 +1,4 @@
-import type { VariableCreate } from "@sigilpanel/shared";
+import type { VariableCreate } from "@sigil/shared";
 import { useState } from "react";
 
 interface VariableEditorProps {

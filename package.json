@@ -1,5 +1,5 @@
 {
-  "name": "sigilpanel",
+  "name": "sigil",
   "version": "0.0.0",
   "private": true,
   "description": "Modern game server management panel",
@@ -11,14 +11,14 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "bun run --filter '@sigilpanel/*' build",
-    "dev": "bun run --filter '@sigilpanel/*' --parallel dev",
+    "build": "bun run --filter '@sigil/*' build",
+    "dev": "bun run --filter '@sigil/*' --parallel dev",
     "lint": "biome lint",
     "format": "biome format --write",
     "format:check": "biome format --check",
     "check": "biome check",
-    "typecheck": "bun run --filter '@sigilpanel/*' typecheck",
-    "test": "bun run --filter '@sigilpanel/*' test",
+    "typecheck": "bun run --filter '@sigil/*' typecheck",
+    "test": "bun run --filter '@sigil/*' test",
     "test:e2e": "bun run scripts/run-e2e.ts",
     "dev:services": "docker compose -f infra/docker/docker-compose.dev.yml up -d",
     "dev:services:down": "docker compose -f infra/docker/docker-compose.dev.yml down"

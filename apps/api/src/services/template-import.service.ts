@@ -1,5 +1,5 @@
-import type { PTDLv2Egg, TemplateCreate, VariableCreate } from "@sigilpanel/shared";
-import { PTDLv2EggSchema } from "@sigilpanel/shared";
+import type { PTDLv2Egg, TemplateCreate, VariableCreate } from "@sigil/shared";
+import { PTDLv2EggSchema } from "@sigil/shared";
 import { convertPTDLv2Variables, getSkippedFields } from "../lib/ptdlv2-converter";
 import { parseTemplateYAML } from "../lib/yaml-utils";
 import { createTemplate, updateTemplate } from "./template.service";
@@ -100,7 +100,7 @@ async function importPTDLv2Egg(
 }
 
 async function findTemplateByName(name: string): Promise<{ id: string } | null> {
-  const { db, schema } = await import("@sigilpanel/db");
+  const { db, schema } = await import("@sigil/db");
   const { eq } = await import("drizzle-orm");
   const [row] = await db
     .select({ id: schema.templates.id })

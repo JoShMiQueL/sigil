@@ -1,5 +1,5 @@
-import { db, schema } from "@sigilpanel/db";
-import type { User, UserCreate, UserUpdate } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { User, UserCreate, UserUpdate } from "@sigil/shared";
 import { and, count, eq, ilike, or } from "drizzle-orm";
 import { hashPassword } from "../lib/argon2";
 import { emit } from "./sse.service";

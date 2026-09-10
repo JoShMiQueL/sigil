@@ -1,4 +1,4 @@
-import { type UserCreate, UserCreateSchema } from "@sigilpanel/shared";
+import { type UserCreate, UserCreateSchema } from "@sigil/shared";
 import { useState } from "react";
 
 interface CreateUserFormProps {

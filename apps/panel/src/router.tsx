@@ -5,7 +5,7 @@ import type {
   TemplateUpdate,
   User,
   UserCreate,
-} from "@sigilpanel/shared";
+} from "@sigil/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";

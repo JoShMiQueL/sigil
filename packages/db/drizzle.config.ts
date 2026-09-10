@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgresql://sigilpanel:sigilpanel@localhost:5432/sigilpanel",
+    url: process.env.DATABASE_URL ?? "postgresql://sigil:sigil@localhost:5432/sigil",
   },
 });

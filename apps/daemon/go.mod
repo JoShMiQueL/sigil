@@ -1,4 +1,4 @@
-module github.com/sigilpanel/sigilpanel/apps/daemon
+module github.com/sigil/sigil/apps/daemon
 
 go 1.27
 

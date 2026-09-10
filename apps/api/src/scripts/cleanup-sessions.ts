@@ -1,4 +1,4 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { lt } from "drizzle-orm";
 
 async function cleanupExpiredSessions(): Promise<number> {

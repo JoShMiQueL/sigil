@@ -3,9 +3,9 @@ package api
 import (
 	"net/http"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/auth"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/server"
+	"github.com/sigil/sigil/apps/daemon/internal/auth"
+	"github.com/sigil/sigil/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/server"
 )
 
 type Handlers struct {

@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { UserCreateSchema, UserUpdateSchema } from "@sigilpanel/shared";
+import { UserCreateSchema, UserUpdateSchema } from "@sigil/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import {

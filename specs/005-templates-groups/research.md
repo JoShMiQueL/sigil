@@ -149,7 +149,7 @@ CI path filters ensure that changes to `templates/` only trigger template-relate
 
 ### Alternatives considered
 
-- **Separate `sigilpanel/templates` repo**: Rejected — unnecessary repo splitting. Modern monorepo CI practices (path filters, selective job execution) handle this cleanly. Atomic commits across template + code are valuable.
+- **Separate `sigil/templates` repo**: Rejected — unnecessary repo splitting. Modern monorepo CI practices (path filters, selective job execution) handle this cleanly. Atomic commits across template + code are valuable.
 - **JSON index**: Rejected — YAML is the native format, consistency.
 - **No index, scan directory**: Rejected — requires multiple HTTP requests, fragile.
 
@@ -166,12 +166,12 @@ The panel fetches registry files over HTTP with optional authentication:
 | `basic` | `Authorization: Basic <base64(user:pass)>` | Private server with basic auth |
 
 The panel fetches:
-1. `index.yaml` at the registry URL root (e.g., `https://raw.githubusercontent.com/sigilpanel/sigilpanel/main/templates/index.yaml`)
+1. `index.yaml` at the registry URL root (e.g., `https://raw.githubusercontent.com/sigil/sigil/main/templates/index.yaml`)
 2. Individual template files at the `file` path relative to the registry URL
 
 For the official registry, the default URL is:
 ```
-https://raw.githubusercontent.com/sigilpanel/sigilpanel/main/templates
+https://raw.githubusercontent.com/sigil/sigil/main/templates
 ```
 
 The admin configures the full base URL. The panel appends `/index.yaml` for the index and `/<file path>` for templates.

@@ -8,7 +8,7 @@ test.describe("US1: Region management [T026]", () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");
-    await page.fill('input[type="email"]', "admin@sigilpanel.local");
+    await page.fill('input[type="email"]', "admin@sigil.local");
     await page.fill('input[type="password"]', "admin12345");
     await page.click('button[type="submit"]');
     await page.waitForURL("/");

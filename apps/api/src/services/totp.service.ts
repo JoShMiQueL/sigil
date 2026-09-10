@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { eq } from "drizzle-orm";
 import { decrypt, encrypt } from "../lib/crypto";
 import { hashToken, verifyToken } from "../lib/token";
@@ -43,7 +43,7 @@ async function getUserEmail(userId: string): Promise<string> {
     .from(schema.users)
     .where(eq(schema.users.id, userId))
     .limit(1);
-  return row?.email ?? "user@sigilpanel.local";
+  return row?.email ?? "user@sigil.local";
 }
 
 export async function verifyAndActivateTotp(

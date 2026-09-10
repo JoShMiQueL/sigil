@@ -1,5 +1,5 @@
-import { db, schema } from "@sigilpanel/db";
-import type { User } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { User } from "@sigil/shared";
 import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";

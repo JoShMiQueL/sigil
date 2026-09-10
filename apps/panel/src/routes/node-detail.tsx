@@ -1,4 +1,4 @@
-import type { Node } from "@sigilpanel/shared";
+import type { Node } from "@sigil/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "@tanstack/react-router";
 import { useState } from "react";

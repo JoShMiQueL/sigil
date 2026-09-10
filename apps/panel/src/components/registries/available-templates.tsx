@@ -1,4 +1,4 @@
-import type { RegistryIndexEntry } from "@sigilpanel/shared";
+import type { RegistryIndexEntry } from "@sigil/shared";
 
 interface AvailableTemplatesProps {
   templates: RegistryIndexEntry[];

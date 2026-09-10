@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import {
   LoginRequestSchema,
   PasswordResetRequestSchema,
@@ -7,7 +7,7 @@ import {
   TotpDisableSchema,
   TotpEnableVerifySchema,
   TotpVerifySchema,
-} from "@sigilpanel/shared";
+} from "@sigil/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { passwordResetEmail } from "../emails/password-reset";

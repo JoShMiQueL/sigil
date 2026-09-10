@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { RegistryCreateSchema, RegistryUpdateSchema } from "@sigilpanel/shared";
+import { RegistryCreateSchema, RegistryUpdateSchema } from "@sigil/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import { logAudit } from "../services/audit.service";

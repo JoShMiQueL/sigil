@@ -31,7 +31,7 @@ cat > /tmp/daemon.yaml << 'EOF'
 panel_url: http://localhost:3000
 pairing_token: sigilpair_<token-from-above>
 credentials_path: /tmp/daemon-creds.json
-volume_base_path: /tmp/sigilpanel/volumes
+volume_base_path: /tmp/sigil/volumes
 docker_socket: /var/run/docker.sock
 listen_address: 127.0.0.1:8080
 heartbeat_interval_sec: 5
@@ -73,12 +73,12 @@ curl -X POST http://localhost:8080/servers \
     "environment": {},
     "portMappings": [],
     "resourceLimits": { "memoryMb": 128, "cpuLimit": 0.5 },
-    "volumePath": "/tmp/sigilpanel/volumes/550e8400"
+    "volumePath": "/tmp/sigil/volumes/550e8400"
   }'
 # → 201 { "serverId": "...", "state": "running" }
 
 # Verify container exists
-docker ps --filter label=sigilpanel.server-id=550e8400-e29b-41d4-a716-446655440000
+docker ps --filter label=sigil.server-id=550e8400-e29b-41d4-a716-446655440000
 
 # Stop the server
 curl -X POST http://localhost:8080/servers/550e8400.../stop \
@@ -96,11 +96,11 @@ curl -X DELETE http://localhost:8080/servers/550e8400... \
 # → 204
 
 # Verify container is gone
-docker ps -a --filter label=sigilpanel.server-id=550e8400...
+docker ps -a --filter label=sigil.server-id=550e8400...
 # → empty
 
 # Verify volume directory is deleted
-ls /tmp/sigilpanel/volumes/550e8400...
+ls /tmp/sigil/volumes/550e8400...
 # → No such file or directory
 ```
 

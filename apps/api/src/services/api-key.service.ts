@@ -1,4 +1,4 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { and, eq } from "drizzle-orm";
 import { generateApiKey, hashToken } from "../lib/token";
 

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/panel"
+	"github.com/sigil/sigil/apps/daemon/internal/panel"
 )
 
 type Loop struct {

@@ -75,4 +75,4 @@ Events are kept in an in-memory queue. On daemon shutdown, pending events are lo
 
 ### Reconciliation on startup
 
-When the daemon starts, it lists all containers with the `sigilpanel.server-id` label and reports their current state to the panel via `POST /api/node/server-state` with `previousState: "missing"` (or the last known state if the daemon kept it) and `newState: <actual state>`. This ensures the panel's view converges after a daemon restart.
+When the daemon starts, it lists all containers with the `sigil.server-id` label and reports their current state to the panel via `POST /api/node/server-state` with `previousState: "missing"` (or the last known state if the daemon kept it) and `newState: <actual state>`. This ensures the panel's view converges after a daemon restart.

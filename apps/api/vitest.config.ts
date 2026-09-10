@@ -12,8 +12,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@sigilpanel/shared": "../../packages/shared/src/index.ts",
-      "@sigilpanel/db": "../../packages/db/src/index.ts",
+      "@sigil/shared": "../../packages/shared/src/index.ts",
+      "@sigil/db": "../../packages/db/src/index.ts",
     },
   },
 });

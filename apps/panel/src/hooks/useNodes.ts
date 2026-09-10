@@ -1,4 +1,4 @@
-import type { Node } from "@sigilpanel/shared";
+import type { Node } from "@sigil/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";

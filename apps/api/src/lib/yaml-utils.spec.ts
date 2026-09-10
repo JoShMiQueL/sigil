@@ -1,4 +1,4 @@
-import type { Template } from "@sigilpanel/shared";
+import type { Template } from "@sigil/shared";
 import { describe, expect, it } from "vitest";
 import { parseTemplateYAML, serializeTemplateYAML } from "./yaml-utils";
 

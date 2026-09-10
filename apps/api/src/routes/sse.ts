@@ -1,4 +1,4 @@
-import type { SSEEventType } from "@sigilpanel/shared";
+import type { SSEEventType } from "@sigil/shared";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import type { AuthContext } from "../middleware/auth";

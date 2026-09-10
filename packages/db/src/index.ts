@@ -29,7 +29,7 @@ export const schema = {
 };
 
 const connectionString =
-  process.env.DATABASE_URL ?? "postgresql://sigilpanel:sigilpanel@localhost:5432/sigilpanel";
+  process.env.DATABASE_URL ?? "postgresql://sigil:sigil@localhost:5432/sigil";
 
 const client = postgres(connectionString, { max: 10 });
 

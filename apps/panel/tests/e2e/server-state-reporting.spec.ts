@@ -24,14 +24,14 @@ test.describe("R6 US4: Server state reporting", () => {
         environment: {},
         portMappings: [],
         resourceLimits: { memoryMb: 64, cpuLimit: 0.5 },
-        volumePath: `/tmp/sigilpanel/volumes/${serverId}`,
+        volumePath: `/tmp/sigil/volumes/${serverId}`,
       }),
     });
     expect(createRes.status()).toBe(201);
 
     // Kill the container directly via Docker
     const { execSync } = await import("node:child_process");
-    const containerId = execSync(`docker ps --filter "label=sigilpanel.server-id=${serverId}" -q`)
+    const containerId = execSync(`docker ps --filter "label=sigil.server-id=${serverId}" -q`)
       .toString()
       .trim();
     expect(containerId).toBeTruthy();
@@ -64,7 +64,7 @@ test.describe("R6 US4: Server state reporting", () => {
         environment: {},
         portMappings: [],
         resourceLimits: { memoryMb: 64, cpuLimit: 0.5 },
-        volumePath: `/tmp/sigilpanel/volumes/${serverId}`,
+        volumePath: `/tmp/sigil/volumes/${serverId}`,
       }),
     });
     expect(createRes.status()).toBe(201);
@@ -98,7 +98,7 @@ test.describe("R6 US4: Server state reporting", () => {
         environment: {},
         portMappings: [],
         resourceLimits: { memoryMb: 64, cpuLimit: 0.5 },
-        volumePath: `/tmp/sigilpanel/volumes/${serverId}`,
+        volumePath: `/tmp/sigil/volumes/${serverId}`,
       }),
     });
 
@@ -128,7 +128,7 @@ async function getAdminCookie(): Promise<string> {
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "admin@sigilpanel.local", password: "admin12345" }),
+    body: JSON.stringify({ email: "admin@sigil.local", password: "admin12345" }),
   });
   const setCookie = res.headers.get("set-cookie") ?? "";
   return setCookie.split(";")[0];

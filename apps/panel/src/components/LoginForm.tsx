@@ -1,4 +1,4 @@
-import { LoginRequestSchema } from "@sigilpanel/shared";
+import { LoginRequestSchema } from "@sigil/shared";
 import { useState } from "react";
 
 interface LoginFormProps {

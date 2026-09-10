@@ -1,4 +1,4 @@
-import type { Node } from "@sigilpanel/shared";
+import type { Node } from "@sigil/shared";
 
 interface NodeTableProps {
   nodes: Node[];

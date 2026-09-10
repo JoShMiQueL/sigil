@@ -1,5 +1,5 @@
 {
-  "name": "@sigilpanel/db",
+  "name": "@sigil/db",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@sigilpanel/shared": "workspace:*",
+    "@sigil/shared": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.16.0",
     "postgres": "^3.4.7"

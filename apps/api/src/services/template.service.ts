@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { db, schema } from "@sigilpanel/db";
-import type { Template, TemplateCreate, TemplateUpdate } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { Template, TemplateCreate, TemplateUpdate } from "@sigil/shared";
 import { eq } from "drizzle-orm";
 import {
   fetchRegistryIndex,

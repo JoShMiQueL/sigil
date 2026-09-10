@@ -13,9 +13,9 @@
 
 ```bash
 bun dev:services          # PostgreSQL + Redis
-bun --filter @sigilpanel/db db:generate
-bun --filter @sigilpanel/db db:migrate
-bun --filter @sigilpanel/api db:seed
+bun --filter @sigil/db db:generate
+bun --filter @sigil/db db:migrate
+bun --filter @sigil/api db:seed
 bun dev                   # API on :3000, panel on :5173
 ```
 

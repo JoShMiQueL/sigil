@@ -1,5 +1,5 @@
-import { db, schema } from "@sigilpanel/db";
-import type { HeartbeatPayload } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { HeartbeatPayload } from "@sigil/shared";
 import { eq, lt } from "drizzle-orm";
 import { getNodeById } from "./node.service";
 import { emit } from "./sse.service";

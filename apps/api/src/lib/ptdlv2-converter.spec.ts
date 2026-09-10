@@ -1,4 +1,4 @@
-import type { PTDLv2Egg, PTDLv2Variable } from "@sigilpanel/shared";
+import type { PTDLv2Egg, PTDLv2Variable } from "@sigil/shared";
 import { describe, expect, it } from "vitest";
 import { convertPTDLv2Variable, getSkippedFields, parseRules } from "./ptdlv2-converter";
 

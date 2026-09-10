@@ -1,4 +1,4 @@
-import type { Node } from "@sigilpanel/shared";
+import type { Node } from "@sigil/shared";
 
 const statusColors: Record<string, string> = {
   online: "#2d8",

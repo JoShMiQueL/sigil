@@ -14,7 +14,7 @@ The SigilPanel daemon (Go 1.27) runs on each node and manages Docker containers 
 
 **Primary Dependencies**: `docker/client` (official Go SDK for Docker Engine API), `net/http` (stdlib, daemon's own HTTP API), `gopkg.in/yaml.v3` (config), `crypto/hmac` (HMAC-SHA256 auth), `log/slog` (structured logging)
 
-**Storage**: Local filesystem — daemon config (`/etc/sigilpanel/daemon.yaml`), credentials (`/var/lib/sigilpanel/daemon/credentials.json` with 0600 permissions), server volumes (`/var/lib/sigilpanel/volumes/<server-uuid>/`). No database access (Constitution Principle I).
+**Storage**: Local filesystem — daemon config (`/etc/sigil/daemon.yaml`), credentials (`/var/lib/sigil/daemon/credentials.json` with 0600 permissions), server volumes (`/var/lib/sigil/volumes/<server-uuid>/`). No database access (Constitution Principle I).
 
 **Testing**: Go testing (`go test`) for unit tests (filesystem jail, config parsing, HMAC auth, config validation). Integration tests against a real Docker daemon (Constitution Principle IV — no Docker mocks). Tests run in CI with Docker available.
 

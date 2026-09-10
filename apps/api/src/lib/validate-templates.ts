@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { RegistryIndexSchema, TemplateYAMLSchema } from "@sigilpanel/shared";
+import { RegistryIndexSchema, TemplateYAMLSchema } from "@sigil/shared";
 
 async function validateTemplates(): Promise<void> {
   const templatesDir = join(process.cwd(), "templates");

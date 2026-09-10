@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { count, eq } from "drizzle-orm";
 import { parseTemplateYAML } from "../lib/yaml-utils";
 
 const OFFICIAL_REGISTRY_URL =
   process.env.OFFICIAL_REGISTRY_URL ??
-  "https://raw.githubusercontent.com/sigilpanel/sigilpanel/main/templates";
+  "https://raw.githubusercontent.com/JoShMiQueL/sigil/main/templates";
 
 async function isTemplatesEmpty(): Promise<boolean> {
   const [result] = await db.select({ value: count() }).from(schema.templates);

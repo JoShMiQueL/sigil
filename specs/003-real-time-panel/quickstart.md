@@ -12,8 +12,8 @@
 
 ```bash
 bun dev:services
-bun --filter @sigilpanel/db db:migrate
-bun --filter @sigilpanel/api db:seed
+bun --filter @sigil/db db:migrate
+bun --filter @sigil/api db:seed
 bun dev
 ```
 

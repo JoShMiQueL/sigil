@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/server"
+	"github.com/sigil/sigil/apps/daemon/internal/server"
 )
 
 func writeJSON(w http.ResponseWriter, status int, v any) {

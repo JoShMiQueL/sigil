@@ -3,7 +3,7 @@
 **Feature**: 001-user-auth
 **Base path**: `/api/auth`
 
-All requests and responses are JSON. All request bodies are validated against Zod schemas from `@sigilpanel/shared`. All responses use standard HTTP status codes.
+All requests and responses are JSON. All request bodies are validated against Zod schemas from `@sigil/shared`. All responses use standard HTTP status codes.
 
 ## POST /api/auth/login
 

@@ -1,8 +1,4 @@
-import {
-  type RegistryIndex,
-  type RegistryIndexEntry,
-  RegistryIndexSchema,
-} from "@sigilpanel/shared";
+import { type RegistryIndex, type RegistryIndexEntry, RegistryIndexSchema } from "@sigil/shared";
 
 interface RegistryCredentials {
   url: string;

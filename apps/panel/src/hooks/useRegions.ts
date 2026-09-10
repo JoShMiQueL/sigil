@@ -1,4 +1,4 @@
-import type { RegionWithCounts } from "@sigilpanel/shared";
+import type { RegionWithCounts } from "@sigil/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";

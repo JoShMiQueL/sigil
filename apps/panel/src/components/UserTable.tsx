@@ -1,4 +1,4 @@
-import type { User } from "@sigilpanel/shared";
+import type { User } from "@sigil/shared";
 
 interface UserTableProps {
   users: User[];

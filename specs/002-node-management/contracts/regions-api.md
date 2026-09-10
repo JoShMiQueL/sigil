@@ -3,7 +3,7 @@
 **Feature**: 002-node-management
 **Base path**: `/api/admin/regions`
 
-All requests require admin session auth (from R1). All request/response bodies are JSON, validated against Zod schemas from `@sigilpanel/shared`.
+All requests require admin session auth (from R1). All request/response bodies are JSON, validated against Zod schemas from `@sigil/shared`.
 
 ## GET /api/admin/regions
 

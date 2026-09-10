@@ -106,7 +106,7 @@ Git repository served via HTTP containing template files.
 | Field | Type | Constraints | Notes |
 |-------|------|-------------|-------|
 | id | UUID | PK, auto-generated | |
-| url | text | NOT NULL, UNIQUE | Base URL (e.g., `https://raw.githubusercontent.com/sigilpanel/templates/main`) |
+| url | text | NOT NULL, UNIQUE | Base URL (e.g., `https://raw.githubusercontent.com/sigil/templates/main`) |
 | name | text | NOT NULL | Display name (e.g., "Official", "Community", "Private") |
 | authMethod | text | NOT NULL, default "none" | Enum: "none", "token", "basic" |
 | token | text | nullable | For token auth (redacted in API responses and logs) |

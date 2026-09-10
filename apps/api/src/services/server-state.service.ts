@@ -1,4 +1,4 @@
-import type { StateChangeEvent } from "@sigilpanel/shared";
+import type { StateChangeEvent } from "@sigil/shared";
 
 type ServerStateListener = (event: StateChangeEvent) => void;
 

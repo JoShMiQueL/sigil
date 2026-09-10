@@ -32,7 +32,7 @@
 
 **How it works**:
 ```go
-root, err := os.OpenRoot("/var/lib/sigilpanel/volumes/<uuid>")
+root, err := os.OpenRoot("/var/lib/sigil/volumes/<uuid>")
 f, err := root.Open("server.properties")  // safe, relative to root
 // root.Open("../../etc/passwd") → error, escapes root
 // symlink to /etc/passwd → error, target outside root
@@ -47,7 +47,7 @@ f, err := root.Open("server.properties")  // safe, relative to root
 
 ## R3: Container State Monitoring — How to Detect State Changes?
 
-**Decision**: Use the Docker Events API (`cli.Events`) with a filter for `type=container` and a label `sigilpanel.server-id=<uuid>` to stream events for managed containers.
+**Decision**: Use the Docker Events API (`cli.Events`) with a filter for `type=container` and a label `sigil.server-id=<uuid>` to stream events for managed containers.
 
 **Rationale**: The Docker Events API streams real-time events from the Docker daemon. Each event has an `Action` (start, die, oom, kill, stop, destroy, remove) and an `Actor` with container ID and attributes (including exit code for `die` events). By filtering on our label, we only get events for containers we manage. This is the same mechanism Docker uses internally.
 

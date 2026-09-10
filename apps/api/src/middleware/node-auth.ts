@@ -1,4 +1,4 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { and, eq, isNull } from "drizzle-orm";
 import { createMiddleware } from "hono/factory";
 import { isTimestampValid, verifySignature } from "../lib/credentials";

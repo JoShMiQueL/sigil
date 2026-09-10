@@ -26,7 +26,7 @@ export async function sendEmail(msg: {
   }
 
   await transporter.sendMail({
-    from: process.env.SMTP_FROM ?? "noreply@sigilpanel.local",
+    from: process.env.SMTP_FROM ?? "noreply@sigil.local",
     ...msg,
   });
 }

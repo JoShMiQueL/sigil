@@ -1,4 +1,4 @@
-import type { PTDLv2Egg, PTDLv2Variable, VariableCreate } from "@sigilpanel/shared";
+import type { PTDLv2Egg, PTDLv2Variable, VariableCreate } from "@sigil/shared";
 
 export interface ConversionResult {
   variables: VariableCreate[];

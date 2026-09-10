@@ -92,7 +92,7 @@
 
 ### Step 4: MCP verification (chrome-devtools, acting as real user)
 
-- [X] T030 [US1] Start dev services: `bun dev:services` + `bun --filter @sigilpanel/db db:migrate` + `bun --filter @sigilpanel/api db:seed` + API on :3000
+- [X] T030 [US1] Start dev services: `bun dev:services` + `bun --filter @sigil/db db:migrate` + `bun --filter @sigil/api db:seed` + API on :3000
 - [X] T031 [US1] Generate a pairing token via the panel UI using chrome-devtools MCP — login as admin, navigate to nodes page, generate pairing token, copy token value
 - [X] T032 [US1] Start the daemon with the pairing token against the running panel, verify via MCP that the node appears "online" in the panel UI (navigate to nodes page, check status indicator)
 - [X] T033 [US1] Verify via MCP that heartbeats arrive — observe node detail page updating CPU/memory/disk/container count in real-time via SSE
@@ -120,7 +120,7 @@
 - [X] T039 [US2] Implement server config validation in `apps/daemon/internal/server/validate.go` — validate image non-empty, startup command non-empty, port ranges valid (1-65535), resource limits within bounds, reject unsafe startup commands (no shell injection patterns)
 - [X] T040 [US2] Implement Docker lifecycle operations in `apps/daemon/internal/docker/lifecycle.go` — CreateContainer (with labels, volume bind, port mappings, resource limits, hardening), StartContainer, StopContainer (SIGTERM + timeout → SIGKILL), RestartContainer, RemoveContainer (stop + remove + cleanup)
 - [X] T041 [US2] Implement image pull in `apps/daemon/internal/docker/lifecycle.go` — check if image exists locally (ImageList), pull if missing (ImagePull), return IMAGE_PULL_FAILED error on failure
-- [X] T042 [US2] Implement server manager in `apps/daemon/internal/server/manager.go` — in-memory map of ServerEntry, per-server mutex (serialize ops on same server, parallel on different), add/remove/lookup by UUID, reconcile from Docker on startup (list containers with sigilpanel.server-id label)
+- [X] T042 [US2] Implement server manager in `apps/daemon/internal/server/manager.go` — in-memory map of ServerEntry, per-server mutex (serialize ops on same server, parallel on different), add/remove/lookup by UUID, reconcile from Docker on startup (list containers with sigil.server-id label)
 - [X] T043 [US2] Implement HTTP handlers in `apps/daemon/internal/api/handlers.go` — POST /servers (create), POST /servers/:id/start, POST /servers/:id/stop, POST /servers/:id/restart, DELETE /servers/:id, GET /servers/:id, GET /servers, GET /health
 - [X] T044 [US2] Implement HTTP router in `apps/daemon/internal/api/router.go` — net/http with Go 1.22+ pattern routing, apply auth middleware to all routes except /health, JSON response helpers in `apps/daemon/internal/api/response.go`
 - [X] T045 [US2] Implement disk full check in `apps/daemon/internal/server/manager.go` — refuse new server creation when disk usage exceeds configured threshold, return DISK_FULL error
@@ -139,7 +139,7 @@
 - [X] T052 [US2] Verify via MCP the full lifecycle — stop, start, restart, remove the server through the daemon API, checking state after each operation
 - [X] T053 [US2] Verify via MCP idempotency — start an already-running server (no-op), stop an already-stopped server (no-op)
 - [X] T054 [US2] Verify via MCP error cases — create with invalid config (missing image), create with unsafe startup command, verify error responses
-- [X] T055 [US2] Verify via MCP that `docker ps --filter label=sigilpanel.server-id=<uuid>` shows the container and `docker ps -a` shows it gone after remove
+- [X] T055 [US2] Verify via MCP that `docker ps --filter label=sigil.server-id=<uuid>` shows the container and `docker ps -a` shows it gone after remove
 - [X] T056 [US2] Fix any bugs found during MCP verification
 
 **Checkpoint**: Panel can create, start, stop, restart, and remove game server containers through the daemon. MCP-verified.
@@ -188,15 +188,15 @@
 
 ### Step 1: Unit/Integration Tests (write first, must FAIL)
 
-- [X] T069 [P] [US4] Write Docker event monitor tests in `apps/daemon/internal/docker/monitor_test.go` (build tag: integration) — start event detected, die with exit 0 → stopped, die with non-zero → crashed, oom → crashed (reason: oom), destroy → missing, event filter by sigilpanel.server-id label
+- [X] T069 [P] [US4] Write Docker event monitor tests in `apps/daemon/internal/docker/monitor_test.go` (build tag: integration) — start event detected, die with exit 0 → stopped, die with non-zero → crashed, oom → crashed (reason: oom), destroy → missing, event filter by sigil.server-id label
 - [X] T070 [P] [US4] Write state change queue tests in `apps/daemon/internal/server/queue_test.go` — events queued on panel unreachable, events retried with backoff, events dropped on 4xx, events delivered after panel recovery
 
 ### Step 2: Implementation
 
-- [X] T071 [US4] Implement Docker event monitor in `apps/daemon/internal/docker/monitor.go` — subscribe to Docker Events API with filter `type=container` + `label=sigilpanel.server-id`, map events to ContainerState (start→running, die exit 0→stopped, die non-zero→crashed, oom→crashed, destroy→missing), emit state changes to a channel
+- [X] T071 [US4] Implement Docker event monitor in `apps/daemon/internal/docker/monitor.go` — subscribe to Docker Events API with filter `type=container` + `label=sigil.server-id`, map events to ContainerState (start→running, die exit 0→stopped, die non-zero→crashed, oom→crashed, destroy→missing), emit state changes to a channel
 - [X] T072 [US4] Implement state change event queue in `apps/daemon/internal/server/queue.go` — in-memory queue, retry with exponential backoff (2s, 4s, 8s, 16s, 30s cap), drop on 4xx (auth failure, validation error), retry on 5xx and network errors, log dropped events on shutdown
 - [X] T073 [US4] Implement state change reporting loop in `apps/daemon/internal/server/manager.go` — consume event channel, enqueue to queue, queue worker sends HMAC-signed POST /api/node/server-state to panel
-- [X] T074 [US4] Implement startup reconciliation in `apps/daemon/internal/server/manager.go` — on daemon start, list all containers with sigilpanel.server-id label, inspect each, report current state to panel (previousState: "missing", newState: actual state)
+- [X] T074 [US4] Implement startup reconciliation in `apps/daemon/internal/server/manager.go` — on daemon start, list all containers with sigil.server-id label, inspect each, report current state to panel (previousState: "missing", newState: actual state)
 - [X] T075 [US4] Implement panel callback endpoint for state changes in `apps/api/src/routes/server-state.ts` — POST /api/node/server-state, authenticate with nodeAuthMiddleware, validate StateChangeEventSchema, emit `server.state` SSE event, return 204 (no persistence — servers table is R9)
 - [X] T076 [US4] Implement server state SSE payload in `apps/api/src/services/server-state.service.ts` — receive state change, emit SSE event with ServerStatePayload to connected admin browsers, log state change
 - [X] T077 [US4] Register server-state route in `apps/api/src/index.ts` alongside existing node routes

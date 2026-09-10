@@ -10,11 +10,11 @@ typecheck:
 	bun typecheck
 
 test:
-	bun --filter @sigilpanel/db db:generate
+	bun --filter @sigil/db db:generate
 	bun run test
 
 test-e2e:
-	bun --filter @sigilpanel/db db:generate
+	bun --filter @sigil/db db:generate
 	bun run test:e2e
 
 # Full CI simulation: same 3 jobs as .github/workflows/ci.yml

@@ -1,4 +1,4 @@
-import { PasswordResetRequestSchema } from "@sigilpanel/shared";
+import { PasswordResetRequestSchema } from "@sigil/shared";
 import { useState } from "react";
 
 interface ForgotPasswordFormProps {

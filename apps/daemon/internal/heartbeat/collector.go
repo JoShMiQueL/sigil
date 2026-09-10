@@ -11,7 +11,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/docker"
 )
 
 type ResourceStats struct {
@@ -60,7 +60,7 @@ func (c *Collector) Collect(ctx context.Context) ResourceStats {
 
 func (c *Collector) countContainers(ctx context.Context) (int, error) {
 	filter := filters.NewArgs()
-	filter.Add("label", "sigilpanel.managed=true")
+	filter.Add("label", "sigil.managed=true")
 
 	containers, err := c.dockerClient.Raw().ContainerList(ctx, container.ListOptions{
 		Filters: filter,

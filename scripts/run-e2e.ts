@@ -14,14 +14,14 @@ const MIGRATIONS_FOLDER = join(ROOT, "packages/db/drizzle");
 
 async function main() {
   console.log("[e2e] Building panel for production...");
-  execSync("bun --filter @sigilpanel/panel build", { cwd: ROOT, stdio: "inherit" });
+  execSync("bun --filter @sigil/panel build", { cwd: ROOT, stdio: "inherit" });
   console.log("[e2e] Panel build complete.");
 
   console.log("[e2e] Starting PostgreSQL + Redis testcontainers...");
   const pg = await new PostgreSqlContainer("postgres:18-alpine")
-    .withDatabase("sigilpanel_test")
-    .withUsername("sigilpanel")
-    .withPassword("sigilpanel")
+    .withDatabase("sigil_test")
+    .withUsername("sigil")
+    .withPassword("sigil")
     .start();
 
   const redis = await new RedisContainer("redis:8-alpine").start();
@@ -42,7 +42,7 @@ async function main() {
 
   // Seed admin user
   console.log("[e2e] Seeding admin user...");
-  execSync("bun --filter @sigilpanel/api db:seed", {
+  execSync("bun --filter @sigil/api db:seed", {
     cwd: ROOT,
     stdio: "inherit",
     env: { ...process.env, DATABASE_URL: dbUrl },
@@ -51,7 +51,7 @@ async function main() {
   // Run Playwright with production builds and testcontainers
   // NODE_ENV=development enables the test-cleanup endpoint between tests
   console.log("[e2e] Starting Playwright (production builds)...");
-  const playwright = spawn("bun", ["--filter", "@sigilpanel/panel", "test:e2e"], {
+  const playwright = spawn("bun", ["--filter", "@sigil/panel", "test:e2e"], {
     cwd: ROOT,
     stdio: "inherit",
     env: {

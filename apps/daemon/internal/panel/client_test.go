@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/auth"
-	srvtypes "github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/auth"
+	srvtypes "github.com/sigil/sigil/apps/daemon/internal/docker"
 )
 
 func TestRegisterSuccess(t *testing.T) {

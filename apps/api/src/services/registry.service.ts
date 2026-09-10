@@ -1,11 +1,6 @@
 import { createHash } from "node:crypto";
-import { db, schema } from "@sigilpanel/db";
-import type {
-  Registry,
-  RegistryCreate,
-  RegistryIndexEntry,
-  RegistryUpdate,
-} from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { Registry, RegistryCreate, RegistryIndexEntry, RegistryUpdate } from "@sigil/shared";
 import { eq } from "drizzle-orm";
 import {
   fetchRegistryIndex,

@@ -1,4 +1,4 @@
-import type { ChangelogEntry } from "@sigilpanel/shared";
+import type { ChangelogEntry } from "@sigil/shared";
 
 const CHANGE_TYPE_COLORS: Record<string, string> = {
   added: "green",

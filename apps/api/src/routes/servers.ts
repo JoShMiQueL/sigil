@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { CreateServerRequestSchema } from "@sigilpanel/shared";
+import { CreateServerRequestSchema } from "@sigil/shared";
 import { type Context, Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import { logAudit } from "../services/audit.service";

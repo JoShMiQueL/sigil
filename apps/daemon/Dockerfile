@@ -21,4 +21,4 @@ RUN apk add --no-cache ca-certificates docker-cli
 COPY --from=builder /bin/daemon /usr/local/bin/daemon
 
 ENTRYPOINT ["daemon"]
-CMD ["--config", "/etc/sigilpanel/daemon.yaml"]
+CMD ["--config", "/etc/sigil/daemon.yaml"]

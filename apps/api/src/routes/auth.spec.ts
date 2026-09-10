@@ -163,7 +163,7 @@ describe("auth routes [US3: password reset]", () => {
     const token = await generateResetToken(userId);
 
     // Manually expire the token in the DB
-    const { db, schema } = await import("@sigilpanel/db");
+    const { db, schema } = await import("@sigil/db");
     const { eq } = await import("drizzle-orm");
     await db
       .update(schema.passwordResetTokens)

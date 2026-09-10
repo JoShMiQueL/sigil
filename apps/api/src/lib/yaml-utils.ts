@@ -1,4 +1,4 @@
-import type { Template } from "@sigilpanel/shared";
+import type { Template } from "@sigil/shared";
 
 interface TemplateYAML {
   name: string;

@@ -3,7 +3,7 @@ import { cleanupDatabase } from "./helpers";
 
 async function adminLogin(page: import("@playwright/test").Page): Promise<void> {
   await page.goto("/login");
-  await page.fill('input[type="email"]', "admin@sigilpanel.local");
+  await page.fill('input[type="email"]', "admin@sigil.local");
   await page.fill('input[type="password"]', "admin12345");
   await page.click('button[type="submit"]');
   await page.waitForURL("/");

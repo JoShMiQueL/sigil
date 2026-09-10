@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { SSEEventType } from "@sigilpanel/shared";
+import type { SSEEventType } from "@sigil/shared";
 import Redis from "ioredis";
 
 export type SSESubscriber = {

@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:18-alpine
     environment:
-      POSTGRES_USER: sigilpanel
-      POSTGRES_PASSWORD: sigilpanel
-      POSTGRES_DB: sigilpanel
+      POSTGRES_USER: sigil
+      POSTGRES_PASSWORD: sigil
+      POSTGRES_DB: sigil
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sigilpanel"]
+      test: ["CMD-SHELL", "pg_isready -U sigil"]
       interval: 5s
       timeout: 5s
       retries: 5

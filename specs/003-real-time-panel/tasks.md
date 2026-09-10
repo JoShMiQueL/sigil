@@ -28,7 +28,7 @@
 
 - [X] T001 [P] Create SSE event schemas in `packages/shared/src/sse/events.ts` (SSEEventType enum, SSEEventSchema, event payload schemas per type)
 - [X] T002 [P] Create SSE barrel export in `packages/shared/src/sse/index.ts` and re-export from `packages/shared/src/index.ts`
-- [X] T003 Build shared package to verify schemas compile (`bun --filter @sigilpanel/shared build`)
+- [X] T003 Build shared package to verify schemas compile (`bun --filter @sigil/shared build`)
 
 **Checkpoint**: Shared SSE contracts available to both API and panel.
 

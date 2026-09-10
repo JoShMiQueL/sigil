@@ -4,7 +4,7 @@ const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12;
 
 function getKey(): Buffer {
-  const secret = process.env.APP_SECRET ?? "sigilpanel-dev-secret-change-me";
+  const secret = process.env.APP_SECRET ?? "sigil-dev-secret-change-me";
   // Derive a 32-byte key from the secret using SHA-256
   return createHash("sha256").update(secret).digest();
 }

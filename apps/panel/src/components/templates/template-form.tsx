@@ -1,4 +1,4 @@
-import type { Template, TemplateCreate, VariableCreate } from "@sigilpanel/shared";
+import type { Template, TemplateCreate, VariableCreate } from "@sigil/shared";
 import { useState } from "react";
 import { VariableEditor } from "./variable-editor";
 

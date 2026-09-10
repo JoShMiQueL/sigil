@@ -69,7 +69,7 @@ func TestLifecycleCreateStartStopRestartRemove(t *testing.T) {
 		t.Errorf("expected label %s, got %s", serverID, info.Config.Labels[LabelServerID])
 	}
 	if info.Config.Labels[LabelManaged] != "true" {
-		t.Error("expected sigilpanel.managed=true label")
+		t.Error("expected sigil.managed=true label")
 	}
 
 	// Stop

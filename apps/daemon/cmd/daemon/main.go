@@ -12,18 +12,18 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/api"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/auth"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/config"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/heartbeat"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/logger"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/panel"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/server"
+	"github.com/sigil/sigil/apps/daemon/internal/api"
+	"github.com/sigil/sigil/apps/daemon/internal/auth"
+	"github.com/sigil/sigil/apps/daemon/internal/config"
+	"github.com/sigil/sigil/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/heartbeat"
+	"github.com/sigil/sigil/apps/daemon/internal/logger"
+	"github.com/sigil/sigil/apps/daemon/internal/panel"
+	"github.com/sigil/sigil/apps/daemon/internal/server"
 )
 
 func main() {
-	configPath := flag.String("config", "/etc/sigilpanel/daemon.yaml", "Path to daemon config file")
+	configPath := flag.String("config", "/etc/sigil/daemon.yaml", "Path to daemon config file")
 	flag.Parse()
 
 	// Load config
@@ -35,7 +35,7 @@ func main() {
 
 	// Init logger
 	logger.Init(cfg.LogLevel)
-	slog.Info("starting sigilpanel daemon", "config", *configPath)
+	slog.Info("starting sigil daemon", "config", *configPath)
 
 	// Create context for graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())

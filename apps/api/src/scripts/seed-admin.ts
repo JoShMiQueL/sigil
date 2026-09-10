@@ -1,9 +1,9 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "../lib/argon2";
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL ?? "admin@sigilpanel.local";
+  const email = process.env.ADMIN_EMAIL ?? "admin@sigil.local";
   const password = process.env.ADMIN_PASSWORD ?? "admin12345";
   const username = "admin";
 

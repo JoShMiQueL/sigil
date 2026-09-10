@@ -1,4 +1,4 @@
-import { db } from "@sigilpanel/db";
+import { db } from "@sigil/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { hashPassword, verifyPassword } from "./argon2";

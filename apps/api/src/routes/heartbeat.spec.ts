@@ -111,7 +111,7 @@ describe("heartbeat routes [US3: health monitoring]", () => {
     });
 
     // Manually set lastHeartbeatAt to 2 minutes ago to simulate timeout
-    const { db, schema } = await import("@sigilpanel/db");
+    const { db, schema } = await import("@sigil/db");
     const { eq } = await import("drizzle-orm");
     await db
       .update(schema.nodes)
@@ -129,7 +129,7 @@ describe("heartbeat routes [US3: health monitoring]", () => {
 
   it("T038b: node recovers on new heartbeat after being offline", async () => {
     // Mark node as offline
-    const { db, schema } = await import("@sigilpanel/db");
+    const { db, schema } = await import("@sigil/db");
     const { eq } = await import("drizzle-orm");
     await db
       .update(schema.nodes)

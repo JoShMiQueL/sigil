@@ -132,7 +132,7 @@ List configured registries. Admin-only.
   "registries": [
     {
       "id": "uuid",
-      "url": "https://raw.githubusercontent.com/sigilpanel/templates/main",
+      "url": "https://raw.githubusercontent.com/sigil/templates/main",
       "name": "Official",
       "authMethod": "none",
       "hasCredentials": false,

@@ -1,4 +1,4 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { eq, sql } from "drizzle-orm";
 import { hashPassword } from "../lib/argon2";
 import { computeSignature, generateNodeSecret, generateSecretId } from "../lib/credentials";

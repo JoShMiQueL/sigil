@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { StateChangeEventSchema } from "@sigilpanel/shared";
+import { StateChangeEventSchema } from "@sigil/shared";
 import { Hono } from "hono";
 import { type NodeAuthContext, nodeAuthMiddleware } from "../middleware/node-auth";
 import { emitServerStateEvent } from "../services/server-state.service";

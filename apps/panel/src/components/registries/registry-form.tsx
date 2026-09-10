@@ -1,4 +1,4 @@
-import type { Registry } from "@sigilpanel/shared";
+import type { Registry } from "@sigil/shared";
 import { useState } from "react";
 
 interface RegistryFormProps {

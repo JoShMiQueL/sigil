@@ -1,5 +1,5 @@
 {
-  "name": "@sigilpanel/panel",
+  "name": "@sigil/panel",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,8 +14,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@sigilpanel/shared": "workspace:*",
-    "@sigilpanel/ui": "workspace:*",
+    "@sigil/shared": "workspace:*",
+    "@sigil/ui": "workspace:*",
     "@tanstack/react-query": "^5.99.0",
     "@tanstack/react-router": "^1.170.32",
     "react": "^19.2.8",

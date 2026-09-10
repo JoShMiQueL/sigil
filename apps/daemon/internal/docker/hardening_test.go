@@ -34,7 +34,7 @@ func TestHardeningContainerSecurity(t *testing.T) {
 		ServerID:       serverID,
 		Image:          "alpine:latest",
 		StartupCommand: "sleep infinity",
-		VolumePath:     fmt.Sprintf("/tmp/sigilpanel-harden-%d", time.Now().UnixNano()),
+		VolumePath:     fmt.Sprintf("/tmp/sigil-harden-%d", time.Now().UnixNano()),
 		MemoryMB:       64,
 		CPULimit:       0.5,
 		PidsLimit:      ptrInt(64),

@@ -1,4 +1,4 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { sql } from "drizzle-orm";
 
 export type AuditAction =

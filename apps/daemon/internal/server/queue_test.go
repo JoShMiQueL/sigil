@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/panel"
+	"github.com/sigil/sigil/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/panel"
 )
 
 // mockPanelClient is a mock panel.Client for testing the queue.

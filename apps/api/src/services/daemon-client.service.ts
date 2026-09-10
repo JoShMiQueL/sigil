@@ -1,5 +1,5 @@
-import { db, schema } from "@sigilpanel/db";
-import type { LifecycleResponse, ServerConfiguration, ServerStatus } from "@sigilpanel/shared";
+import { db, schema } from "@sigil/db";
+import type { LifecycleResponse, ServerConfiguration, ServerStatus } from "@sigil/shared";
 import { and, eq, isNull } from "drizzle-orm";
 import { computeSignature } from "../lib/credentials";
 import { decrypt } from "../lib/crypto";

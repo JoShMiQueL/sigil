@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/docker"
-	"github.com/sigilpanel/sigilpanel/apps/daemon/internal/panel"
+	"github.com/sigil/sigil/apps/daemon/internal/docker"
+	"github.com/sigil/sigil/apps/daemon/internal/panel"
 )
 
 type QueuedEvent struct {

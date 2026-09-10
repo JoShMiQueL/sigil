@@ -1,4 +1,4 @@
-import type { ApiKey, ApiKeyScope } from "@sigilpanel/shared";
+import type { ApiKey, ApiKeyScope } from "@sigil/shared";
 import { useState } from "react";
 
 const ALL_SCOPES: ApiKeyScope[] = [

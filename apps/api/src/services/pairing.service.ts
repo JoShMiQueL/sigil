@@ -1,4 +1,4 @@
-import { db, schema } from "@sigilpanel/db";
+import { db, schema } from "@sigil/db";
 import { eq, lt } from "drizzle-orm";
 import { generateNodeSecret, generateSecretId } from "../lib/credentials";
 import { encrypt } from "../lib/crypto";

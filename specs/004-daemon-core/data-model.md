@@ -12,13 +12,13 @@ This spec adds new shared Zod schemas to `packages/shared` (source of truth, Pri
 
 ### daemon.yaml
 
-The daemon's configuration file at `/etc/sigilpanel/daemon.yaml`.
+The daemon's configuration file at `/etc/sigil/daemon.yaml`.
 
 ```yaml
 panel_url: http://panel.example.com:3000
 pairing_token: sigilpair_<base64url>  # only on first run, removed after registration
-credentials_path: /var/lib/sigilpanel/daemon/credentials.json
-volume_base_path: /var/lib/sigilpanel/volumes
+credentials_path: /var/lib/sigil/daemon/credentials.json
+volume_base_path: /var/lib/sigil/volumes
 docker_socket: /var/run/docker.sock
 listen_address: 0.0.0.0:8080
 heartbeat_interval_sec: 30
@@ -34,7 +34,7 @@ log_level: info
 
 ### credentials.json
 
-Stored at `/var/lib/sigilpanel/daemon/credentials.json` with `0600` permissions.
+Stored at `/var/lib/sigil/daemon/credentials.json` with `0600` permissions.
 
 ```json
 {
@@ -195,7 +195,7 @@ This endpoint is registered alongside the existing heartbeat endpoint and uses t
 
 ## In-Memory State (Daemon)
 
-The daemon maintains an in-memory map for per-server locking and quick state lookup. This is NOT persisted — it is rebuilt on startup by listing Docker containers with the `sigilpanel.server-id` label.
+The daemon maintains an in-memory map for per-server locking and quick state lookup. This is NOT persisted — it is rebuilt on startup by listing Docker containers with the `sigil.server-id` label.
 
 ```go
 type ServerManager struct {
@@ -223,9 +223,9 @@ All containers created by the daemon are labeled for identification and filterin
 
 ```json
 {
-  "sigilpanel.server-id": "<server-uuid>",
-  "sigilpanel.node-id": "<node-uuid>",
-  "sigilpanel.managed": "true"
+  "sigil.server-id": "<server-uuid>",
+  "sigil.node-id": "<node-uuid>",
+  "sigil.managed": "true"
 }
 ```
 
