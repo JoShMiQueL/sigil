@@ -20,7 +20,12 @@ export type AuditAction =
   | "node_update"
   | "node_delete"
   | "node_credential_regenerate"
-  | "node_credential_revoke";
+  | "node_credential_revoke"
+  | "server_create"
+  | "server_start"
+  | "server_stop"
+  | "server_restart"
+  | "server_delete";
 
 export async function logAudit(opts: {
   userId?: string;
