@@ -1,4 +1,11 @@
-import type { ApiKey, ApiKeyScope, Template, TemplateUpdate, User, UserCreate } from "@sigilpanel/shared";
+import type {
+  ApiKey,
+  ApiKeyScope,
+  Template,
+  TemplateUpdate,
+  User,
+  UserCreate,
+} from "@sigilpanel/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createRootRoute, createRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
@@ -7,21 +14,23 @@ import { CreateUserForm } from "./components/CreateUserForm";
 import { ErrorState } from "./components/ErrorState";
 import { ForgotPasswordForm } from "./components/ForgotPasswordForm";
 import { GroupForm } from "./components/groups/group-form";
-import { AvailableTemplates } from "./components/registries/available-templates";
-import { RegistryForm } from "./components/registries/registry-form";
-import { ChangelogView } from "./components/templates/changelog-view";
-import { ImportDialog } from "./components/templates/import-dialog";
-import { TemplateForm } from "./components/templates/template-form";
-import { TemplateList } from "./components/templates/template-list";
-import { UpdateNotification, type UpdateNotificationData } from "./components/templates/update-notification";
 import { Layout } from "./components/Layout";
 import { LoadingState } from "./components/LoadingState";
 import { LoginForm } from "./components/LoginForm";
 import { ResetPasswordForm } from "./components/ResetPasswordForm";
+import { AvailableTemplates } from "./components/registries/available-templates";
+import { RegistryForm } from "./components/registries/registry-form";
 import { TotpSetup } from "./components/TotpSetup";
 import { TwoFactorPrompt } from "./components/TwoFactorPrompt";
+import { ChangelogView } from "./components/templates/changelog-view";
+import { ImportDialog } from "./components/templates/import-dialog";
+import { TemplateForm } from "./components/templates/template-form";
+import { TemplateList } from "./components/templates/template-list";
+import {
+  UpdateNotification,
+  type UpdateNotificationData,
+} from "./components/templates/update-notification";
 import { UserTable } from "./components/UserTable";
-import { useAuth } from "./hooks/useAuth";
 import { useCreateGroup, useDeleteGroup, useGroups, useUpdateGroup } from "./hooks/use-groups";
 import {
   useAvailableTemplates,
@@ -33,16 +42,17 @@ import {
 } from "./hooks/use-registries";
 import {
   useActivateTemplate,
+  useApplyUpdate,
   useCreateTemplate,
   useDeactivateTemplate,
   useDeleteTemplate,
-  useImportTemplate,
-  useApplyUpdate,
   useDismissUpdate,
+  useImportTemplate,
   useResetTemplate,
   useTemplates,
   useUpdateTemplate,
 } from "./hooks/use-templates";
+import { useAuth } from "./hooks/useAuth";
 import { useSSE } from "./hooks/useSSE";
 import { NodeDetailPage } from "./routes/node-detail";
 import { NodesPage } from "./routes/nodes";
@@ -713,7 +723,10 @@ function GroupsPage() {
           <tbody>
             {groups.map((group) => (
               <tr key={group.id}>
-                <td>{group.icon ? `${group.icon} ` : ""}{group.name}</td>
+                <td>
+                  {group.icon ? `${group.icon} ` : ""}
+                  {group.name}
+                </td>
                 <td>{group.description ?? "—"}</td>
                 <td>
                   <button type="button" onClick={() => setEditingId(group.id)}>
@@ -813,7 +826,10 @@ function RegistriesPage() {
           <tbody>
             {registries.map((reg) => (
               <tr key={reg.id}>
-                <td>{reg.isOfficial ? "★ " : ""}{reg.name}</td>
+                <td>
+                  {reg.isOfficial ? "★ " : ""}
+                  {reg.name}
+                </td>
                 <td>{reg.url}</td>
                 <td>{reg.authMethod}</td>
                 <td>{reg.status}</td>
@@ -987,7 +1003,10 @@ function TemplatesPage() {
           template={editingTemplate}
           groupId={editingTemplate.groupId}
           onSubmit={async (input) => {
-            const result = await updateMutation.mutateAsync({ id: editingTemplate.id, input: input as TemplateUpdate });
+            const result = await updateMutation.mutateAsync({
+              id: editingTemplate.id,
+              input: input as TemplateUpdate,
+            });
             if (result.error) {
               setError(result.error);
               return result;
@@ -1015,7 +1034,11 @@ function TemplatesPage() {
           <button type="button" onClick={() => setShowCreate(true)}>
             Create Template
           </button>
-          <button type="button" onClick={() => setShowImport(true)} style={{ marginLeft: "0.5rem" }}>
+          <button
+            type="button"
+            onClick={() => setShowImport(true)}
+            style={{ marginLeft: "0.5rem" }}
+          >
             Import Template
           </button>
         </>

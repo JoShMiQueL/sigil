@@ -53,7 +53,12 @@ registries.post("/", zValidator("json", RegistryCreateSchema), async (c) => {
     const cause = err instanceof Error && "cause" in err ? (err.cause as { code?: string }) : err;
     if (cause && typeof cause === "object" && "code" in cause && cause.code === "23505") {
       return c.json(
-        { error: { code: "REGISTRY_NAME_EXISTS", message: "A registry with this name already exists" } },
+        {
+          error: {
+            code: "REGISTRY_NAME_EXISTS",
+            message: "A registry with this name already exists",
+          },
+        },
         409,
       );
     }
@@ -81,7 +86,12 @@ registries.patch("/:id", zValidator("json", RegistryUpdateSchema), async (c) => 
     const cause = err instanceof Error && "cause" in err ? (err.cause as { code?: string }) : err;
     if (cause && typeof cause === "object" && "code" in cause && cause.code === "23505") {
       return c.json(
-        { error: { code: "REGISTRY_NAME_EXISTS", message: "A registry with this name already exists" } },
+        {
+          error: {
+            code: "REGISTRY_NAME_EXISTS",
+            message: "A registry with this name already exists",
+          },
+        },
         409,
       );
     }

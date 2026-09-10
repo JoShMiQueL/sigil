@@ -1,10 +1,11 @@
+import { createHash } from "node:crypto";
 import { db, schema } from "@sigilpanel/db";
 import { count, eq } from "drizzle-orm";
 import { parseTemplateYAML } from "../lib/yaml-utils";
-import { createHash } from "node:crypto";
 
 const OFFICIAL_REGISTRY_URL =
-  process.env.OFFICIAL_REGISTRY_URL ?? "https://raw.githubusercontent.com/sigilpanel/sigilpanel/main/templates";
+  process.env.OFFICIAL_REGISTRY_URL ??
+  "https://raw.githubusercontent.com/sigilpanel/sigilpanel/main/templates";
 
 async function isTemplatesEmpty(): Promise<boolean> {
   const [result] = await db.select({ value: count() }).from(schema.templates);
@@ -51,17 +52,39 @@ async function ensureGroup(groupName: string): Promise<typeof schema.groups.$inf
     .limit(1);
   if (existing) return existing;
 
-  const [row] = await db
-    .insert(schema.groups)
-    .values({ name: groupName })
-    .returning();
+  const [row] = await db.insert(schema.groups).values({ name: groupName }).returning();
   return row;
 }
 
-async function readLocalTemplates(): Promise<Array<{ entry: { id: string; name: string; description?: string; group: string; author?: string; version: string; file: string; sha256: string }; content: string }>> {
+async function readLocalTemplates(): Promise<
+  Array<{
+    entry: {
+      id: string;
+      name: string;
+      description?: string;
+      group: string;
+      author?: string;
+      version: string;
+      file: string;
+      sha256: string;
+    };
+    content: string;
+  }>
+> {
   const indexPath = `${import.meta.dir}/../../../../templates/index.yaml`;
   const indexText = await Bun.file(indexPath).text();
-  const index = Bun.YAML.parse(indexText) as { templates: Array<{ id: string; name: string; description?: string; group: string; author?: string; version: string; file: string; sha256: string }> };
+  const index = Bun.YAML.parse(indexText) as {
+    templates: Array<{
+      id: string;
+      name: string;
+      description?: string;
+      group: string;
+      author?: string;
+      version: string;
+      file: string;
+      sha256: string;
+    }>;
+  };
 
   const results = [];
   for (const entry of index.templates) {
@@ -79,7 +102,19 @@ export async function seedOfficialTemplates(): Promise<void> {
   console.log("[seed] Seeding official templates...");
   const registry = await ensureOfficialRegistry();
 
-  let templates: Array<{ entry: { id: string; name: string; description?: string; group: string; author?: string; version: string; file: string; sha256: string }; content: string }>;
+  let templates: Array<{
+    entry: {
+      id: string;
+      name: string;
+      description?: string;
+      group: string;
+      author?: string;
+      version: string;
+      file: string;
+      sha256: string;
+    };
+    content: string;
+  }>;
   try {
     templates = await readLocalTemplates();
   } catch (err) {

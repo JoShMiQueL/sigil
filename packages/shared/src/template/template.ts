@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { PortMappingSchema, ResourceLimitsSchema } from "../server/config";
-import { VariableSchema } from "./variable";
 import { ChangelogSchema } from "./changelog";
+import { VariableSchema } from "./variable";
 
 export const ResourceLimitsRangeEntrySchema = z.object({
   min: z.number(),
@@ -56,23 +56,25 @@ export const TemplateCreateSchema = z.object({
   resourceLimits: ResourceLimitsSchema,
   resourceLimitsRange: ResourceLimitsRangeSchema.nullable().optional(),
   changelog: ChangelogSchema.default([]),
-  variables: z.array(
-    z.object({
-      name: z.string().min(1).max(100),
-      envVar: z.string().min(1).max(100),
-      dataType: z.enum(["string", "integer", "boolean", "select"]),
-      defaultValue: z.string(),
-      required: z.boolean().default(false),
-      minValue: z.number().int().nullable().optional(),
-      maxValue: z.number().int().nullable().optional(),
-      minLength: z.number().int().nullable().optional(),
-      maxLength: z.number().int().nullable().optional(),
-      regexPattern: z.string().nullable().optional(),
-      allowedValues: z.array(z.string()).nullable().optional(),
-      visibility: z.enum(["hidden", "viewable", "editable"]).default("editable"),
-      sortOrder: z.number().int().default(0),
-    }),
-  ).default([]),
+  variables: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(100),
+        envVar: z.string().min(1).max(100),
+        dataType: z.enum(["string", "integer", "boolean", "select"]),
+        defaultValue: z.string(),
+        required: z.boolean().default(false),
+        minValue: z.number().int().nullable().optional(),
+        maxValue: z.number().int().nullable().optional(),
+        minLength: z.number().int().nullable().optional(),
+        maxLength: z.number().int().nullable().optional(),
+        regexPattern: z.string().nullable().optional(),
+        allowedValues: z.array(z.string()).nullable().optional(),
+        visibility: z.enum(["hidden", "viewable", "editable"]).default("editable"),
+        sortOrder: z.number().int().default(0),
+      }),
+    )
+    .default([]),
 });
 export type TemplateCreate = z.infer<typeof TemplateCreateSchema>;
 

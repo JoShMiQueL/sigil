@@ -1,6 +1,6 @@
+import type { Template } from "@sigilpanel/shared";
 import { describe, expect, it } from "vitest";
 import { parseTemplateYAML, serializeTemplateYAML } from "./yaml-utils";
-import type { Template } from "@sigilpanel/shared";
 
 function makeTemplate(): Template {
   return {
@@ -80,11 +80,12 @@ describe("YAML serialization round-trip [US6]", () => {
 
     expect(parsed.changelog).toBeDefined();
     expect(parsed.changelog).toHaveLength(1);
-    expect(parsed.changelog![0].version).toBe("1.0.0");
-    expect(parsed.changelog![0].date).toBe("2026-09-10");
-    expect(parsed.changelog![0].changes).toHaveLength(1);
-    expect(parsed.changelog![0].changes[0].type).toBe("added");
-    expect(parsed.changelog![0].changes[0].description).toBe("Initial release");
+    const entry = parsed.changelog?.[0];
+    expect(entry?.version).toBe("1.0.0");
+    expect(entry?.date).toBe("2026-09-10");
+    expect(entry?.changes).toHaveLength(1);
+    expect(entry?.changes[0].type).toBe("added");
+    expect(entry?.changes[0].description).toBe("Initial release");
   });
 
   it("preserves variables with validation rules", () => {
@@ -94,14 +95,14 @@ describe("YAML serialization round-trip [US6]", () => {
 
     expect(parsed.variables).toBeDefined();
     expect(parsed.variables).toHaveLength(1);
-    const v = parsed.variables![0];
-    expect(v.name).toBe("Max Players");
-    expect(v.envVar).toBe("MAX_PLAYERS");
-    expect(v.dataType).toBe("integer");
-    expect(v.defaultValue).toBe("20");
-    expect(v.minValue).toBe(1);
-    expect(v.maxValue).toBe(100);
-    expect(v.visibility).toBe("editable");
+    const v = parsed.variables?.[0];
+    expect(v?.name).toBe("Max Players");
+    expect(v?.envVar).toBe("MAX_PLAYERS");
+    expect(v?.dataType).toBe("integer");
+    expect(v?.defaultValue).toBe("20");
+    expect(v?.minValue).toBe(1);
+    expect(v?.maxValue).toBe(100);
+    expect(v?.visibility).toBe("editable");
   });
 
   it("preserves port mappings", () => {
@@ -111,8 +112,9 @@ describe("YAML serialization round-trip [US6]", () => {
 
     expect(parsed.portMappings).toBeDefined();
     expect(parsed.portMappings).toHaveLength(1);
-    expect(parsed.portMappings![0].internalPort).toBe(25565);
-    expect(parsed.portMappings![0].externalPort).toBe(25565);
-    expect(parsed.portMappings![0].protocol).toBe("tcp");
+    const pm = parsed.portMappings?.[0];
+    expect(pm?.internalPort).toBe(25565);
+    expect(pm?.externalPort).toBe(25565);
+    expect(pm?.protocol).toBe("tcp");
   });
 });

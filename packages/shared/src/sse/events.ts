@@ -2,9 +2,9 @@ import { z } from "zod";
 import { UserSchema } from "../auth/user";
 import { NodeSchema } from "../node/node";
 import { RegionWithCountsSchema } from "../node/region";
+import { ChangeSchema } from "../template/changelog";
 import { GroupSchema } from "../template/group";
 import { TemplateSchema } from "../template/template";
-import { ChangeSchema } from "../template/changelog";
 
 export const SSEEventTypeSchema = z.enum([
   "node.update",

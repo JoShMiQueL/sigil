@@ -11,6 +11,10 @@ import { Hono } from "hono";
 const testCleanup = new Hono();
 
 testCleanup.post("/cleanup", async (c) => {
+  await db.delete(schema.variables);
+  await db.delete(schema.templates);
+  await db.delete(schema.groups);
+  await db.delete(schema.registries);
   await db.delete(schema.nodeCredentials);
   await db.delete(schema.pairingTokens);
   await db.delete(schema.nodes);

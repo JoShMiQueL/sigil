@@ -3,7 +3,13 @@ import { GroupCreateSchema, GroupUpdateSchema } from "@sigilpanel/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import { logAudit } from "../services/audit.service";
-import { createGroup, deleteGroup, getGroupById, listGroups, updateGroup } from "../services/group.service";
+import {
+  createGroup,
+  deleteGroup,
+  getGroupById,
+  listGroups,
+  updateGroup,
+} from "../services/group.service";
 
 const groups = new Hono<AuthContext>();
 

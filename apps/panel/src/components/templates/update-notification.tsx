@@ -45,8 +45,11 @@ export function UpdateNotification({ notifications, onApply, onDismiss }: Update
           </h3>
           {n.changes.length > 0 && (
             <ul style={{ listStyle: "none", padding: 0, margin: "0 0 0.5rem 0" }}>
-              {n.changes.map((change, idx) => (
-                <li key={idx} style={{ marginBottom: "0.25rem" }}>
+              {n.changes.map((change) => (
+                <li
+                  key={`${change.type}-${change.description}`}
+                  style={{ marginBottom: "0.25rem" }}
+                >
                   <span
                     style={{
                       color: CHANGE_TYPE_COLORS[change.type] ?? "black",

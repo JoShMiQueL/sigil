@@ -1,9 +1,13 @@
-import { useState } from "react";
 import type { Group } from "@sigilpanel/shared";
+import { useState } from "react";
 
 interface GroupFormProps {
   group?: Group | null;
-  onSubmit: (input: { name: string; description?: string | null; icon?: string | null }) => Promise<{ error?: string }>;
+  onSubmit: (input: {
+    name: string;
+    description?: string | null;
+    icon?: string | null;
+  }) => Promise<{ error?: string }>;
   onCancel?: () => void;
 }
 

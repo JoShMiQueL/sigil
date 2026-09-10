@@ -1,6 +1,6 @@
+import type { PTDLv2Egg, PTDLv2Variable } from "@sigilpanel/shared";
 import { describe, expect, it } from "vitest";
 import { convertPTDLv2Variable, getSkippedFields, parseRules } from "./ptdlv2-converter";
-import type { PTDLv2Egg, PTDLv2Variable } from "@sigilpanel/shared";
 
 function makeVar(overrides: Partial<PTDLv2Variable> = {}): PTDLv2Variable {
   return {
@@ -46,7 +46,11 @@ describe("PTDL_v2 rules parser [US5]", () => {
 describe("PTDL_v2 variable conversion [US5]", () => {
   it("converts integer variable with min/max", () => {
     const result = convertPTDLv2Variable(
-      makeVar({ rules: "required|integer|min:1|max:100", default_value: "20", field_type: "number" }),
+      makeVar({
+        rules: "required|integer|min:1|max:100",
+        default_value: "20",
+        field_type: "number",
+      }),
     );
     expect(result.dataType).toBe("integer");
     expect(result.required).toBe(true);
@@ -72,7 +76,11 @@ describe("PTDL_v2 variable conversion [US5]", () => {
 
   it("converts string variable with regex", () => {
     const result = convertPTDLv2Variable(
-      makeVar({ rules: "required|string|regex:/^[a-z]+$/", default_value: "abc", field_type: "text" }),
+      makeVar({
+        rules: "required|string|regex:/^[a-z]+$/",
+        default_value: "abc",
+        field_type: "text",
+      }),
     );
     expect(result.dataType).toBe("string");
     expect(result.regexPattern).toBe("^[a-z]+$");

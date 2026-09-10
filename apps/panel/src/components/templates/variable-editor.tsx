@@ -1,5 +1,5 @@
-import { useState } from "react";
 import type { VariableCreate } from "@sigilpanel/shared";
+import { useState } from "react";
 
 interface VariableEditorProps {
   variables: VariableCreate[];
@@ -19,7 +19,7 @@ function emptyVariable(sortOrder: number): VariableCreate {
 }
 
 export function VariableEditor({ variables, onChange }: VariableEditorProps) {
-  const [error, setError] = useState<string | null>(null);
+  const [error, _setError] = useState<string | null>(null);
 
   const addVariable = () => {
     onChange([...variables, emptyVariable(variables.length)]);
@@ -53,7 +53,10 @@ export function VariableEditor({ variables, onChange }: VariableEditorProps) {
       {error && <div style={{ color: "red", marginBottom: "0.5rem" }}>{error}</div>}
       {variables.length === 0 && <p>No variables defined.</p>}
       {variables.map((v, i) => (
-        <div key={i} style={{ marginBottom: "0.5rem", padding: "0.5rem", border: "1px solid #ddd" }}>
+        <div
+          key={`${v.envVar}-${v.sortOrder}`}
+          style={{ marginBottom: "0.5rem", padding: "0.5rem", border: "1px solid #ddd" }}
+        >
           <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.25rem" }}>
             <input
               type="text"
@@ -71,7 +74,9 @@ export function VariableEditor({ variables, onChange }: VariableEditorProps) {
             />
             <select
               value={v.dataType}
-              onChange={(e) => updateVariable(i, { dataType: e.target.value as VariableCreate["dataType"] })}
+              onChange={(e) =>
+                updateVariable(i, { dataType: e.target.value as VariableCreate["dataType"] })
+              }
             >
               <option value="string">String</option>
               <option value="integer">Integer</option>
@@ -80,7 +85,9 @@ export function VariableEditor({ variables, onChange }: VariableEditorProps) {
             </select>
             <select
               value={v.visibility}
-              onChange={(e) => updateVariable(i, { visibility: e.target.value as VariableCreate["visibility"] })}
+              onChange={(e) =>
+                updateVariable(i, { visibility: e.target.value as VariableCreate["visibility"] })
+              }
             >
               <option value="editable">Editable</option>
               <option value="viewable">Viewable</option>
@@ -110,14 +117,18 @@ export function VariableEditor({ variables, onChange }: VariableEditorProps) {
                 type="number"
                 placeholder="Min"
                 value={v.minValue ?? ""}
-                onChange={(e) => updateVariable(i, { minValue: e.target.value ? Number(e.target.value) : null })}
+                onChange={(e) =>
+                  updateVariable(i, { minValue: e.target.value ? Number(e.target.value) : null })
+                }
                 style={{ width: "80px" }}
               />
               <input
                 type="number"
                 placeholder="Max"
                 value={v.maxValue ?? ""}
-                onChange={(e) => updateVariable(i, { maxValue: e.target.value ? Number(e.target.value) : null })}
+                onChange={(e) =>
+                  updateVariable(i, { maxValue: e.target.value ? Number(e.target.value) : null })
+                }
                 style={{ width: "80px" }}
               />
             </div>
@@ -128,14 +139,18 @@ export function VariableEditor({ variables, onChange }: VariableEditorProps) {
                 type="number"
                 placeholder="Min Length"
                 value={v.minLength ?? ""}
-                onChange={(e) => updateVariable(i, { minLength: e.target.value ? Number(e.target.value) : null })}
+                onChange={(e) =>
+                  updateVariable(i, { minLength: e.target.value ? Number(e.target.value) : null })
+                }
                 style={{ width: "80px" }}
               />
               <input
                 type="number"
                 placeholder="Max Length"
                 value={v.maxLength ?? ""}
-                onChange={(e) => updateVariable(i, { maxLength: e.target.value ? Number(e.target.value) : null })}
+                onChange={(e) =>
+                  updateVariable(i, { maxLength: e.target.value ? Number(e.target.value) : null })
+                }
                 style={{ width: "80px" }}
               />
               <input

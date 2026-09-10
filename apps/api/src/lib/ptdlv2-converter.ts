@@ -1,5 +1,4 @@
-import type { PTDLv2Egg, PTDLv2Variable } from "@sigilpanel/shared";
-import type { VariableCreate } from "@sigilpanel/shared";
+import type { PTDLv2Egg, PTDLv2Variable, VariableCreate } from "@sigilpanel/shared";
 
 export interface ConversionResult {
   variables: VariableCreate[];
@@ -21,10 +20,10 @@ export function convertPTDLv2Variable(v: PTDLv2Variable): VariableCreate {
     dataType,
     defaultValue: v.default_value,
     required: rules.required,
-    minValue: dataType === "integer" ? rules.min ?? null : null,
-    maxValue: dataType === "integer" ? rules.max ?? null : null,
-    minLength: dataType === "string" ? rules.min ?? null : null,
-    maxLength: dataType === "string" ? rules.max ?? null : null,
+    minValue: dataType === "integer" ? (rules.min ?? null) : null,
+    maxValue: dataType === "integer" ? (rules.max ?? null) : null,
+    minLength: dataType === "string" ? (rules.min ?? null) : null,
+    maxLength: dataType === "string" ? (rules.max ?? null) : null,
     regexPattern: rules.regex ?? null,
     allowedValues: rules.in ?? null,
     visibility,
@@ -60,14 +59,20 @@ export function parseRules(rulesString: string): ParsedRules {
     } else if (rule.startsWith("regex:")) {
       result.regex = rule.slice(6).replace(/^\/|\/$/g, "");
     } else if (rule.startsWith("in:")) {
-      result.in = rule.slice(3).split(",").map((s) => s.trim());
+      result.in = rule
+        .slice(3)
+        .split(",")
+        .map((s) => s.trim());
     }
   }
 
   return result;
 }
 
-function inferDataType(v: PTDLv2Variable, rules: ParsedRules): "string" | "integer" | "boolean" | "select" {
+function inferDataType(
+  v: PTDLv2Variable,
+  rules: ParsedRules,
+): "string" | "integer" | "boolean" | "select" {
   if (rules.in) return "select";
   if (v.field_type === "number" || v.field_type === "integer") return "integer";
   if (v.field_type === "checkbox" || v.field_type === "boolean") return "boolean";
@@ -75,7 +80,10 @@ function inferDataType(v: PTDLv2Variable, rules: ParsedRules): "string" | "integ
   return "string";
 }
 
-function inferVisibility(userViewable: boolean, userEditable: boolean): "hidden" | "viewable" | "editable" {
+function inferVisibility(
+  userViewable: boolean,
+  userEditable: boolean,
+): "hidden" | "viewable" | "editable" {
   if (!userViewable) return "hidden";
   if (!userEditable) return "viewable";
   return "editable";

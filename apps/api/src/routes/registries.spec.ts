@@ -9,7 +9,13 @@ vi.mock("../middleware/rate-limit", () => ({
 }));
 
 import { app } from "../index";
-import { apiRequest, cleanupDatabase, createAdmin, loginAndGetCookie, parseJson } from "../test/helpers";
+import {
+  apiRequest,
+  cleanupDatabase,
+  createAdmin,
+  loginAndGetCookie,
+  parseJson,
+} from "../test/helpers";
 
 describe("registries routes [US2: registry management]", () => {
   let adminCookie: string | null;

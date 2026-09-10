@@ -6,7 +6,11 @@ interface AvailableTemplatesProps {
   installingId?: string | null;
 }
 
-export function AvailableTemplates({ templates, onInstall, installingId }: AvailableTemplatesProps) {
+export function AvailableTemplates({
+  templates,
+  onInstall,
+  installingId,
+}: AvailableTemplatesProps) {
   if (templates.length === 0) {
     return <p>No new templates available from this registry.</p>;
   }

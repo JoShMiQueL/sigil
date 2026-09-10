@@ -58,11 +58,19 @@ export function TemplateList({
                 Edit
               </button>
               {t.registryId && (
-                <button type="button" onClick={() => onReset(t.id)} style={{ marginLeft: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => onReset(t.id)}
+                  style={{ marginLeft: "0.5rem" }}
+                >
                   Reset
                 </button>
               )}
-              <button type="button" onClick={() => onViewChangelog(t)} style={{ marginLeft: "0.5rem" }}>
+              <button
+                type="button"
+                onClick={() => onViewChangelog(t)}
+                style={{ marginLeft: "0.5rem" }}
+              >
                 Changelog
               </button>
               <ExportButton templateId={t.id} templateName={t.name} />

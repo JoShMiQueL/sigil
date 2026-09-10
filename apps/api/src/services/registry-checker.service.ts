@@ -1,8 +1,13 @@
+import { createHash } from "node:crypto";
 import { db, schema } from "@sigilpanel/db";
 import type { ChangelogEntry } from "@sigilpanel/shared";
-import { eq, isNotNull } from "drizzle-orm";
-import { createHash } from "node:crypto";
-import { fetchRegistryIndex, fetchTemplateFile, RegistryAuthError, RegistryFetchError, type RegistryCredentials } from "../lib/registry-fetch";
+import { eq } from "drizzle-orm";
+import {
+  fetchRegistryIndex,
+  fetchTemplateFile,
+  RegistryAuthError,
+  type RegistryCredentials,
+} from "../lib/registry-fetch";
 import { parseTemplateYAML } from "../lib/yaml-utils";
 import { emit } from "./sse.service";
 
@@ -40,7 +45,9 @@ export async function checkAllRegistries(): Promise<UpdateDetection[]> {
   return allDetections;
 }
 
-async function checkRegistry(registry: typeof schema.registries.$inferSelect): Promise<UpdateDetection[]> {
+async function checkRegistry(
+  registry: typeof schema.registries.$inferSelect,
+): Promise<UpdateDetection[]> {
   const credentials: RegistryCredentials = {
     url: registry.url,
     authMethod: registry.authMethod as "none" | "token" | "basic",
@@ -117,7 +124,8 @@ export async function applyUpdate(templateId: string): Promise<{ ok: true } | { 
     .limit(1);
 
   if (!template) return { error: "Template not found" };
-  if (!template.registryId || !template.sourceId) return { error: "Template is not from a registry" };
+  if (!template.registryId || !template.sourceId)
+    return { error: "Template is not from a registry" };
 
   const [registry] = await db
     .select()

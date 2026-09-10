@@ -2,11 +2,14 @@ import { useState } from "react";
 
 interface ImportDialogProps {
   groupId: string;
-  onImport: (file: File, conflict: "overwrite" | "skip") => Promise<{ error?: string; skippedFields?: string[]; conflict?: string }>;
+  onImport: (
+    file: File,
+    conflict: "overwrite" | "skip",
+  ) => Promise<{ error?: string; skippedFields?: string[]; conflict?: string }>;
   onClose: () => void;
 }
 
-export function ImportDialog({ groupId, onImport, onClose }: ImportDialogProps) {
+export function ImportDialog({ onImport, onClose }: ImportDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [conflict, setConflict] = useState<"overwrite" | "skip">("skip");
   const [error, setError] = useState<string | null>(null);

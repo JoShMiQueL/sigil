@@ -1,5 +1,5 @@
-import { useState } from "react";
 import type { Registry } from "@sigilpanel/shared";
+import { useState } from "react";
 
 interface RegistryFormProps {
   registry?: Registry | null;
@@ -17,7 +17,9 @@ interface RegistryFormProps {
 export function RegistryForm({ registry, onSubmit, onCancel }: RegistryFormProps) {
   const [url, setUrl] = useState(registry?.url ?? "");
   const [name, setName] = useState(registry?.name ?? "");
-  const [authMethod, setAuthMethod] = useState<"none" | "token" | "basic">(registry?.authMethod ?? "none");
+  const [authMethod, setAuthMethod] = useState<"none" | "token" | "basic">(
+    registry?.authMethod ?? "none",
+  );
   const [token, setToken] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

@@ -10,7 +10,13 @@ vi.mock("../middleware/rate-limit", () => ({
 
 import { db, schema } from "@sigilpanel/db";
 import { app } from "../index";
-import { apiRequest, cleanupDatabase, createAdmin, loginAndGetCookie, parseJson } from "../test/helpers";
+import {
+  apiRequest,
+  cleanupDatabase,
+  createAdmin,
+  loginAndGetCookie,
+  parseJson,
+} from "../test/helpers";
 
 describe("groups routes [US1: template group management]", () => {
   let adminCookie: string | null;

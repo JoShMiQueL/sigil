@@ -3,6 +3,7 @@ import { TemplateCreateSchema, TemplateUpdateSchema } from "@sigilpanel/shared";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
 import { logAudit } from "../services/audit.service";
+import { applyUpdate } from "../services/registry-checker.service";
 import {
   activateTemplate,
   createTemplate,
@@ -13,10 +14,9 @@ import {
   resetToUpstream,
   updateTemplate,
 } from "../services/template.service";
-import { VariableValidationError } from "../services/variable-validation";
-import { importTemplateFile, ImportValidationError } from "../services/template-import.service";
 import { exportTemplate } from "../services/template-export.service";
-import { applyUpdate } from "../services/registry-checker.service";
+import { ImportValidationError, importTemplateFile } from "../services/template-import.service";
+import { VariableValidationError } from "../services/variable-validation";
 
 const templates = new Hono<AuthContext>();
 
@@ -80,12 +80,20 @@ templates.post("/", zValidator("json", TemplateCreateSchema), async (c) => {
     return c.json(template, 201);
   } catch (err) {
     if (err instanceof VariableValidationError) {
-      return c.json({ error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } }, 400);
+      return c.json(
+        { error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } },
+        400,
+      );
     }
     const cause = err instanceof Error && "cause" in err ? (err.cause as { code?: string }) : err;
     if (cause && typeof cause === "object" && "code" in cause && cause.code === "23505") {
       return c.json(
-        { error: { code: "TEMPLATE_NAME_EXISTS", message: "A template with this name already exists in this group" } },
+        {
+          error: {
+            code: "TEMPLATE_NAME_EXISTS",
+            message: "A template with this name already exists in this group",
+          },
+        },
         409,
       );
     }
@@ -111,12 +119,20 @@ templates.patch("/:id", zValidator("json", TemplateUpdateSchema), async (c) => {
     return c.json(template);
   } catch (err) {
     if (err instanceof VariableValidationError) {
-      return c.json({ error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } }, 400);
+      return c.json(
+        { error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } },
+        400,
+      );
     }
     const cause = err instanceof Error && "cause" in err ? (err.cause as { code?: string }) : err;
     if (cause && typeof cause === "object" && "code" in cause && cause.code === "23505") {
       return c.json(
-        { error: { code: "TEMPLATE_NAME_EXISTS", message: "A template with this name already exists in this group" } },
+        {
+          error: {
+            code: "TEMPLATE_NAME_EXISTS",
+            message: "A template with this name already exists in this group",
+          },
+        },
         409,
       );
     }
@@ -183,7 +199,6 @@ templates.post("/:id/apply-update", async (c) => {
 });
 
 templates.post("/:id/dismiss-update", async (c) => {
-  const id = c.req.param("id");
   // Dismiss is a no-op in R8 — the notification is ephemeral via SSE.
   // No persistent storage of "dismissed" state is needed since the
   // checker will re-emit on the next cycle if the hash still differs.
@@ -217,7 +232,10 @@ templates.post("/import", async (c) => {
       return c.json({ error: err.message }, 400);
     }
     if (err instanceof VariableValidationError) {
-      return c.json({ error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } }, 400);
+      return c.json(
+        { error: { code: "VARIABLE_VALIDATION", message: err.message, field: err.field } },
+        400,
+      );
     }
     throw err;
   }

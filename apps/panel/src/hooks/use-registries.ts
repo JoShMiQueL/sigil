@@ -1,4 +1,4 @@
-import type { Registry, RegistryCreate, RegistryIndexEntry, RegistryUpdate } from "@sigilpanel/shared";
+import type { Registry, RegistryCreate, RegistryIndexEntry } from "@sigilpanel/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";

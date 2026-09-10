@@ -1,15 +1,19 @@
+import { createHash } from "node:crypto";
 import { db, schema } from "@sigilpanel/db";
 import type { Template, TemplateCreate, TemplateUpdate } from "@sigilpanel/shared";
-import { count, eq } from "drizzle-orm";
-import { emit } from "./sse.service";
-import { fetchRegistryIndex, fetchTemplateFile, type RegistryCredentials } from "../lib/registry-fetch";
+import { eq } from "drizzle-orm";
+import {
+  fetchRegistryIndex,
+  fetchTemplateFile,
+  type RegistryCredentials,
+} from "../lib/registry-fetch";
 import { parseTemplateYAML } from "../lib/yaml-utils";
-import { createHash } from "node:crypto";
-import { validateVariables, VariableValidationError } from "./variable-validation";
+import { emit } from "./sse.service";
+import { validateVariables } from "./variable-validation";
 
 function toTemplate(
   row: typeof schema.templates.$inferSelect,
-  vars: typeof schema.variables.$inferSelect[],
+  vars: (typeof schema.variables.$inferSelect)[],
 ): Template {
   return {
     id: row.id,
@@ -55,8 +59,14 @@ function toTemplate(
   };
 }
 
-async function getTemplateVariables(templateId: string): Promise<typeof schema.variables.$inferSelect[]> {
-  return db.select().from(schema.variables).where(eq(schema.variables.templateId, templateId)).orderBy(schema.variables.sortOrder);
+async function getTemplateVariables(
+  templateId: string,
+): Promise<(typeof schema.variables.$inferSelect)[]> {
+  return db
+    .select()
+    .from(schema.variables)
+    .where(eq(schema.variables.templateId, templateId))
+    .orderBy(schema.variables.sortOrder);
 }
 
 export async function createTemplate(input: TemplateCreate): Promise<Template> {
@@ -112,8 +122,12 @@ export async function createTemplate(input: TemplateCreate): Promise<Template> {
   return template;
 }
 
-export async function listTemplates(opts: { groupId?: string; activeOnly?: boolean; role?: "admin" | "user" }): Promise<Template[]> {
-  const conditions = [];
+export async function listTemplates(opts: {
+  groupId?: string;
+  activeOnly?: boolean;
+  role?: "admin" | "user";
+}): Promise<Template[]> {
+  const _conditions = [];
   if (opts.groupId) {
     const rows = await db
       .select()
@@ -140,7 +154,11 @@ export async function listTemplates(opts: { groupId?: string; activeOnly?: boole
 }
 
 export async function getTemplateById(id: string): Promise<Template | null> {
-  const [row] = await db.select().from(schema.templates).where(eq(schema.templates.id, id)).limit(1);
+  const [row] = await db
+    .select()
+    .from(schema.templates)
+    .where(eq(schema.templates.id, id))
+    .limit(1);
   if (!row) return null;
   const vars = await getTemplateVariables(row.id);
   return toTemplate(row, vars);
@@ -158,10 +176,15 @@ export async function updateTemplate(id: string, input: TemplateUpdate): Promise
   if (input.environment !== undefined) updates.environment = input.environment;
   if (input.portMappings !== undefined) updates.portMappings = input.portMappings;
   if (input.resourceLimits !== undefined) updates.resourceLimits = input.resourceLimits;
-  if (input.resourceLimitsRange !== undefined) updates.resourceLimitsRange = input.resourceLimitsRange ?? null;
+  if (input.resourceLimitsRange !== undefined)
+    updates.resourceLimitsRange = input.resourceLimitsRange ?? null;
   if (input.changelog !== undefined) updates.changelog = input.changelog;
 
-  const [existing] = await db.select().from(schema.templates).where(eq(schema.templates.id, id)).limit(1);
+  const [existing] = await db
+    .select()
+    .from(schema.templates)
+    .where(eq(schema.templates.id, id))
+    .limit(1);
   if (!existing) return null;
 
   if (existing.registryId) {
@@ -248,8 +271,12 @@ export async function deactivateTemplate(id: string): Promise<Template | null> {
 }
 
 export async function resetToUpstream(id: string): Promise<Template | null> {
-  const [row] = await db.select().from(schema.templates).where(eq(schema.templates.id, id)).limit(1);
-  if (!row || !row.registryId || !row.sourceId) return null;
+  const [row] = await db
+    .select()
+    .from(schema.templates)
+    .where(eq(schema.templates.id, id))
+    .limit(1);
+  if (!row?.registryId || !row.sourceId) return null;
 
   const [registry] = await db
     .select()

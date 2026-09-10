@@ -1,9 +1,19 @@
-import { db, schema } from "@sigilpanel/db";
-import type { Registry, RegistryCreate, RegistryIndex, RegistryIndexEntry, RegistryUpdate } from "@sigilpanel/shared";
-import { count, eq } from "drizzle-orm";
-import { fetchRegistryIndex, fetchTemplateFile, RegistryAuthError, RegistryFetchError, type RegistryCredentials } from "../lib/registry-fetch";
-import { parseTemplateYAML } from "../lib/yaml-utils";
 import { createHash } from "node:crypto";
+import { db, schema } from "@sigilpanel/db";
+import type {
+  Registry,
+  RegistryCreate,
+  RegistryIndexEntry,
+  RegistryUpdate,
+} from "@sigilpanel/shared";
+import { eq } from "drizzle-orm";
+import {
+  fetchRegistryIndex,
+  fetchTemplateFile,
+  RegistryAuthError,
+  type RegistryCredentials,
+} from "../lib/registry-fetch";
+import { parseTemplateYAML } from "../lib/yaml-utils";
 import { emit } from "./sse.service";
 
 function toRegistry(row: typeof schema.registries.$inferSelect): Registry {
@@ -55,7 +65,11 @@ export async function listRegistries(): Promise<Registry[]> {
 }
 
 export async function getRegistryById(id: string): Promise<Registry | null> {
-  const [row] = await db.select().from(schema.registries).where(eq(schema.registries.id, id)).limit(1);
+  const [row] = await db
+    .select()
+    .from(schema.registries)
+    .where(eq(schema.registries.id, id))
+    .limit(1);
   return row ? toRegistry(row) : null;
 }
 
@@ -95,8 +109,14 @@ export async function deleteRegistry(id: string): Promise<{ ok: true } | { error
   return { ok: true };
 }
 
-export async function checkRegistry(id: string): Promise<{ status: Registry["status"]; availableCount: number }> {
-  const [row] = await db.select().from(schema.registries).where(eq(schema.registries.id, id)).limit(1);
+export async function checkRegistry(
+  id: string,
+): Promise<{ status: Registry["status"]; availableCount: number }> {
+  const [row] = await db
+    .select()
+    .from(schema.registries)
+    .where(eq(schema.registries.id, id))
+    .limit(1);
   if (!row) return { status: "unknown", availableCount: 0 };
 
   const credentials = toCredentials(row);
@@ -123,7 +143,11 @@ export async function checkRegistry(id: string): Promise<{ status: Registry["sta
 }
 
 export async function getAvailableTemplates(id: string): Promise<RegistryIndexEntry[]> {
-  const [row] = await db.select().from(schema.registries).where(eq(schema.registries.id, id)).limit(1);
+  const [row] = await db
+    .select()
+    .from(schema.registries)
+    .where(eq(schema.registries.id, id))
+    .limit(1);
   if (!row) return [];
 
   const credentials = toCredentials(row);
@@ -137,7 +161,11 @@ export async function installTemplate(
   registryId: string,
   sourceId: string,
 ): Promise<{ ok: true } | { error: string }> {
-  const [row] = await db.select().from(schema.registries).where(eq(schema.registries.id, registryId)).limit(1);
+  const [row] = await db
+    .select()
+    .from(schema.registries)
+    .where(eq(schema.registries.id, registryId))
+    .limit(1);
   if (!row) return { error: "Registry not found" };
 
   const credentials = toCredentials(row);
@@ -156,10 +184,7 @@ export async function installTemplate(
     .limit(1);
 
   if (group.length === 0) {
-    const [newGroup] = await db
-      .insert(schema.groups)
-      .values({ name: entry.group })
-      .returning();
+    const [newGroup] = await db.insert(schema.groups).values({ name: entry.group }).returning();
     group = [newGroup];
   }
 

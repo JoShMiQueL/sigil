@@ -1,4 +1,3 @@
-import { db, schema } from "@sigilpanel/db";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../middleware/rate-limit", () => ({
@@ -10,7 +9,13 @@ vi.mock("../middleware/rate-limit", () => ({
 }));
 
 import { app } from "../index";
-import { apiRequest, cleanupDatabase, createAdmin, loginAndGetCookie, parseJson } from "../test/helpers";
+import {
+  apiRequest,
+  cleanupDatabase,
+  createAdmin,
+  loginAndGetCookie,
+  parseJson,
+} from "../test/helpers";
 
 async function createGroup(cookie: string | null, name: string): Promise<string> {
   const res = await apiRequest(app, "/api/admin/groups", {
@@ -22,7 +27,11 @@ async function createGroup(cookie: string | null, name: string): Promise<string>
   return body.id;
 }
 
-async function createTemplate(cookie: string | null, groupId: string, name: string): Promise<string> {
+async function createTemplate(
+  cookie: string | null,
+  groupId: string,
+  name: string,
+): Promise<string> {
   const res = await apiRequest(app, "/api/admin/templates", {
     method: "POST",
     cookie: cookie,
@@ -138,7 +147,9 @@ describe("templates routes [US3: template lifecycle]", () => {
     const group2Id = await createGroup(adminCookie, "Rust");
     await createTemplate(adminCookie, group2Id, "Rust Server");
 
-    const res = await apiRequest(app, `/api/admin/templates?groupId=${groupId}`, { cookie: adminCookie });
+    const res = await apiRequest(app, `/api/admin/templates?groupId=${groupId}`, {
+      cookie: adminCookie,
+    });
 
     expect(res.status).toBe(200);
     const body = await parseJson(res);
@@ -165,7 +176,13 @@ describe("templates routes [US3: template lifecycle]", () => {
   it("rejects non-admin mutations", async () => {
     const res = await apiRequest(app, "/api/admin/templates", {
       method: "POST",
-      body: { groupId, name: "Test", image: "test", startupCommand: "test", resourceLimits: { memoryMb: 1, cpuLimit: 0.1 } },
+      body: {
+        groupId,
+        name: "Test",
+        image: "test",
+        startupCommand: "test",
+        resourceLimits: { memoryMb: 1, cpuLimit: 0.1 },
+      },
     });
     expect(res.status).toBe(403);
   });

@@ -9,7 +9,12 @@ interface TemplateYAML {
   startupCommand: string;
   stopSignal?: string;
   environment?: Record<string, string>;
-  portMappings?: Array<{ name: string; protocol: string; internalPort: number; externalPort: number }>;
+  portMappings?: Array<{
+    name: string;
+    protocol: string;
+    internalPort: number;
+    externalPort: number;
+  }>;
   resourceLimits: { memoryMb: number; cpuLimit: number; pidsLimit?: number };
   resourceLimitsRange?: {
     memoryMb?: { min: number; max: number; recommended: number };

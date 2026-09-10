@@ -140,7 +140,15 @@ export function useResetTemplate() {
 export function useImportTemplate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ file, groupId, conflict }: { file: File; groupId: string; conflict: "overwrite" | "skip" }) => {
+    mutationFn: async ({
+      file,
+      groupId,
+      conflict,
+    }: {
+      file: File;
+      groupId: string;
+      conflict: "overwrite" | "skip";
+    }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("groupId", groupId);

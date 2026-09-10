@@ -1,5 +1,5 @@
-import { PTDLv2EggSchema } from "@sigilpanel/shared";
 import type { PTDLv2Egg, TemplateCreate, VariableCreate } from "@sigilpanel/shared";
+import { PTDLv2EggSchema } from "@sigilpanel/shared";
 import { convertPTDLv2Variables, getSkippedFields } from "../lib/ptdlv2-converter";
 import { parseTemplateYAML } from "../lib/yaml-utils";
 import { createTemplate, updateTemplate } from "./template.service";
