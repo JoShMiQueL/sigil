@@ -82,7 +82,7 @@ Infrastructure that spans all specs, not tied to a single roadmap entry:
 |-------|--------|-------------------|
 | CI (GitHub Actions) | done | `.github/workflows/ci.yml`, `Makefile`, `AGENTS.md` |
 | Test isolation (E2E cleanup, test/prod guards) | done | `AGENTS.md`, `.specify/memory/constitution.md` § IV |
-| pnpm 11 + Turborepo monorepo | done | `pnpm-workspace.yaml`, `turbo.json`, `AGENTS.md` |
+| Bun 1.4 workspaces monorepo | done | `bun.lock`, `AGENTS.md` |
 | PostgreSQL + Redis dev services | done | `infra/docker/docker-compose.dev.yml`, `AGENTS.md` |
 
 When updating CI or test infrastructure, update `AGENTS.md` (commands) and `constitution.md` (principles) in the same commit. Specs reference these, they don't duplicate them.

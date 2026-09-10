@@ -1,21 +1,21 @@
 .PHONY: install check typecheck test test-e2e ci e2e-services-up e2e-services-down
 
 install:
-	pnpm install --frozen-lockfile
+	bun install
 
 check:
-	pnpm check
+	bun check
 
 typecheck:
-	pnpm typecheck
+	bun typecheck
 
 test:
-	pnpm --filter @sigilpanel/db db:generate
-	pnpm test
+	bun --filter @sigilpanel/db db:generate
+	bun run test
 
 test-e2e:
-	pnpm --filter @sigilpanel/db db:generate
-	pnpm test:e2e
+	bun --filter @sigilpanel/db db:generate
+	bun run test:e2e
 
 # Full CI simulation: same 3 jobs as .github/workflows/ci.yml
 ci: check typecheck test test-e2e
@@ -23,7 +23,7 @@ ci: check typecheck test test-e2e
 
 # Local dev: start PostgreSQL + Redis via Docker
 e2e-services-up:
-	pnpm dev:services
+	bun dev:services
 
 e2e-services-down:
-	pnpm dev:services:down
+	bun dev:services:down

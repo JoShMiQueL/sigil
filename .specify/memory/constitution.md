@@ -121,9 +121,9 @@ The following stack is fixed. Deviations require a constitution amendment:
 
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
-| Monorepo | pnpm 11 + Turborepo | Standard for modern TS monorepos |
+| Monorepo | Bun 1.4 workspaces | Standard for modern TS monorepos |
 | Panel UI | React 19 + Vite 8 + TanStack Router + shadcn/ui + Tailwind 4 | Modern, fast, type-safe |
-| API | Hono (Node 24 LTS) | Lightweight, Web Standards, fast |
+| API | Hono (Bun 1.4) | Lightweight, Web Standards, fast |
 | Daemon | Go 1.27 + Docker Engine API | Binary deployment, native concurrency, proven by StellarStack |
 | Database | PostgreSQL 18 + Drizzle ORM | Type-safe SQL, no proxies, serverless-ready |
 | Cache | Redis 8 | Session cache, queue, status |
@@ -133,7 +133,7 @@ The following stack is fixed. Deviations require a constitution amendment:
 | TypeScript | 7.0 (native Go port) | 10x faster compilation |
 | Spec framework | GitHub Spec Kit | Per Principle V |
 
-**No Bun.** The runtime is Node 24 LTS. Testcontainers compatibility and ecosystem maturity are non-negotiable.
+**No Bun.** The runtime is Bun 1.4. Testcontainers compatibility and ecosystem maturity are non-negotiable.
 
 **No `any` in TypeScript.** Use `unknown` and narrow with a Zod schema. Errors surface typed. No silent `catch {}` on critical paths.
 
@@ -154,9 +154,9 @@ Scopes: `panel`, `api`, `daemon`, `shared`, `db`, `ui`, `templates`, `images`, `
 ### Commit cadence
 
 - **Commit by logical change, not by phase.** A commit = one coherent idea. "Add Zod schemas for auth" is a commit. "Configure Drizzle" is another. It does not matter which Spec Kit phase they belong to.
-- **`pnpm check` MUST always pass before committing.** Lint and format are non-negotiable.
-- **`pnpm typecheck` MUST pass when the code is in a functional state.** If you are mid-refactor, do not commit. When the logical change is complete, typecheck must pass.
-- **`pnpm test` MUST pass when tests exist for the changed code.** If no tests apply to the change, this requirement does not apply.
+- **`bun run check` MUST always pass before committing.** Lint and format are non-negotiable.
+- **`bun run typecheck` MUST pass when the code is in a functional state.** If you are mid-refactor, do not commit. When the logical change is complete, typecheck must pass.
+- **`bun run test` MUST pass when tests exist for the changed code.** If no tests apply to the change, this requirement does not apply.
 - **`make ci` MUST pass before pushing.** This runs the same checks as GitHub Actions (lint, typecheck, unit/integration, E2E).
 - **Mark tasks as `[X]` in tasks.md in the same commit** that completes them.
 - **Update `ROADMAP.md` status in the same commit** that marks a spec entry as `in-progress` or `done`.
@@ -168,7 +168,7 @@ Example: `feat(shared): add Zod schemas for user auth [R1]`
 
 - One PR, one subject. A bug fix AND a refactor are two PRs.
 - Describe **why** the change is needed, not only what it does.
-- `pnpm check && pnpm typecheck && pnpm test` MUST pass.
+- `bun run check && bun run typecheck && bun run test` MUST pass.
 - `make ci` MUST pass (includes E2E).
 - If the change touches security, say so explicitly in the description.
 - If the change is visible in the UI, attach a screenshot.

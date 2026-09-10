@@ -28,7 +28,7 @@
 
 - [X] T001 [P] Create SSE event schemas in `packages/shared/src/sse/events.ts` (SSEEventType enum, SSEEventSchema, event payload schemas per type)
 - [X] T002 [P] Create SSE barrel export in `packages/shared/src/sse/index.ts` and re-export from `packages/shared/src/index.ts`
-- [X] T003 Build shared package to verify schemas compile (`pnpm --filter @sigilpanel/shared build`)
+- [X] T003 Build shared package to verify schemas compile (`bun --filter @sigilpanel/shared build`)
 
 **Checkpoint**: Shared SSE contracts available to both API and panel.
 
@@ -141,13 +141,13 @@
 
 - [X] T042 [P] Verify zero `refetchInterval` in panel source (`grep -r "refetchInterval" apps/panel/src/` returns no results except degraded-mode fallback in `useSSE.ts`)
 - [X] T043 [P] Verify zero `setInterval` + fetch polling in panel source (`grep -r "setInterval" apps/panel/src/` returns only SSE heartbeat and degraded-mode fallback)
-- [X] T044 Run `pnpm check` and `pnpm typecheck` — must pass with zero errors
-- [X] T045 Run `pnpm test` — all unit and integration tests must pass
+- [X] T044 Run `bun run check` and `bun run typecheck` — must pass with zero errors
+- [X] T045 Run `bun run test` — all unit and integration tests must pass
 - [X] T046 MCP verification: Start dev services, open browser via chrome-devtools MCP, verify Scenario 1 from `specs/003-real-time-panel/quickstart.md` (node appears, status changes, metrics update — all without page reload)
 - [X] T047 MCP verification: Verify Scenario 2 from quickstart.md (stop API, see reconnecting indicator, restart API, verify resync without page reload)
 - [X] T048 MCP verification: Verify Scenario 3 from quickstart.md (grep panel source for polling — zero results)
 - [X] T049 Create Playwright E2E test in `apps/panel/tests/e2e/real-time.spec.ts` (login, navigate to nodes, register node via API, verify node appears in DOM without reload, send heartbeat, verify status changes in DOM)
-- [X] T050 Run `pnpm test:e2e` — Playwright suite must pass
+- [X] T050 Run `bun run test:e2e` — Playwright suite must pass
 - [X] T051 Update `specs/003-real-time-panel/spec.md` — mark all functional requirements as implemented
 - [X] T052 Update `ROADMAP.md` — mark R17 status as `done`
 - [X] T053 Update `specs/001-user-auth/spec.md` and `specs/002-node-management/spec.md` — remove tech debt notes (polling replaced by SSE)

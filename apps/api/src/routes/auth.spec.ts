@@ -9,7 +9,7 @@ vi.mock("../middleware/rate-limit", () => ({
   recordFailedAttempt: async () => {},
 }));
 
-import app from "../index";
+import { app } from "../index";
 import {
   apiRequest,
   cleanupDatabase,

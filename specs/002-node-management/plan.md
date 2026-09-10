@@ -10,7 +10,7 @@ Node management for the SigilPanel control plane. Covers region management (P1),
 
 ## Technical Context
 
-**Language/Version**: TypeScript 7.0 on Node 24 LTS
+**Language/Version**: TypeScript 7.0 on Bun 1.4
 
 **Primary Dependencies**: Hono (API), Drizzle ORM (PostgreSQL), Zod 4 (validation), ioredis (Redis for heartbeat scheduling)
 

@@ -4,17 +4,17 @@
 
 ## Prerequisites
 
-- Docker running (PostgreSQL + Redis via `pnpm dev:services`)
+- Docker running (PostgreSQL + Redis via `bun dev:services`)
 - R1 (auth) and R4 (node management) implemented
 - chrome-devtools MCP configured (see AGENTS.md)
 
 ## Setup
 
 ```bash
-pnpm dev:services
-pnpm --filter @sigilpanel/db db:migrate
-pnpm --filter @sigilpanel/api db:seed
-pnpm dev
+bun dev:services
+bun --filter @sigilpanel/db db:migrate
+bun --filter @sigilpanel/api db:seed
+bun dev
 ```
 
 ## Validation Scenarios

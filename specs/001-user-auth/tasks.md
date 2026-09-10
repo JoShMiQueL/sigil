@@ -249,10 +249,10 @@
 - [X] T127 [P] Add error response standardization in `apps/api/src/lib/errors.ts` (consistent JSON error format)
 - [X] T128 [P] Add loading and error states to all panel pages in `apps/panel/src/components/LoadingState.tsx` and `apps/panel/src/components/ErrorState.tsx`
 - [X] T129 [P] Add form validation with Zod schemas in panel forms (login, create user, forgot password, reset password, 2FA, API keys)
-- [X] T130 Run full test suite and fix any failures: `pnpm test`, `pnpm typecheck`, `pnpm lint`
+- [X] T130 Run full test suite and fix any failures: `bun run test`, `bun run typecheck`, `bun run lint`
 - [X] T131 Run quickstart.md validation scenarios and verify all pass
 - [X] T132 [P] Add panel layout with navigation sidebar in `apps/panel/src/components/Layout.tsx` (dashboard, users, security, api-keys, logout)
-- [X] T133 [P] Add GitHub Actions CI workflow in `.github/workflows/ci.yml` (lint, typecheck, unit/integration, E2E — uses same pnpm commands as local)
+- [X] T133 [P] Add GitHub Actions CI workflow in `.github/workflows/ci.yml` (lint, typecheck, unit/integration, E2E — uses same bun commands as local)
 - [X] T134 [P] Add E2E test isolation: `afterEach` cleanup via `POST /test/cleanup` endpoint (only in E2E mode), each test self-contained
 - [X] T135 [P] Add Makefile with targets mirroring CI steps (`make ci`, `make test`, `make test-e2e`)
 - [X] T136 [P] CI E2E job uses service containers (PostgreSQL + Redis) instead of dev compose

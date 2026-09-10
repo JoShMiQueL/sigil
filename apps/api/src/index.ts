@@ -43,16 +43,13 @@ app.route("/api", heartbeatApp);
 app.route("/api", sseRoutes);
 app.route("/api/api-keys", apiKeysRoutes);
 
-export default app;
+export { app };
 
 const port = Number(process.env.PORT ?? 3000);
 
 if (process.env.NODE_ENV !== "test") {
-  import("@hono/node-server").then(({ serve }) => {
-    serve({ fetch: app.fetch, port }, (info) => {
-      console.log(`API server running on http://localhost:${info.port}`);
-    });
-  });
+  Bun.serve({ fetch: app.fetch, port });
+  console.log(`API server running on http://localhost:${port}`);
 
   // Start heartbeat timeout sweep (every 30s)
   import("./services/heartbeat.service").then(({ startHeartbeatSweep }) => {

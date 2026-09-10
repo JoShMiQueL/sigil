@@ -8,7 +8,7 @@ vi.mock("../middleware/rate-limit", () => ({
   recordFailedAttempt: async () => {},
 }));
 
-import app from "../index";
+import { app } from "../index";
 import { emit, shutdownSSE } from "../services/sse.service";
 import { cleanupDatabase, createAdmin, loginAndGetCookie } from "../test/helpers";
 

@@ -5,25 +5,25 @@
 
 ## Prerequisites
 
-- Node 24 LTS, pnpm 11, Go 1.27 (daemon not needed for this feature)
+- Bun 1.4, Bun 1.4, Go 1.27 (daemon not needed for this feature)
 - Docker (for Testcontainers integration tests)
-- PostgreSQL 18 and Redis 8 running via `pnpm dev:services`
+- PostgreSQL 18 and Redis 8 running via `bun dev:services`
 
 ## Setup
 
 ```bash
 # Install dependencies
-pnpm install
+bun install
 
 # Start PostgreSQL + Redis
-pnpm dev:services
+bun dev:services
 
 # Run database migrations
-pnpm --filter @sigilpanel/db db:generate
-pnpm --filter @sigilpanel/db db:migrate
+bun --filter @sigilpanel/db db:generate
+bun --filter @sigilpanel/db db:migrate
 
 # Seed initial admin account
-pnpm --filter @sigilpanel/api db:seed
+bun --filter @sigilpanel/api db:seed
 # Output: Admin credentials printed to console
 ```
 
@@ -33,7 +33,7 @@ pnpm --filter @sigilpanel/api db:seed
 
 ```bash
 # Start the API
-pnpm --filter @sigilpanel/api dev
+bun --filter @sigilpanel/api dev
 
 # Login with seeded admin
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/login \

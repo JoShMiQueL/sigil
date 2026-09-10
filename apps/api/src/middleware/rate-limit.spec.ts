@@ -96,7 +96,7 @@ vi.mock("ioredis", () => {
 });
 
 // Do NOT mock the rate-limit module — we want to test the real implementation
-import app from "../index";
+import { app } from "../index";
 import { cleanupDatabase, createAdmin } from "../test/helpers";
 
 function makeRequest(

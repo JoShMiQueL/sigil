@@ -19,14 +19,16 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "pnpm --filter @sigilpanel/api start",
+      command: "bun src/index.ts",
+      cwd: "../../apps/api",
       url: "http://localhost:3000/health",
       reuseExistingServer: true,
       timeout: 30000,
       env: { NODE_ENV: "development" },
     },
     {
-      command: "pnpm --filter @sigilpanel/panel preview",
+      command: "bun run preview",
+      cwd: "../../apps/panel",
       url: "http://localhost:5173",
       reuseExistingServer: true,
       timeout: 30000,

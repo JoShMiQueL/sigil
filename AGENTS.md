@@ -10,18 +10,18 @@ SigilPanel is a self-hosted game server management panel that runs game servers 
 
 | Layer | Technology |
 |-------|-----------|
-| Monorepo | pnpm 11 workspaces + Turborepo 2.10 |
+| Monorepo | Bun 1.4 workspaces |
 | Panel UI | React 19.2 + Vite 8 + TanStack Router 1.170 + shadcn/ui 4.21 + Tailwind CSS 4.3 |
-| API | Hono 4.13 (Node 24 LTS) |
+| API | Hono 4.13 (Bun 1.4 runtime) |
 | Daemon | Go 1.27 (Docker Engine API) |
 | Database | PostgreSQL 18 + Drizzle ORM 0.45 |
 | Cache | Redis 8 |
 | Storage | Local filesystem + S3-compatible (MinIO/R2/B2/AWS S3) |
-| Auth | better-auth 1.7 + JWT scoped tokens |
-| Testing | Vitest 5 (unit) + Testcontainers 12 (integration) + Playwright 1.62 (E2E) |
+| Auth | better-auth 1.7 + JWT scoped tokens + Bun.password (argon2id) |
+| Testing | Vitest 5 (unit, under Bun runtime) + Testcontainers 12 (integration) + Playwright 1.62 (E2E) |
 | Validation | Zod 4.5 |
 | TypeScript | 7.0 (native Go port, 10x faster) |
-| Package manager | pnpm 11.25 |
+| Package manager | Bun 1.4.2 |
 | Spec framework | GitHub Spec Kit 0.12 (specify-cli) |
 
 ## Monorepo Structure
@@ -148,9 +148,9 @@ This project uses neutral, descriptive names instead of Pterodactyl's branded vo
 Before any commit, the following MUST pass:
 
 ```bash
-pnpm check        # Biome lint + format (always required)
-pnpm typecheck    # TypeScript type checking (required when code is in a functional state)
-pnpm test         # Tests (required when tests exist for the changed code)
+bun run check        # Biome lint + format (always required)
+bun run typecheck    # TypeScript type checking (required when code is in a functional state)
+bun run test         # Tests (required when tests exist for the changed code)
 ```
 
 Commit by logical change, not by Spec Kit phase. One commit = one coherent idea. Mark tasks as `[X]` in `tasks.md` in the same commit that completes them. Update `ROADMAP.md` status in the same commit that changes a spec entry's status.
@@ -163,18 +163,17 @@ See `.specify/memory/constitution.md` section "Commit cadence" for the full rule
 
 ## CI (GitHub Actions)
 
-The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push and PR to `main`. It uses the same `pnpm` commands you run locally — no separate CI script to maintain.
+The repo has a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on push and PR to `main`. It uses the same `bun` commands you run locally — no separate CI script to maintain.
 
 Jobs:
-1. **Lint & Typecheck** — `pnpm check` + `pnpm typecheck`
-2. **Unit & Integration** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test` (Testcontainers auto-starts PostgreSQL, no external services needed)
-3. **E2E** — `pnpm --filter @sigilpanel/db db:generate` + `pnpm test:e2e` (Testcontainers auto-starts PostgreSQL + Redis, no external services needed)
+1. **Lint & Typecheck** — `bun run check` + `bun run typecheck`
+2. **Unit & Integration** — `bun --filter @sigilpanel/db db:generate` + `bun run test` (Testcontainers auto-starts PostgreSQL, no external services needed)
+3. **E2E** — `bun --filter @sigilpanel/db db:generate` + `bun run test:e2e` (Testcontainers auto-starts PostgreSQL + Redis, no external services needed)
 
 The E2E job uses the same `scripts/run-e2e.ts` Testcontainers orchestrator as local development — no GitHub Actions service containers, no separate CI setup. The Playwright config detects `CI` env var and uses Playwright's bundled Chromium instead of system Chromium.
 
 CI caching (all jobs):
-- **pnpm store** — cached by `pnpm/setup@v2` (keyed on `pnpm-lock.yaml`)
-- **Turborepo** — `.turbo/` cached via `actions/cache@v6` (keyed per job + commit SHA)
+- **Bun** — cached by `oven-sh/setup-bun@v2` (keyed on `bun.lock`)
 - **Playwright browsers** — `~/.cache/ms-playwright` cached via `actions/cache@v6` (keyed on Playwright version); on cache hit only system deps are reinstalled with `playwright install-deps`
 
 To run the same checks locally:
@@ -245,8 +244,8 @@ The verification flow is **MCP-first, Playwright-last**. This means:
 
 ```
 1. Implement API endpoint + service
-2. Run pnpm test (unit/integration) — must pass
-3. Start dev services (pnpm dev:services + db:migrate + db:seed + pnpm dev)
+2. Run bun run test (unit/integration) — must pass
+3. Start dev services (bun dev:services + db:migrate + db:seed + bun dev)
 4. Open chrome-devtools MCP → navigate to panel
 5. Exercise the full user flow as a real user would:
    - Login, navigate to the relevant page
@@ -257,28 +256,28 @@ The verification flow is **MCP-first, Playwright-last**. This means:
 6. Fix any bugs found
 7. Re-verify with MCP
 8. Write Playwright E2E test codifying the verified flow
-9. Run pnpm test:e2e — must pass
+9. Run bun run test:e2e — must pass
 10. Commit
 ```
 
 ### Starting dev services for MCP verification
 
 ```bash
-pnpm dev:services          # PostgreSQL + Redis via Docker Compose
-pnpm --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
-pnpm --filter @sigilpanel/db db:migrate   # Run migrations
-pnpm --filter @sigilpanel/api db:seed       # Seed admin user
-RATE_LIMIT_DISABLED=1 pnpm --filter @sigilpanel/api dev &  # API on :3000
-pnpm --filter @sigilpanel/panel dev &        # Panel on :5173
+bun dev:services          # PostgreSQL + Redis via Docker Compose
+bun --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
+bun --filter @sigilpanel/db db:migrate   # Run migrations
+bun --filter @sigilpanel/api db:seed       # Seed admin user
+RATE_LIMIT_DISABLED=1 bun --filter @sigilpanel/api dev &  # API on :3000
+bun --filter @sigilpanel/panel dev &        # Panel on :5173
 ```
 
 Or simply:
 
 ```bash
-pnpm dev:services
-pnpm --filter @sigilpanel/db db:migrate
-pnpm --filter @sigilpanel/api db:seed
-pnpm dev
+bun dev:services
+bun --filter @sigilpanel/db db:migrate
+bun --filter @sigilpanel/api db:seed
+bun dev
 ```
 
 ### MCP verification checklist
@@ -295,20 +294,20 @@ When verifying a feature with chrome-devtools MCP, cover at minimum:
 
 All tests are fully automatic — no manual server startup, seeding, or Redis flushing required. The only prerequisite is Docker running (for Testcontainers and the dev PostgreSQL/Redis).
 
-### Unit + integration tests (`pnpm test`)
+### Unit + integration tests (`bun run test`)
 
-- **Vitest** runs all `*.spec.ts` files under `apps/api/src/`.
+- **Vitest** (under Bun runtime via `bun --bun vitest`) runs all `*.spec.ts` files under `apps/api/src/`.
 - **Testcontainers** automatically starts an isolated PostgreSQL Docker container, applies Drizzle migrations, and tears it down after the run. No dev database needed.
 - The API is imported as a Hono app in-process (no HTTP server started) thanks to the `NODE_ENV !== "test"` guard in `apps/api/src/index.ts`.
 - The rate limiter is mocked in integration tests to avoid Redis state interference.
 - Tests run sequentially (`fileParallelism: false`) because they share the Testcontainer database and clean up between tests.
 
 ```bash
-pnpm test                                          # All workspace tests
-pnpm --filter @sigilpanel/api test                 # API tests only
+bun run test                                          # All workspace tests
+bun --filter @sigilpanel/api test                 # API tests only
 ```
 
-### E2E tests (`pnpm test:e2e`)
+### E2E tests (`bun run test:e2e`)
 
 - **Playwright** runs browser tests in `apps/panel/tests/e2e/`.
 - `scripts/run-e2e.ts` is the single orchestrator for both local and CI. It:
@@ -318,16 +317,16 @@ pnpm --filter @sigilpanel/api test                 # API tests only
   4. Seeds the admin user
   5. Launches Playwright with `DATABASE_URL` + `REDIS_URL` pointing to the testcontainers
   6. Stops the testcontainers on exit (success or failure)
-- The Playwright config `webServer` starts the API (`pnpm --filter @sigilpanel/api start` — `tsx` without watch, no hot reload) and the panel (`pnpm --filter @sigilpanel/panel preview` — serves the production build).
+- The Playwright config `webServer` starts the API (`bun src/index.ts` — Bun runtime, no hot reload) and the panel (`bun run preview` — serves the production build).
 - `NODE_ENV=development` enables the test-cleanup endpoint between tests.
 - `RATE_LIMIT_DISABLED=1` prevents login throttling during tests.
 - Each test cleans up after itself via `afterEach` → `POST /test/cleanup` (only registered when `NODE_ENV !== "production"`, never in real production). Truncates all tables except the admin user.
 - Each test is self-contained — creates what it needs, doesn't depend on previous tests.
 - Playwright uses its bundled Chromium in CI (`process.env.CI`), system Chromium locally (`/usr/bin/chromium-browser`).
-- **Local and CI are identical**: same command (`pnpm test:e2e`), same orchestrator, same Testcontainers. No separate CI setup.
+- **Local and CI are identical**: same command (`bun run test:e2e`), same orchestrator, same Testcontainers. No separate CI setup.
 
 ```bash
-pnpm test:e2e                                      # Playwright E2E tests
+bun run test:e2e                                      # Playwright E2E tests
 ```
 
 ### Test structure

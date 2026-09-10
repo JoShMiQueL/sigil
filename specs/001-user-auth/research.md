@@ -22,7 +22,7 @@
 - Parallelism: 1
 - These are the OWASP-recommended minimum parameters as of 2025.
 
-**Rationale**: Argon2id is the OWASP-recommended password hashing algorithm. It is memory-hard, resistant to GPU/ASIC attacks, and has a proven track record. The `@node-rs/argon2` package provides native bindings with good performance on Node 24.
+**Rationale**: Argon2id is the OWASP-recommended password hashing algorithm. It is memory-hard, resistant to GPU/ASIC attacks, and has a proven track record. The `Bun.password` package provides native bindings with good performance on Node 24.
 
 **Alternatives considered**:
 - **bcrypt**: Still acceptable but not memory-hard. Vulnerable to GPU attacks.

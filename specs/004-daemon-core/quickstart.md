@@ -7,7 +7,7 @@
 - Go 1.27 installed
 - Docker Engine running on the machine (for integration tests and daemon execution)
 - Panel API running (R1 + R4 completed) with at least one region and a generated pairing token
-- `pnpm dev:services` running (PostgreSQL + Redis for the panel)
+- `bun dev:services` running (PostgreSQL + Redis for the panel)
 
 ## Validation Scenarios
 

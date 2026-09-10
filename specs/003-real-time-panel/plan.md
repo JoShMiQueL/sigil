@@ -10,7 +10,7 @@ Real-time panel infrastructure using Server-Sent Events (SSE). Replaces all HTTP
 
 ## Technical Context
 
-**Language/Version**: TypeScript 7.0 on Node 24 LTS
+**Language/Version**: TypeScript 7.0 on Bun 1.4
 
 **Primary Dependencies**: Hono 4.13 (SSE via `hono/streaming` `streamSSE`), TanStack Query 5 (query invalidation on SSE events), React 19.2 (EventSource API), ioredis 5.8 (pub/sub for multi-process event fanout)
 

@@ -12,11 +12,11 @@
 ## Setup
 
 ```bash
-pnpm dev:services          # Start PostgreSQL + Redis
-pnpm --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
-pnpm --filter @sigilpanel/db db:migrate   # Run migrations
-pnpm --filter @sigilpanel/api db:seed     # Seed admin user
-pnpm dev                   # Start API (:3000) + panel (:5173)
+bun dev:services          # Start PostgreSQL + Redis
+bun --filter @sigilpanel/db db:generate  # Generate Drizzle migrations
+bun --filter @sigilpanel/db db:migrate   # Run migrations
+bun --filter @sigilpanel/api db:seed     # Seed admin user
+bun dev                   # Start API (:3000) + panel (:5173)
 ```
 
 ## Verification Scenarios
@@ -93,8 +93,8 @@ pnpm dev                   # Start API (:3000) + panel (:5173)
 ## Running Tests
 
 ```bash
-pnpm test                    # Unit + integration (Testcontainers PostgreSQL)
-pnpm test:e2e                # E2E (Playwright, needs Docker for dev services)
+bun run test                    # Unit + integration (Testcontainers PostgreSQL)
+bun run test:e2e                # E2E (Playwright, needs Docker for dev services)
 ```
 
 See [AGENTS.md](../../../AGENTS.md) for the complete test guide.

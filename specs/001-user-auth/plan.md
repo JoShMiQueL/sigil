@@ -10,7 +10,7 @@ User authentication and management for the SigilPanel control plane. Covers logi
 
 ## Technical Context
 
-**Language/Version**: TypeScript 7.0 on Node 24 LTS
+**Language/Version**: TypeScript 7.0 on Bun 1.4
 
 **Primary Dependencies**: Hono (API), better-auth (auth framework), Drizzle ORM (PostgreSQL), Zod 4 (validation), Argon2 (password hashing), jose (JWT if needed)
 
