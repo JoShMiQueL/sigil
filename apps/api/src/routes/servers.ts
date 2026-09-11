@@ -1,8 +1,11 @@
 import { zValidator } from "@hono/zod-validator";
+import { db, schema } from "@sigil/db";
 import type { ServerRecord } from "@sigil/shared";
 import { ServerCreateInputSchema, ServerPowerActionSchema } from "@sigil/shared";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
+import { signConsoleToken } from "../lib/console-token";
 import type { AuthContext } from "../middleware/auth";
 import { logAudit } from "../services/audit.service";
 import {
@@ -81,6 +84,60 @@ servers.get("/:serverId", async (c) => {
   }
 
   return c.json(server, 200);
+});
+
+// Issue a console token for WebSocket connection to daemon
+servers.post("/:serverId/console-token", async (c) => {
+  const serverId = c.req.param("serverId");
+  const server = await getServer(serverId);
+
+  if (!server) {
+    return c.json({ error: { code: "SERVER_NOT_FOUND", message: "Server not found" } }, 404);
+  }
+
+  if (server.status !== "running" && server.status !== "starting") {
+    return c.json(
+      {
+        error: { code: "SERVER_NOT_RUNNING", message: "Server must be running to use the console" },
+      },
+      409,
+    );
+  }
+
+  const user = c.get("user");
+  if (!user) {
+    return c.json({ error: { code: "UNAUTHORIZED", message: "Not authenticated" } }, 401);
+  }
+
+  const token = await signConsoleToken(serverId, user.id);
+  const daemonPort = process.env.DAEMON_PORT ?? "8080";
+
+  // Look up the node to get the real IP
+  const [node] = await db
+    .select()
+    .from(schema.nodes)
+    .where(eq(schema.nodes.id, server.nodeId))
+    .limit(1);
+  const nodeIp = node?.ipAddress ?? "127.0.0.1";
+  const daemonUrl = `ws://${nodeIp}:${daemonPort}/ws/servers/${serverId}/console`;
+
+  await logAudit({
+    userId: user.id,
+    action: "server_console_token",
+    targetType: "server",
+    targetId: serverId,
+    metadata: {},
+  });
+
+  return c.json(
+    {
+      token,
+      daemonUrl,
+      serverId,
+      expiresIn: 300,
+    },
+    200,
+  );
 });
 
 // Power action (start/stop/restart)

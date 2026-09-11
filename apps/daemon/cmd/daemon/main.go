@@ -160,7 +160,7 @@ func main() {
 	}
 
 	// Create HTTP server with full API
-	handlers := api.NewHandlers(serverManager, dockerClient, cfg.StopTimeoutSec)
+	handlers := api.NewHandlers(serverManager, dockerClient, cfg.StopTimeoutSec, cfg.AppSecret)
 	credStore := &auth.StaticCredentialStore{
 		SecretID: creds.SecretID,
 		Secret:   creds.Secret,

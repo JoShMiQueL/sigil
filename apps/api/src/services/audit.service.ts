@@ -26,6 +26,7 @@ export type AuditAction =
   | "server_stop"
   | "server_restart"
   | "server_delete"
+  | "server_console_token"
   | "allocation_create"
   | "allocation_delete"
   | "allocation_assign"

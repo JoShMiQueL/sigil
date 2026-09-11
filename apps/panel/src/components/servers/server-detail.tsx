@@ -1,6 +1,10 @@
 import type { ServerLifecycleStatus } from "@sigil/shared";
+import { useConsole } from "../../hooks/useConsole";
+import { useConsoleToken } from "../../hooks/useConsoleToken";
 import { useNodes } from "../../hooks/useNodes";
 import { useDeleteServer, usePowerAction, useServer } from "../../hooks/useServers";
+import { ConsoleView } from "./console-view";
+import { ServerStats } from "./server-stats";
 
 const STATUS_COLORS: Record<ServerLifecycleStatus, string> = {
   offline: "#888",
@@ -18,6 +22,14 @@ export function ServerDetail({ serverId }: { serverId: string }) {
   const powerMutation = usePowerAction(serverId);
   const deleteMutation = useDeleteServer();
   const nodeMap = new Map((nodesData ?? []).map((n) => [n.id, n.displayName]));
+
+  const isRunning = server?.status === "running" || server?.status === "starting";
+  const { data: tokenData } = useConsoleToken(serverId, isRunning);
+  const { messages, connectionState, stats, sendMessage } = useConsole({
+    daemonUrl: tokenData?.daemonUrl,
+    token: tokenData?.token,
+    enabled: isRunning,
+  });
 
   if (isLoading) {
     return <p>Loading server...</p>;
@@ -98,6 +110,21 @@ export function ServerDetail({ serverId }: { serverId: string }) {
       {deleteMutation.data && "error" in deleteMutation.data && deleteMutation.data.error && (
         <p style={{ color: "#c00" }}>{deleteMutation.data.error}</p>
       )}
+
+      <div style={{ marginTop: "1.5rem" }}>
+        <h3>Resource Stats</h3>
+        <ServerStats stats={stats} isRunning={isRunning} />
+      </div>
+
+      <div style={{ marginTop: "1.5rem" }}>
+        <h3>Console</h3>
+        <ConsoleView
+          messages={messages}
+          connectionState={connectionState}
+          isRunning={isRunning}
+          onSendCommand={sendMessage}
+        />
+      </div>
     </div>
   );
 }

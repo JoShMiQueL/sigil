@@ -76,6 +76,9 @@ async function createServer(
     body: JSON.stringify({ name, nodeId, templateId, variables: {} }),
   });
   const body = await res.json();
+  if (!res.ok) {
+    throw new Error(`createServer failed: ${res.status} ${JSON.stringify(body)}`);
+  }
   return { id: body.id };
 }
 

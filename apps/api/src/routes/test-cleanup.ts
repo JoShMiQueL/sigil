@@ -12,12 +12,10 @@ import { Hono } from "hono";
 const testCleanup = new Hono();
 
 testCleanup.post("/cleanup", async (c) => {
-  // Delete servers except those on the E2E daemon node
-  await db
-    .delete(schema.servers)
-    .where(
-      sql`${schema.servers.nodeId} NOT IN (SELECT id FROM ${schema.nodes} WHERE hostname = 'e2e-daemon')`,
-    );
+  // Unassign allocations and reset status before deleting servers
+  await db.update(schema.allocations).set({ serverId: null, status: "available" });
+  // Delete all servers (E2E daemon containers are stopped by the tests or daemon shutdown)
+  await db.delete(schema.servers);
   // Delete allocations except those on the E2E daemon node
   await db
     .delete(schema.allocations)

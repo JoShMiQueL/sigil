@@ -4,21 +4,24 @@ import (
 	"net/http"
 
 	"github.com/sigil/sigil/apps/daemon/internal/auth"
+	"github.com/sigil/sigil/apps/daemon/internal/console"
 	"github.com/sigil/sigil/apps/daemon/internal/docker"
 	"github.com/sigil/sigil/apps/daemon/internal/server"
 )
 
 type Handlers struct {
-	manager      *server.Manager
+	manager       *server.Manager
 	dockerClient  *docker.Client
 	stopTimeout   int
+	consoleHandler *console.Handler
 }
 
-func NewHandlers(manager *server.Manager, dockerClient *docker.Client, stopTimeout int) *Handlers {
+func NewHandlers(manager *server.Manager, dockerClient *docker.Client, stopTimeout int, appSecret string) *Handlers {
 	return &Handlers{
-		manager:      manager,
-		dockerClient:  dockerClient,
-		stopTimeout:   stopTimeout,
+		manager:        manager,
+		dockerClient:   dockerClient,
+		stopTimeout:    stopTimeout,
+		consoleHandler: console.NewHandler(dockerClient, appSecret),
 	}
 }
 
@@ -28,7 +31,10 @@ func NewRouter(h *Handlers, credStore auth.CredentialStore) http.Handler {
 	// Health endpoint — no auth
 	mux.HandleFunc("GET /health", h.Health)
 
-	// All other endpoints require auth
+	// WebSocket console endpoint — JWT auth (not HMAC)
+	mux.HandleFunc("GET /ws/servers/{serverId}/console", h.consoleHandler.HandleConsole)
+
+	// All other endpoints require HMAC auth
 	authMw := auth.NewAuthMiddleware(credStore)
 
 	protected := http.NewServeMux()

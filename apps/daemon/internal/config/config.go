@@ -9,23 +9,24 @@ import (
 )
 
 type Config struct {
-	PanelURL            string  `yaml:"panel_url"`
-	PairingToken        string  `yaml:"pairing_token"`
-	CredentialsPath     string  `yaml:"credentials_path"`
-	VolumeBasePath      string  `yaml:"volume_base_path"`
-	DockerSocket        string  `yaml:"docker_socket"`
-	ListenAddress       string  `yaml:"listen_address"`
-	AdvertiseIP         string  `yaml:"advertise_ip"`
-	Hostname            string  `yaml:"hostname"`
+	PanelURL             string  `yaml:"panel_url"`
+	PairingToken         string  `yaml:"pairing_token"`
+	CredentialsPath      string  `yaml:"credentials_path"`
+	VolumeBasePath       string  `yaml:"volume_base_path"`
+	DockerSocket         string  `yaml:"docker_socket"`
+	ListenAddress        string  `yaml:"listen_address"`
+	AdvertiseIP          string  `yaml:"advertise_ip"`
+	Hostname             string  `yaml:"hostname"`
 	HeartbeatIntervalSec int     `yaml:"heartbeat_interval_sec"`
-	StopTimeoutSec      int     `yaml:"stop_timeout_sec"`
+	StopTimeoutSec       int     `yaml:"stop_timeout_sec"`
 	DiskFullThresholdPct int     `yaml:"disk_full_threshold_pct"`
-	UIDRangeStart       int     `yaml:"uid_range_start"`
-	UIDRangeEnd         int     `yaml:"uid_range_end"`
-	DefaultPidsLimit    int     `yaml:"default_pids_limit"`
-	DefaultMemoryLimitMB int    `yaml:"default_memory_limit_mb"`
-	DefaultCPULimit     float64 `yaml:"default_cpu_limit"`
-	LogLevel            string  `yaml:"log_level"`
+	UIDRangeStart        int     `yaml:"uid_range_start"`
+	UIDRangeEnd          int     `yaml:"uid_range_end"`
+	DefaultPidsLimit     int     `yaml:"default_pids_limit"`
+	DefaultMemoryLimitMB int     `yaml:"default_memory_limit_mb"`
+	DefaultCPULimit      float64 `yaml:"default_cpu_limit"`
+	LogLevel             string  `yaml:"log_level"`
+	AppSecret            string  `yaml:"app_secret"`
 }
 
 func Load(path string) (*Config, error) {

@@ -192,6 +192,7 @@ disk_full_threshold_pct: 95
 uid_range_start: 10000
 uid_range_end: 20000
 log_level: info
+app_secret: ${process.env.APP_SECRET ?? "sigil-dev-secret-change-me"}
 `,
   );
 

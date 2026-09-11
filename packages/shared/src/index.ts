@@ -6,6 +6,8 @@ export * from "./auth/permissions";
 export * from "./auth/session";
 export * from "./auth/totp";
 export * from "./auth/user";
+export * from "./console/message";
+export * from "./console/token";
 export * from "./node/credentials";
 export * from "./node/heartbeat";
 export * from "./node/node";

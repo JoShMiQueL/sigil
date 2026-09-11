@@ -230,4 +230,56 @@ describe("server routes [R9]", () => {
       expect(res.status).toBe(403);
     });
   });
+
+  describe("POST /api/admin/servers/:serverId/console-token", () => {
+    it("returns 404 for non-existent server", async () => {
+      const res = await apiRequest(
+        app,
+        "/api/admin/servers/00000000-0000-4000-8000-000000000000/console-token",
+        {
+          method: "POST",
+          cookie: adminCookie,
+        },
+      );
+      expect(res.status).toBe(404);
+      const body = await parseJson(res);
+      expect(body.error.code).toBe("SERVER_NOT_FOUND");
+    });
+
+    it("returns 409 when server is not running (no daemon in test env)", async () => {
+      // Create a server — will fail to connect to daemon, resulting in creation_failed status
+      const createRes = await apiRequest(app, "/api/admin/servers", {
+        method: "POST",
+        cookie: adminCookie,
+        body: { name: "Console Test", nodeId, templateId, variables: {} },
+      });
+      const createBody = await parseJson(createRes);
+      // Server creation fails because daemon is not available in unit test env
+      // The server record may exist with creation_failed status, or the create may return error
+      if (createBody.id) {
+        const res = await apiRequest(app, `/api/admin/servers/${createBody.id}/console-token`, {
+          method: "POST",
+          cookie: adminCookie,
+        });
+        expect(res.status).toBe(409);
+        const body = await parseJson(res);
+        expect(body.error.code).toBe("SERVER_NOT_RUNNING");
+      } else {
+        // If creation failed entirely, we can't test console-token on a non-existent server
+        // Just verify the error is about daemon unreachability
+        expect(createBody.error).toBeDefined();
+      }
+    });
+
+    it("rejects unauthenticated requests", async () => {
+      const res = await apiRequest(
+        app,
+        "/api/admin/servers/00000000-0000-4000-8000-000000000000/console-token",
+        {
+          method: "POST",
+        },
+      );
+      expect(res.status).toBe(403);
+    });
+  });
 });
