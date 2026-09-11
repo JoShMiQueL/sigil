@@ -199,3 +199,17 @@ func (j *Jail) SafeMkdirAll(relPath string, perm os.FileMode) error {
 	}
 	return os.MkdirAll(full, perm)
 }
+
+// SafeRename renames a file or directory within the jail.
+// Both source and destination must resolve within the jail root.
+func (j *Jail) SafeRename(fromRel, toRel string) error {
+	from, err := j.resolve(fromRel)
+	if err != nil {
+		return err
+	}
+	to, err := j.resolve(toRel)
+	if err != nil {
+		return err
+	}
+	return os.Rename(from, to)
+}

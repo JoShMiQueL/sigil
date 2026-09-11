@@ -2,7 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/sigil/sigil/apps/daemon/internal/server"
 )
@@ -214,7 +216,7 @@ func (h *Handlers) ListFiles(w http.ResponseWriter, r *http.Request) {
 		path = "."
 	}
 
-	entries, err := h.manager.ListFiles(serverID, path)
+	entries, err := h.manager.ListFileEntries(serverID, path)
 	if err != nil {
 		code, status := mapErrorToHTTP(err)
 		writeError(w, code, err.Error(), status)
@@ -236,4 +238,125 @@ func (h *Handlers) DeleteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeNoContent(w)
+}
+
+func (h *Handlers) Mkdir(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+
+	var req struct {
+		Path string `json:"path"`
+	}
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	if err := h.manager.Mkdir(serverID, req.Path); err != nil {
+		code, status := mapErrorToHTTP(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+	writeNoContent(w)
+}
+
+func (h *Handlers) StatFile(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+	path := r.URL.Query().Get("path")
+
+	entry, err := h.manager.Stat(serverID, path)
+	if err != nil {
+		code, status := mapErrorToHTTP(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+	writeJSON(w, http.StatusOK, entry)
+}
+
+func (h *Handlers) RenameFile(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+
+	var req struct {
+		From string `json:"from"`
+		To   string `json:"to"`
+	}
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	if err := h.manager.Rename(serverID, req.From, req.To); err != nil {
+		code, status := mapErrorToHTTP(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+	writeNoContent(w)
+}
+
+func (h *Handlers) UploadFile(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+	dir := r.URL.Query().Get("path")
+	if dir == "" {
+		dir = "."
+	}
+
+	// Read the filename from query param
+	filename := r.URL.Query().Get("filename")
+	if filename == "" {
+		writeError(w, "INVALID_CONFIG", "filename query param required", http.StatusBadRequest)
+		return
+	}
+
+	// Read binary body
+	data, err := io.ReadAll(io.LimitReader(r.Body, 100*1024*1024)) // 100MB limit
+	if err != nil {
+		writeError(w, "READ_ERROR", "failed to read upload: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Build destination path
+	destPath := filename
+	if dir != "." && dir != "" {
+		destPath = dir + "/" + filename
+	}
+
+	if err := h.manager.WriteFile(serverID, destPath, data); err != nil {
+		code, status := mapErrorToHTTP(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]any{
+		"path": destPath,
+		"size": len(data),
+	})
+}
+
+func (h *Handlers) DownloadFile(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+	path := r.URL.Query().Get("path")
+
+	data, err := h.manager.ReadFile(serverID, path)
+	if err != nil {
+		code, status := mapErrorToHTTP(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+
+	// Extract basename for Content-Disposition
+	filename := path
+	if idx := lastIndexByte(path, '/'); idx >= 0 {
+		filename = path[idx+1:]
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+func lastIndexByte(s string, b byte) int {
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == b {
+			return i
+		}
+	}
+	return -1
 }

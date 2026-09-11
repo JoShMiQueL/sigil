@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { db, schema } from "@sigil/db";
 import type { LifecycleResponse, ServerConfiguration, ServerStatus } from "@sigil/shared";
 import { and, eq, isNull } from "drizzle-orm";
@@ -115,6 +116,88 @@ export class DaemonClient {
       "DELETE",
       `/servers/${serverId}/files/delete?path=${encodeURIComponent(path)}`,
     );
+  }
+
+  async mkdir(serverId: string, path: string): Promise<void> {
+    await this.request<void>("POST", `/servers/${serverId}/files/mkdir`, { path });
+  }
+
+  async statFile(serverId: string, path: string): Promise<unknown> {
+    return this.request("GET", `/servers/${serverId}/files/stat?path=${encodeURIComponent(path)}`);
+  }
+
+  async renameFile(serverId: string, from: string, to: string): Promise<void> {
+    await this.request<void>("POST", `/servers/${serverId}/files/rename`, { from, to });
+  }
+
+  async uploadFile(
+    serverId: string,
+    dir: string,
+    filename: string,
+    data: Uint8Array,
+  ): Promise<{ path: string; size: number }> {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const tsStr = String(timestamp);
+    const bodyBuffer = Buffer.from(data);
+    const hmac = createHmac("sha256", this.secret);
+    hmac.update(tsStr);
+    hmac.update(bodyBuffer);
+    const signature = hmac.digest("hex");
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/octet-stream",
+      "X-Node-Id": this.secretId,
+      "X-Node-Signature": signature,
+      "X-Node-Timestamp": tsStr,
+    };
+    const resp = await fetch(
+      `${this.baseUrl}/servers/${serverId}/files/upload?path=${encodeURIComponent(dir)}&filename=${encodeURIComponent(filename)}`,
+      { method: "POST", headers, body: bodyBuffer },
+    );
+    const text = await resp.text();
+    if (!resp.ok) {
+      let errorBody: { error?: { code?: string; message?: string } };
+      try {
+        errorBody = JSON.parse(text);
+      } catch {
+        errorBody = {};
+      }
+      throw new DaemonError(
+        errorBody.error?.code ?? "DAEMON_ERROR",
+        errorBody.error?.message ?? `daemon returned ${resp.status}`,
+        resp.status,
+      );
+    }
+    return text ? JSON.parse(text) : { path: "", size: 0 };
+  }
+
+  async downloadFile(serverId: string, path: string): Promise<Response> {
+    const bodyStr = "";
+    const { signature, timestamp } = this.sign(bodyStr);
+    const headers: Record<string, string> = {
+      "X-Node-Id": this.secretId,
+      "X-Node-Signature": signature,
+      "X-Node-Timestamp": timestamp,
+    };
+    const resp = await fetch(
+      `${this.baseUrl}/servers/${serverId}/files/download?path=${encodeURIComponent(path)}`,
+      { headers },
+    );
+    if (!resp.ok) {
+      const text = await resp.text();
+      let errorBody: { error?: { code?: string; message?: string } };
+      try {
+        errorBody = JSON.parse(text);
+      } catch {
+        errorBody = {};
+      }
+      throw new DaemonError(
+        errorBody.error?.code ?? "DAEMON_ERROR",
+        errorBody.error?.message ?? `daemon returned ${resp.status}`,
+        resp.status,
+      );
+    }
+    return resp;
   }
 }
 

@@ -444,6 +444,56 @@ func (m *Manager) ListFiles(serverID, relPath string) ([]string, error) {
 	return j.SafeList(relPath)
 }
 
+// FileEntry represents a file or directory with metadata.
+type FileEntry struct {
+	Name    string `json:"name"`
+	Path    string `json:"path"`
+	Size    int64  `json:"size"`
+	IsDir   bool   `json:"isDir"`
+	ModTime string `json:"modTime"`
+}
+
+// ListFileEntries lists a directory within the jail, returning structured entries with metadata.
+func (m *Manager) ListFileEntries(serverID, relPath string) ([]FileEntry, error) {
+	entry, err := m.getEntry(serverID)
+	if err != nil {
+		return nil, err
+	}
+	m.mu.Lock()
+	j := entry.Jail
+	m.mu.Unlock()
+	if j == nil {
+		return nil, fmt.Errorf("jail not initialized for server %s", serverID)
+	}
+
+	names, err := j.SafeList(relPath)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]FileEntry, 0, len(names))
+	for _, name := range names {
+		childPath := relPath
+		if relPath == "" || relPath == "." {
+			childPath = name
+		} else {
+			childPath = relPath + "/" + name
+		}
+		info, err := j.SafeStat(childPath)
+		if err != nil {
+			continue // skip entries we can't stat
+		}
+		result = append(result, FileEntry{
+			Name:    name,
+			Path:    childPath,
+			Size:    info.Size(),
+			IsDir:   info.IsDir(),
+			ModTime: info.ModTime().UTC().Format("2006-01-02T15:04:05Z"),
+		})
+	}
+	return result, nil
+}
+
 func (m *Manager) DeleteFile(serverID, relPath string) error {
 	entry, err := m.getEntry(serverID)
 	if err != nil {
@@ -456,6 +506,74 @@ func (m *Manager) DeleteFile(serverID, relPath string) error {
 		return fmt.Errorf("jail not initialized for server %s", serverID)
 	}
 	return j.SafeDelete(relPath)
+}
+
+func (m *Manager) Mkdir(serverID, relPath string) error {
+	entry, err := m.getEntry(serverID)
+	if err != nil {
+		return err
+	}
+	m.mu.Lock()
+	j := entry.Jail
+	m.mu.Unlock()
+	if j == nil {
+		return fmt.Errorf("jail not initialized for server %s", serverID)
+	}
+	return j.SafeMkdirAll(relPath, 0o755)
+}
+
+func (m *Manager) Stat(serverID, relPath string) (FileEntry, error) {
+	entry, err := m.getEntry(serverID)
+	if err != nil {
+		return FileEntry{}, err
+	}
+	m.mu.Lock()
+	j := entry.Jail
+	m.mu.Unlock()
+	if j == nil {
+		return FileEntry{}, fmt.Errorf("jail not initialized for server %s", serverID)
+	}
+	info, err := j.SafeStat(relPath)
+	if err != nil {
+		return FileEntry{}, err
+	}
+	name := relPath
+	if idx := len(relPath) - 1; idx >= 0 && relPath[idx] == '/' {
+		name = relPath[:idx]
+	}
+	if idx := lastIndexByte(relPath, '/'); idx >= 0 {
+		name = relPath[idx+1:]
+	}
+	return FileEntry{
+		Name:    name,
+		Path:    relPath,
+		Size:    info.Size(),
+		IsDir:   info.IsDir(),
+		ModTime: info.ModTime().UTC().Format("2006-01-02T15:04:05Z"),
+	}, nil
+}
+
+func (m *Manager) Rename(serverID, fromRel, toRel string) error {
+	entry, err := m.getEntry(serverID)
+	if err != nil {
+		return err
+	}
+	m.mu.Lock()
+	j := entry.Jail
+	m.mu.Unlock()
+	if j == nil {
+		return fmt.Errorf("jail not initialized for server %s", serverID)
+	}
+	return j.SafeRename(fromRel, toRel)
+}
+
+func lastIndexByte(s string, b byte) int {
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == b {
+			return i
+		}
+	}
+	return -1
 }
 
 func (m *Manager) ExtractZip(serverID string, data []byte, destPath string) error {

@@ -241,3 +241,51 @@ func TestAbsolutePathRejected(t *testing.T) {
 		t.Fatal("expected error for absolute path, got nil")
 	}
 }
+
+func TestSafeRename(t *testing.T) {
+	j, _ := setupJail(t)
+
+	if err := j.SafeWrite("old.txt", []byte("content")); err != nil {
+		t.Fatalf("setup write: %v", err)
+	}
+
+	if err := j.SafeRename("old.txt", "new.txt"); err != nil {
+		t.Fatalf("rename: %v", err)
+	}
+
+	data, err := j.SafeRead("new.txt")
+	if err != nil {
+		t.Fatalf("read renamed: %v", err)
+	}
+	if string(data) != "content" {
+		t.Fatalf("content mismatch: %q", data)
+	}
+
+	if _, err := j.SafeRead("old.txt"); err == nil {
+		t.Error("expected error reading old name")
+	}
+}
+
+func TestSafeRenameTraversalRejected(t *testing.T) {
+	j, _ := setupJail(t)
+
+	if err := j.SafeWrite("test.txt", []byte("x")); err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+
+	if err := j.SafeRename("test.txt", "../escape.txt"); err == nil {
+		t.Fatal("expected error for rename escaping jail")
+	}
+
+	if err := j.SafeRename("../escape.txt", "test.txt"); err == nil {
+		t.Fatal("expected error for rename from outside jail")
+	}
+}
+
+func TestSafeRenameNonExistentSource(t *testing.T) {
+	j, _ := setupJail(t)
+
+	if err := j.SafeRename("nonexistent.txt", "other.txt"); err == nil {
+		t.Fatal("expected error for renaming non-existent source")
+	}
+}

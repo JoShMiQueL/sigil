@@ -50,6 +50,11 @@ func NewRouter(h *Handlers, credStore auth.CredentialStore) http.Handler {
 	protected.HandleFunc("GET /servers/{serverId}/files/read", h.ReadFile)
 	protected.HandleFunc("GET /servers/{serverId}/files/list", h.ListFiles)
 	protected.HandleFunc("DELETE /servers/{serverId}/files/delete", h.DeleteFile)
+	protected.HandleFunc("POST /servers/{serverId}/files/mkdir", h.Mkdir)
+	protected.HandleFunc("GET /servers/{serverId}/files/stat", h.StatFile)
+	protected.HandleFunc("POST /servers/{serverId}/files/rename", h.RenameFile)
+	protected.HandleFunc("POST /servers/{serverId}/files/upload", h.UploadFile)
+	protected.HandleFunc("GET /servers/{serverId}/files/download", h.DownloadFile)
 
 	mux.Handle("/servers", authMw.Wrap(protected))
 	mux.Handle("/servers/", authMw.Wrap(protected))

@@ -1,8 +1,11 @@
-import type { ServerLifecycleStatus } from "@sigil/shared";
+import type { FileEntry, ServerLifecycleStatus } from "@sigil/shared";
+import { useState } from "react";
 import { useConsole } from "../../hooks/useConsole";
 import { useConsoleToken } from "../../hooks/useConsoleToken";
 import { useNodes } from "../../hooks/useNodes";
 import { useDeleteServer, usePowerAction, useServer } from "../../hooks/useServers";
+import { FileBrowser } from "../files/file-browser";
+import { FileEditor } from "../files/file-editor";
 import { ConsoleView } from "./console-view";
 import { ServerStats } from "./server-stats";
 
@@ -22,6 +25,7 @@ export function ServerDetail({ serverId }: { serverId: string }) {
   const powerMutation = usePowerAction(serverId);
   const deleteMutation = useDeleteServer();
   const nodeMap = new Map((nodesData ?? []).map((n) => [n.id, n.displayName]));
+  const [selectedFile, setSelectedFile] = useState<FileEntry | null>(null);
 
   const isRunning = server?.status === "running" || server?.status === "starting";
   const { data: tokenData } = useConsoleToken(serverId, isRunning);
@@ -110,6 +114,24 @@ export function ServerDetail({ serverId }: { serverId: string }) {
       {deleteMutation.data && "error" in deleteMutation.data && deleteMutation.data.error && (
         <p style={{ color: "#c00" }}>{deleteMutation.data.error}</p>
       )}
+
+      <div style={{ marginTop: "1.5rem" }}>
+        <h3>Files</h3>
+        <FileBrowser
+          serverId={serverId}
+          isRunning={isRunning}
+          onOpenFile={(entry) => setSelectedFile(entry)}
+        />
+        {selectedFile && (
+          <div style={{ marginTop: "1rem" }}>
+            <FileEditor
+              serverId={serverId}
+              file={selectedFile}
+              onClose={() => setSelectedFile(null)}
+            />
+          </div>
+        )}
+      </div>
 
       <div style={{ marginTop: "1.5rem" }}>
         <h3>Resource Stats</h3>
