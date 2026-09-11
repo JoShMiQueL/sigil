@@ -8,7 +8,7 @@ import type {
   ServerListResponse,
   ServerRecord,
 } from "@sigil/shared";
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import { autoAssignAllocation, releaseAllocations } from "./allocation.service";
 import { createDaemonClient, DaemonError } from "./daemon-client.service";
 import { emit } from "./sse.service";
@@ -55,6 +55,7 @@ const VALID_RESTART_STATES: ServerLifecycleStatus[] = ["running", "stopped", "cr
 
 export async function createServer(
   input: ServerCreateInput,
+  userId?: string,
 ): Promise<ServerRecord | { error: string; code: string }> {
   // Validate node exists
   const [node] = await db
@@ -179,6 +180,23 @@ export async function createServer(
     status: server.status,
   });
 
+  // Create owner member entry for the creating user
+  if (userId) {
+    await db.insert(schema.serverMembers).values({
+      serverId: server.id,
+      userId,
+      role: "owner",
+      canConsole: true,
+      canFiles: true,
+      canBackups: true,
+      canPower: true,
+      canSettings: true,
+      canMembers: true,
+      canAllocations: true,
+      canDatabases: true,
+    });
+  }
+
   return server;
 }
 
@@ -196,10 +214,21 @@ export async function listServers(
   status?: string,
   limit = 50,
   offset = 0,
+  userId?: string,
+  userRole?: string,
 ): Promise<ServerListResponse> {
   const conditions = [];
   if (nodeId) conditions.push(eq(schema.servers.nodeId, nodeId));
   if (status) conditions.push(eq(schema.servers.status, status));
+
+  // Non-admins only see servers they are a member of
+  if (userId && userRole !== "admin") {
+    const memberServerIds = db
+      .select({ id: schema.serverMembers.serverId })
+      .from(schema.serverMembers)
+      .where(eq(schema.serverMembers.userId, userId));
+    conditions.push(sql`${schema.servers.id} IN (${memberServerIds})`);
+  }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
 

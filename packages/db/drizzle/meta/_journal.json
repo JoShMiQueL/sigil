@@ -64,6 +64,13 @@
       "when": 1789108207289,
       "tag": "0008_bizarre_sir_ram",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789111070262,
+      "tag": "0009_pretty_otto_octavius",
+      "breakpoints": true
     }
   ]
 }

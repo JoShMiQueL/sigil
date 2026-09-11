@@ -1,12 +1,7 @@
 import { z } from "zod";
 
 // Backup status lifecycle: pending → in_progress → completed | failed
-export const BackupStatusSchema = z.enum([
-  "pending",
-  "in_progress",
-  "completed",
-  "failed",
-]);
+export const BackupStatusSchema = z.enum(["pending", "in_progress", "completed", "failed"]);
 export type BackupStatus = z.infer<typeof BackupStatusSchema>;
 
 // Where the backup file is stored
@@ -84,9 +79,7 @@ export const UpdateBackupStorageConfigInputSchema = z
       (v.s3Endpoint != null && v.s3Bucket != null && v.s3AccessKey != null),
     "S3 backend requires endpoint, bucket, and access key",
   );
-export type UpdateBackupStorageConfigInput = z.infer<
-  typeof UpdateBackupStorageConfigInputSchema
->;
+export type UpdateBackupStorageConfigInput = z.infer<typeof UpdateBackupStorageConfigInputSchema>;
 
 // Daemon response for backup creation
 export const DaemonBackupResponseSchema = z.object({

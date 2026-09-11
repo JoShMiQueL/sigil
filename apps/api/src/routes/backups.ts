@@ -4,19 +4,14 @@ import { CreateBackupInputSchema } from "@sigil/shared";
 import { and, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type { AuthContext } from "../middleware/auth";
+import { requireServerPermission } from "../middleware/server-permission";
 import { logAudit } from "../services/audit.service";
 import { createDaemonClient, DaemonError } from "../services/daemon-client.service";
 
 const backups = new Hono<AuthContext>();
 
-// Admin-only guard
-backups.use("*", async (c, next) => {
-  const user = c.get("user");
-  if (user?.role !== "admin") {
-    return c.json({ error: { code: "FORBIDDEN", message: "Forbidden" } }, 403);
-  }
-  await next();
-});
+// Permission guard: requires "backups" permission (admin bypasses)
+backups.use("*", requireServerPermission("backups"));
 
 // Helper: look up server and verify it exists
 async function getServerForBackupOp(serverId: string) {

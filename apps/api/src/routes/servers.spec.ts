@@ -209,7 +209,7 @@ describe("server routes [R9]", () => {
   });
 
   describe("non-admin access", () => {
-    it("rejects non-admin user", async () => {
+    it("returns empty list for non-admin user with no memberships", async () => {
       // Create a regular user
       await apiRequest(app, "/api/admin/users", {
         method: "POST",
@@ -227,7 +227,10 @@ describe("server routes [R9]", () => {
       const res = await apiRequest(app, "/api/admin/servers", {
         cookie: userLogin.cookie,
       });
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(200);
+      const body = (await res.json()) as { servers: unknown[]; total: number };
+      expect(body.servers).toEqual([]);
+      expect(body.total).toBe(0);
     });
   });
 
@@ -279,7 +282,7 @@ describe("server routes [R9]", () => {
           method: "POST",
         },
       );
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(401);
     });
   });
 });

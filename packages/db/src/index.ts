@@ -1,16 +1,17 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { allocations } from "./schema/allocations";
-import { backupStorageConfigs } from "./schema/backup-storage";
-import { backups } from "./schema/backups";
 import { apiKeys } from "./schema/api-keys";
 import { auditLogs } from "./schema/audit-logs";
+import { backupStorageConfigs } from "./schema/backup-storage";
+import { backups } from "./schema/backups";
 import { nodeCredentials } from "./schema/node-credentials";
 import { nodes } from "./schema/nodes";
 import { pairingTokens } from "./schema/pairing-tokens";
 import { passwordResetTokens } from "./schema/password-reset-tokens";
 import { regions } from "./schema/regions";
 import { registries } from "./schema/registries";
+import { serverMembers } from "./schema/server-members";
 import { servers } from "./schema/servers";
 import { sessions } from "./schema/sessions";
 import { templates } from "./schema/templates";
@@ -32,6 +33,7 @@ export const schema = {
   registries,
   allocations,
   servers,
+  serverMembers,
   backups,
   backupStorageConfigs,
 };

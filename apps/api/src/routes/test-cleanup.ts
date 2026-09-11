@@ -15,6 +15,8 @@ testCleanup.post("/cleanup", async (c) => {
   // Delete backups and backup storage configs first (foreign key constraints)
   await db.delete(schema.backups);
   await db.delete(schema.backupStorageConfigs);
+  // Delete server members before servers (foreign key constraints)
+  await db.delete(schema.serverMembers);
   // Unassign allocations and reset status before deleting servers
   await db.update(schema.allocations).set({ serverId: null, status: "available" });
   // Delete all servers (E2E daemon containers are stopped by the tests or daemon shutdown)

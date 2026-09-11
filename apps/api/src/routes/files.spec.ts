@@ -95,7 +95,7 @@ describe("file routes [R11]", () => {
       const res = await apiRequest(app, `/api/admin/servers/${serverId}/files`, {
         method: "GET",
       });
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(401);
     });
   });
 

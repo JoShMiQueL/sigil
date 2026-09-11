@@ -2,11 +2,12 @@ import { zValidator } from "@hono/zod-validator";
 import { db, schema } from "@sigil/db";
 import type { ServerRecord } from "@sigil/shared";
 import { ServerCreateInputSchema, ServerPowerActionSchema } from "@sigil/shared";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import { signConsoleToken } from "../lib/console-token";
 import type { AuthContext } from "../middleware/auth";
+import { requireServerPermission } from "../middleware/server-permission";
 import { logAudit } from "../services/audit.service";
 import {
   createServer,
@@ -18,21 +19,53 @@ import {
 
 const servers = new Hono<AuthContext>();
 
-// Admin-only guard
+// Admin-only guard for mutating routes (create, delete, power)
+// GET routes (list, detail) are permission-aware and allow non-admin members
+// Sub-routes (files, backups, members) are mounted separately and have their own guards
 servers.use("*", async (c, next) => {
   const user = c.get("user");
-  if (user?.role !== "admin") {
-    return c.json({ error: { code: "FORBIDDEN", message: "Forbidden" } }, 403);
+
+  const method = c.req.method;
+  const path = c.req.path;
+
+  // Skip guard for sub-routes (files, backups, members) — they have their own guards
+  if (/\/(files|backups|members)/.test(path)) {
+    await next();
+    return;
   }
-  await next();
+
+  if (!user) {
+    return c.json({ error: { code: "UNAUTHORIZED", message: "Not authenticated" } }, 401);
+  }
+
+  // Admins can do everything
+  if (user.role === "admin") {
+    await next();
+    return;
+  }
+
+  // Non-admins: allow GET (list, detail) — permission checked per-route
+  if (method === "GET") {
+    await next();
+    return;
+  }
+
+  // Allow console-token and power actions for non-admins (permission middleware on the route)
+  if (method === "POST" && /\/(console-token|power)$/.test(path)) {
+    await next();
+    return;
+  }
+
+  return c.json({ error: { code: "FORBIDDEN", message: "Admin access required" } }, 403);
 });
 
 // Create a server
 servers.post("/", zValidator("json", ServerCreateInputSchema), async (c) => {
   const input = c.req.valid("json");
+  const user = c.get("user");
   let result: ServerRecord | { error: string; code: string };
   try {
-    result = await createServer(input);
+    result = await createServer(input, user?.id);
   } catch (err) {
     console.error("Server creation error:", err);
     return c.json({ error: { code: "INTERNAL_ERROR", message: (err as Error).message } }, 500);
@@ -51,7 +84,6 @@ servers.post("/", zValidator("json", ServerCreateInputSchema), async (c) => {
     );
   }
 
-  const user = c.get("user");
   await logAudit({
     userId: user?.id,
     action: "server_create",
@@ -69,8 +101,9 @@ servers.get("/", async (c) => {
   const status = c.req.query("status");
   const limit = parseInt(c.req.query("limit") ?? "50", 10);
   const offset = parseInt(c.req.query("offset") ?? "0", 10);
+  const user = c.get("user");
 
-  const result = await listServers(nodeId, status, limit, offset);
+  const result = await listServers(nodeId, status, limit, offset, user?.id, user?.role);
   return c.json(result, 200);
 });
 
@@ -83,12 +116,30 @@ servers.get("/:serverId", async (c) => {
     return c.json({ error: { code: "SERVER_NOT_FOUND", message: "Server not found" } }, 404);
   }
 
+  // Non-admins must be a member
+  const user = c.get("user");
+  if (user && user.role !== "admin") {
+    const [member] = await db
+      .select({ id: schema.serverMembers.id })
+      .from(schema.serverMembers)
+      .where(
+        and(eq(schema.serverMembers.serverId, serverId), eq(schema.serverMembers.userId, user.id)),
+      )
+      .limit(1);
+    if (!member) {
+      return c.json({ error: { code: "FORBIDDEN", message: "Not a member of this server" } }, 403);
+    }
+  }
+
   return c.json(server, 200);
 });
 
 // Issue a console token for WebSocket connection to daemon
-servers.post("/:serverId/console-token", async (c) => {
+servers.post("/:serverId/console-token", requireServerPermission("console"), async (c) => {
   const serverId = c.req.param("serverId");
+  if (!serverId) {
+    return c.json({ error: { code: "BAD_REQUEST", message: "Missing serverId" } }, 400);
+  }
   const server = await getServer(serverId);
 
   if (!server) {
@@ -143,9 +194,13 @@ servers.post("/:serverId/console-token", async (c) => {
 // Power action (start/stop/restart)
 servers.post(
   "/:serverId/power",
+  requireServerPermission("power"),
   zValidator("json", z.object({ action: ServerPowerActionSchema })),
   async (c) => {
     const serverId = c.req.param("serverId");
+    if (!serverId) {
+      return c.json({ error: { code: "BAD_REQUEST", message: "Missing serverId" } }, 400);
+    }
     const { action } = c.req.valid("json");
 
     let result: ServerRecord | { error: string; code: string };

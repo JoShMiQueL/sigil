@@ -35,7 +35,11 @@ export type AuditAction =
   | "allocation_assign"
   | "allocation_unassign"
   | "allocation_auto_assign"
-  | "allocation_release";
+  | "allocation_release"
+  | "member_add"
+  | "member_update"
+  | "member_remove"
+  | "member_transfer";
 
 export async function logAudit(opts: {
   userId?: string;

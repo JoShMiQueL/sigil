@@ -1,14 +1,15 @@
 export { allocations } from "./allocations";
-export { backupStorageConfigs } from "./backup-storage";
-export { backups } from "./backups";
 export { apiKeys } from "./api-keys";
 export { auditLogs } from "./audit-logs";
+export { backupStorageConfigs } from "./backup-storage";
+export { backups } from "./backups";
 export { nodeCredentials } from "./node-credentials";
 export { nodes } from "./nodes";
 export { pairingTokens } from "./pairing-tokens";
 export { passwordResetTokens } from "./password-reset-tokens";
 export { regions } from "./regions";
 export { registries } from "./registries";
+export { serverMembers } from "./server-members";
 export { servers } from "./servers";
 export { sessions } from "./sessions";
 export { templates } from "./templates";

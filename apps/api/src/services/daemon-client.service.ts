@@ -205,7 +205,13 @@ export class DaemonClient {
     backupId: string,
     name: string,
     storageLocation: string,
-    s3Config?: { endpoint: string; bucket: string; accessKey: string; secretKey: string; region: string },
+    s3Config?: {
+      endpoint: string;
+      bucket: string;
+      accessKey: string;
+      secretKey: string;
+      region: string;
+    },
   ): Promise<{ backupId: string; sizeBytes: number; checksum: string | null; status: string }> {
     const body = JSON.stringify({
       name,
@@ -242,14 +248,22 @@ export class DaemonClient {
         resp.status,
       );
     }
-    return text ? JSON.parse(text) : { backupId, sizeBytes: 0, checksum: null, status: "completed" };
+    return text
+      ? JSON.parse(text)
+      : { backupId, sizeBytes: 0, checksum: null, status: "completed" };
   }
 
   async restoreBackup(
     serverId: string,
     backupId: string,
     storageLocation: string,
-    s3Config?: { endpoint: string; bucket: string; accessKey: string; secretKey: string; region: string },
+    s3Config?: {
+      endpoint: string;
+      bucket: string;
+      accessKey: string;
+      secretKey: string;
+      region: string;
+    },
   ): Promise<{ status: string }> {
     const body = JSON.stringify({
       storageLocation,
@@ -260,19 +274,16 @@ export class DaemonClient {
       s3Region: s3Config?.region,
     });
     const { signature, timestamp } = this.sign(body);
-    const resp = await fetch(
-      `${this.baseUrl}/servers/${serverId}/backups/${backupId}/restore`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Node-Id": this.secretId,
-          "X-Node-Signature": signature,
-          "X-Node-Timestamp": timestamp,
-        },
-        body,
+    const resp = await fetch(`${this.baseUrl}/servers/${serverId}/backups/${backupId}/restore`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Node-Id": this.secretId,
+        "X-Node-Signature": signature,
+        "X-Node-Timestamp": timestamp,
       },
-    );
+      body,
+    });
     const text = await resp.text();
     if (!resp.ok) {
       let errorBody: { error?: { code?: string; message?: string } };
@@ -294,7 +305,13 @@ export class DaemonClient {
     serverId: string,
     backupId: string,
     storageLocation: string,
-    s3Config?: { endpoint: string; bucket: string; accessKey: string; secretKey: string; region: string },
+    s3Config?: {
+      endpoint: string;
+      bucket: string;
+      accessKey: string;
+      secretKey: string;
+      region: string;
+    },
   ): Promise<void> {
     const params = new URLSearchParams({ storage: storageLocation });
     if (s3Config) {
@@ -306,17 +323,14 @@ export class DaemonClient {
     }
     const bodyStr = "";
     const { signature, timestamp } = this.sign(bodyStr);
-    const resp = await fetch(
-      `${this.baseUrl}/servers/${serverId}/backups/${backupId}?${params}`,
-      {
-        method: "DELETE",
-        headers: {
-          "X-Node-Id": this.secretId,
-          "X-Node-Signature": signature,
-          "X-Node-Timestamp": timestamp,
-        },
+    const resp = await fetch(`${this.baseUrl}/servers/${serverId}/backups/${backupId}?${params}`, {
+      method: "DELETE",
+      headers: {
+        "X-Node-Id": this.secretId,
+        "X-Node-Signature": signature,
+        "X-Node-Timestamp": timestamp,
       },
-    );
+    });
     if (!resp.ok && resp.status !== 204) {
       const text = await resp.text();
       let errorBody: { error?: { code?: string; message?: string } };
