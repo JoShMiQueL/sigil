@@ -395,6 +395,15 @@ func (m *Manager) getEntry(serverID string) (*ServerEntry, error) {
 	return entry, nil
 }
 
+// GetJail returns the jail for a server's volume. Used by the backup manager.
+func (m *Manager) GetJail(serverID string) (*jail.Jail, error) {
+	entry, err := m.getEntry(serverID)
+	if err != nil {
+		return nil, err
+	}
+	return entry.Jail, nil
+}
+
 func (m *Manager) isDiskFull() bool {
 	usage := getDiskUsage(m.volumeBase)
 	return usage >= float64(m.diskFullPct)

@@ -1,4 +1,6 @@
 export { allocations } from "./allocations";
+export { backupStorageConfigs } from "./backup-storage";
+export { backups } from "./backups";
 export { apiKeys } from "./api-keys";
 export { auditLogs } from "./audit-logs";
 export { nodeCredentials } from "./node-credentials";

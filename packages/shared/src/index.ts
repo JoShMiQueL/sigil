@@ -1,5 +1,6 @@
 export * from "./allocation/allocation";
 export * from "./auth/api-key";
+export * from "./backups/backup";
 export * from "./auth/login";
 export * from "./auth/password-reset";
 export * from "./auth/permissions";

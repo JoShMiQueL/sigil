@@ -14,6 +14,7 @@ import (
 
 	"github.com/sigil/sigil/apps/daemon/internal/api"
 	"github.com/sigil/sigil/apps/daemon/internal/auth"
+	"github.com/sigil/sigil/apps/daemon/internal/backup"
 	"github.com/sigil/sigil/apps/daemon/internal/config"
 	"github.com/sigil/sigil/apps/daemon/internal/docker"
 	"github.com/sigil/sigil/apps/daemon/internal/heartbeat"
@@ -120,6 +121,14 @@ func main() {
 	// Create server manager
 	serverManager := server.NewManager(dockerClient, creds.NodeID, cfg.VolumeBasePath, cfg.DiskFullThresholdPct)
 
+	// Create backup manager
+	localStorage, err := backup.NewLocalStorage(cfg.BackupBasePath)
+	if err != nil {
+		slog.Error("failed to create local backup storage", "error", err)
+		os.Exit(1)
+	}
+	backupMgr := backup.NewManager(localStorage, serverManager)
+
 	// Create state change queue
 	stateQueue := server.NewStateChangeQueue(panelClient, creds.NodeID)
 	stateQueue.Start(ctx)
@@ -160,7 +169,7 @@ func main() {
 	}
 
 	// Create HTTP server with full API
-	handlers := api.NewHandlers(serverManager, dockerClient, cfg.StopTimeoutSec, cfg.AppSecret)
+	handlers := api.NewHandlers(serverManager, dockerClient, cfg.StopTimeoutSec, cfg.AppSecret, backupMgr)
 	credStore := &auth.StaticCredentialStore{
 		SecretID: creds.SecretID,
 		Secret:   creds.Secret,

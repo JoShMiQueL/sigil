@@ -182,6 +182,7 @@ async function main() {
 pairing_token: ${token}
 credentials_path: ${DAEMON_CREDS}
 volume_base_path: /tmp/sigil/volumes
+backup_base_path: /tmp/sigil/backups
 docker_socket: /var/run/docker.sock
 listen_address: 127.0.0.1:8080
 advertise_ip: 127.0.0.1

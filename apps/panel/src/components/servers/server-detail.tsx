@@ -2,8 +2,11 @@ import type { FileEntry, ServerLifecycleStatus } from "@sigil/shared";
 import { useState } from "react";
 import { useConsole } from "../../hooks/useConsole";
 import { useConsoleToken } from "../../hooks/useConsoleToken";
+import { useBackupList } from "../../hooks/useBackups";
 import { useNodes } from "../../hooks/useNodes";
 import { useDeleteServer, usePowerAction, useServer } from "../../hooks/useServers";
+import { BackupCreate } from "../backups/backup-create";
+import { BackupList } from "../backups/backup-list";
 import { FileBrowser } from "../files/file-browser";
 import { FileEditor } from "../files/file-editor";
 import { ConsoleView } from "./console-view";
@@ -26,6 +29,7 @@ export function ServerDetail({ serverId }: { serverId: string }) {
   const deleteMutation = useDeleteServer();
   const nodeMap = new Map((nodesData ?? []).map((n) => [n.id, n.displayName]));
   const [selectedFile, setSelectedFile] = useState<FileEntry | null>(null);
+  const { data: backupsData } = useBackupList(serverId);
 
   const isRunning = server?.status === "running" || server?.status === "starting";
   const { data: tokenData } = useConsoleToken(serverId, isRunning);
@@ -131,6 +135,12 @@ export function ServerDetail({ serverId }: { serverId: string }) {
             />
           </div>
         )}
+      </div>
+
+      <div style={{ marginTop: "1.5rem" }}>
+        <h3>Backups</h3>
+        <BackupCreate serverId={serverId} />
+        <BackupList serverId={serverId} backups={backupsData?.backups ?? []} />
       </div>
 
       <div style={{ marginTop: "1.5rem" }}>

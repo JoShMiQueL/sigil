@@ -13,6 +13,7 @@ type Config struct {
 	PairingToken         string  `yaml:"pairing_token"`
 	CredentialsPath      string  `yaml:"credentials_path"`
 	VolumeBasePath       string  `yaml:"volume_base_path"`
+	BackupBasePath       string  `yaml:"backup_base_path"`
 	DockerSocket         string  `yaml:"docker_socket"`
 	ListenAddress        string  `yaml:"listen_address"`
 	AdvertiseIP          string  `yaml:"advertise_ip"`
@@ -87,6 +88,9 @@ func (c *Config) Validate() error {
 	if c.LogLevel == "" {
 		c.LogLevel = "info"
 	}
+	if c.BackupBasePath == "" {
+		c.BackupBasePath = "/var/lib/sigil/backups"
+	}
 
 	// Ensure credential directory exists
 	dir := filepath.Dir(c.CredentialsPath)
@@ -99,6 +103,11 @@ func (c *Config) Validate() error {
 	// Ensure volume base path exists
 	if err := os.MkdirAll(c.VolumeBasePath, 0o755); err != nil {
 		return fmt.Errorf("create volume base path: %w", err)
+	}
+
+	// Ensure backup base path exists
+	if err := os.MkdirAll(c.BackupBasePath, 0o755); err != nil {
+		return fmt.Errorf("create backup base path: %w", err)
 	}
 
 	return nil

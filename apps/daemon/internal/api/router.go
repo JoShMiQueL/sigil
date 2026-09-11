@@ -4,24 +4,27 @@ import (
 	"net/http"
 
 	"github.com/sigil/sigil/apps/daemon/internal/auth"
+	"github.com/sigil/sigil/apps/daemon/internal/backup"
 	"github.com/sigil/sigil/apps/daemon/internal/console"
 	"github.com/sigil/sigil/apps/daemon/internal/docker"
 	"github.com/sigil/sigil/apps/daemon/internal/server"
 )
 
 type Handlers struct {
-	manager       *server.Manager
-	dockerClient  *docker.Client
-	stopTimeout   int
+	manager        *server.Manager
+	dockerClient   *docker.Client
+	stopTimeout    int
 	consoleHandler *console.Handler
+	backupMgr      *backup.Manager
 }
 
-func NewHandlers(manager *server.Manager, dockerClient *docker.Client, stopTimeout int, appSecret string) *Handlers {
+func NewHandlers(manager *server.Manager, dockerClient *docker.Client, stopTimeout int, appSecret string, backupMgr *backup.Manager) *Handlers {
 	return &Handlers{
 		manager:        manager,
 		dockerClient:   dockerClient,
 		stopTimeout:    stopTimeout,
 		consoleHandler: console.NewHandler(dockerClient, appSecret),
+		backupMgr:      backupMgr,
 	}
 }
 
@@ -55,6 +58,10 @@ func NewRouter(h *Handlers, credStore auth.CredentialStore) http.Handler {
 	protected.HandleFunc("POST /servers/{serverId}/files/rename", h.RenameFile)
 	protected.HandleFunc("POST /servers/{serverId}/files/upload", h.UploadFile)
 	protected.HandleFunc("GET /servers/{serverId}/files/download", h.DownloadFile)
+	// Backup operations
+	protected.HandleFunc("POST /servers/{serverId}/backups", h.CreateBackup)
+	protected.HandleFunc("POST /servers/{serverId}/backups/{backupId}/restore", h.RestoreBackup)
+	protected.HandleFunc("DELETE /servers/{serverId}/backups/{backupId}", h.DeleteBackup)
 
 	mux.Handle("/servers", authMw.Wrap(protected))
 	mux.Handle("/servers/", authMw.Wrap(protected))

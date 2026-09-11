@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/sigil/sigil/apps/daemon/internal/backup"
 	"github.com/sigil/sigil/apps/daemon/internal/server"
 )
 
@@ -359,4 +360,153 @@ func lastIndexByte(s string, b byte) int {
 		}
 	}
 	return -1
+}
+
+// Backup operations
+
+type createBackupRequest struct {
+	Name           string `json:"name"`
+	BackupID       string `json:"backupId"`
+	StorageLocation string `json:"storageLocation"`
+	S3Endpoint     string `json:"s3Endpoint"`
+	S3Bucket       string `json:"s3Bucket"`
+	S3AccessKey    string `json:"s3AccessKey"`
+	S3SecretKey    string `json:"s3SecretKey"`
+	S3Region       string `json:"s3Region"`
+}
+
+func (h *Handlers) CreateBackup(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+	if serverID == "" {
+		writeError(w, "INVALID_REQUEST", "serverId required", http.StatusBadRequest)
+		return
+	}
+
+	var req createBackupRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+	if req.BackupID == "" {
+		writeError(w, "INVALID_REQUEST", "backupId required", http.StatusBadRequest)
+		return
+	}
+
+	var s3Cfg *backup.S3Config
+	if req.StorageLocation == "s3" {
+		s3Cfg = &backup.S3Config{
+			Endpoint:  req.S3Endpoint,
+			Bucket:    req.S3Bucket,
+			AccessKey: req.S3AccessKey,
+			SecretKey: req.S3SecretKey,
+			Region:    req.S3Region,
+		}
+	}
+
+	size, checksum, err := h.backupMgr.CreateBackup(serverID, req.BackupID, req.Name, req.StorageLocation, s3Cfg)
+	if err != nil {
+		code, status := mapBackupError(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"backupId":   req.BackupID,
+		"sizeBytes":  size,
+		"checksum":   checksum,
+		"status":     "completed",
+	})
+}
+
+type restoreBackupRequest struct {
+	StorageLocation string `json:"storageLocation"`
+	S3Endpoint     string `json:"s3Endpoint"`
+	S3Bucket       string `json:"s3Bucket"`
+	S3AccessKey    string `json:"s3AccessKey"`
+	S3SecretKey    string `json:"s3SecretKey"`
+	S3Region       string `json:"s3Region"`
+}
+
+func (h *Handlers) RestoreBackup(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+	backupID := r.PathValue("backupId")
+	if serverID == "" || backupID == "" {
+		writeError(w, "INVALID_REQUEST", "serverId and backupId required", http.StatusBadRequest)
+		return
+	}
+
+	var req restoreBackupRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	var s3Cfg *backup.S3Config
+	if req.StorageLocation == "s3" {
+		s3Cfg = &backup.S3Config{
+			Endpoint:  req.S3Endpoint,
+			Bucket:    req.S3Bucket,
+			AccessKey: req.S3AccessKey,
+			SecretKey: req.S3SecretKey,
+			Region:    req.S3Region,
+		}
+	}
+
+	if err := h.backupMgr.RestoreBackup(serverID, backupID, req.StorageLocation, s3Cfg); err != nil {
+		code, status := mapBackupError(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"status": "completed"})
+}
+
+func (h *Handlers) DeleteBackup(w http.ResponseWriter, r *http.Request) {
+	serverID := r.PathValue("serverId")
+	backupID := r.PathValue("backupId")
+	if serverID == "" || backupID == "" {
+		writeError(w, "INVALID_REQUEST", "serverId and backupId required", http.StatusBadRequest)
+		return
+	}
+
+	storageLocation := r.URL.Query().Get("storage")
+	if storageLocation == "" {
+		storageLocation = "local"
+	}
+
+	var s3Cfg *backup.S3Config
+	if storageLocation == "s3" {
+		s3Endpoint := r.URL.Query().Get("s3Endpoint")
+		s3Bucket := r.URL.Query().Get("s3Bucket")
+		s3AccessKey := r.URL.Query().Get("s3AccessKey")
+		s3SecretKey := r.URL.Query().Get("s3SecretKey")
+		s3Region := r.URL.Query().Get("s3Region")
+		s3Cfg = &backup.S3Config{
+			Endpoint:  s3Endpoint,
+			Bucket:    s3Bucket,
+			AccessKey: s3AccessKey,
+			SecretKey: s3SecretKey,
+			Region:    s3Region,
+		}
+	}
+
+	if err := h.backupMgr.DeleteBackup(serverID, backupID, storageLocation, s3Cfg); err != nil {
+		code, status := mapBackupError(err)
+		writeError(w, code, err.Error(), status)
+		return
+	}
+
+	writeNoContent(w)
+}
+
+func mapBackupError(err error) (code string, status int) {
+	msg := err.Error()
+	switch {
+	case contains(msg, "BACKUP_IN_PROGRESS"):
+		return "BACKUP_IN_PROGRESS", http.StatusConflict
+	case contains(msg, "SERVER_NOT_FOUND"):
+		return "SERVER_NOT_FOUND", http.StatusNotFound
+	case contains(msg, "s3"):
+		return "S3_ERROR", http.StatusBadGateway
+	default:
+		return "BACKUP_FAILED", http.StatusInternalServerError
+	}
 }

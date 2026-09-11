@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AllocationForm } from "../components/allocations/allocation-form";
 import { AllocationList } from "../components/allocations/allocation-list";
 import { AllocationSummaryView } from "../components/allocations/allocation-summary";
+import { BackupStorageConfig } from "../components/backups/backup-storage-config";
 import { ErrorState } from "../components/ErrorState";
 import { Layout } from "../components/Layout";
 import { LoadingState } from "../components/LoadingState";
@@ -225,6 +226,12 @@ export function NodeDetailPage() {
 
         <AllocationForm nodeId={nodeId} />
         <AllocationList nodeId={nodeId} />
+      </div>
+
+      {/* Backup Storage Section (R12) */}
+      <div style={{ marginTop: "2rem" }}>
+        <h2>Backup Storage</h2>
+        <BackupStorageConfig nodeId={nodeId} />
       </div>
 
       <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>

@@ -19,11 +19,13 @@ func writeTempConfig(t *testing.T, content string) string {
 func TestLoadValidConfig(t *testing.T) {
 	volDir := t.TempDir()
 	credDir := t.TempDir()
+	backupDir := t.TempDir()
 	cfg := `
 panel_url: http://localhost:3000
 pairing_token: sigilpair_test
 credentials_path: ` + filepath.Join(credDir, "creds.json") + `
 volume_base_path: ` + volDir + `
+backup_base_path: ` + backupDir + `
 docker_socket: /var/run/docker.sock
 listen_address: 127.0.0.1:8080
 heartbeat_interval_sec: 5
