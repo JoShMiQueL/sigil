@@ -206,6 +206,8 @@ export function AllocationList({ nodeId }: AllocationListProps) {
 
       {/* Assign dialog */}
       {assigningId && (
+        // biome-ignore lint/a11y/useSemanticElements: modal backdrop, not a button
+        // biome-ignore lint/a11y/useKeyWithClickEvents: modal backdrop click-to-close
         <div
           style={{
             position: "fixed",
@@ -216,9 +218,17 @@ export function AllocationList({ nodeId }: AllocationListProps) {
             justifyContent: "center",
             zIndex: 100,
           }}
+          role="button"
+          tabIndex={0}
           onClick={() => setAssigningId(null)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" || e.key === "Enter") setAssigningId(null);
+          }}
         >
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only, no action */}
           <div
+            role="dialog"
+            aria-modal="true"
             style={{
               background: "#1a1a2e",
               border: "1px solid #444",
@@ -227,6 +237,7 @@ export function AllocationList({ nodeId }: AllocationListProps) {
               minWidth: "360px",
             }}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             <h3 style={{ margin: "0 0 1rem 0" }}>Assign Allocation</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>

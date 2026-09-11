@@ -1,6 +1,6 @@
 import { db, schema } from "@sigil/db";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { app } from "../index";
 import {
   apiRequest,
@@ -13,6 +13,14 @@ import {
   loginAndGetCookie,
   parseJson,
 } from "../test/helpers";
+
+vi.mock("../middleware/rate-limit", () => ({
+  rateLimitMiddleware: async (_c: unknown, next: () => Promise<void>) => {
+    await next();
+  },
+  checkRateLimit: async () => true,
+  recordFailedAttempt: async () => {},
+}));
 
 async function createServerRecord(nodeId: string, name: string): Promise<string> {
   const [row] = await db

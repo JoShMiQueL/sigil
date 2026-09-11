@@ -177,7 +177,9 @@ test.describe("members [R13]", () => {
     });
     expect(listRes.status).toBe(200);
     const listBody = await listRes.json();
-    const found = listBody.members.find((m: { email: string }) => m.email === "member-e2e@test.local");
+    const found = listBody.members.find(
+      (m: { email: string }) => m.email === "member-e2e@test.local",
+    );
     expect(found).toBeDefined();
   });
 
