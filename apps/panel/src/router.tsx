@@ -56,6 +56,8 @@ import { useAuth } from "./hooks/useAuth";
 import { useSSE } from "./hooks/useSSE";
 import { NodeDetailPage } from "./routes/node-detail";
 import { NodesPage } from "./routes/nodes";
+import { ServerDetailPage } from "./routes/server-detail";
+import { ServersPage } from "./routes/servers";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -178,6 +180,13 @@ function DashboardPage() {
         <p>
           <button type="button" onClick={() => router.navigate({ to: "/templates" })}>
             Manage Templates
+          </button>
+        </p>
+      )}
+      {user.role === "admin" && (
+        <p>
+          <button type="button" onClick={() => router.navigate({ to: "/servers" })}>
+            Manage Servers
           </button>
         </p>
       )}
@@ -643,6 +652,28 @@ const nodeDetailRoute = createRoute({
   component: NodeDetailPage,
 });
 
+const serversRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/servers",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: ServersPage,
+});
+
+const serverDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/servers/$serverId",
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    if (user === null) throw redirect({ to: "/login" });
+    if (user && user.role !== "admin") throw redirect({ to: "/" });
+  },
+  component: ServerDetailPage,
+});
+
 function RegistriesPage() {
   const { data: registries, isLoading } = useRegistries();
   const createMutation = useCreateRegistry();
@@ -998,6 +1029,8 @@ export const routeTree = rootRoute.addChildren([
   usersRoute,
   nodesRoute,
   nodeDetailRoute,
+  serversRoute,
+  serverDetailRoute,
   registriesRoute,
   templatesRoute,
   forgotPasswordRoute,

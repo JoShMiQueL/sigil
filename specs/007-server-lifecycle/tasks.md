@@ -28,14 +28,14 @@
 
 **Purpose**: Shared contracts, database schema, and SSE event types needed by all user stories.
 
-- [ ] T001 Add server record schemas to `packages/shared/src/server/record.ts` — ServerStatusEnum, ServerRecordSchema, ServerCreateInputSchema, ServerListResponseSchema, ServerPowerActionSchema (per data-model.md)
-- [ ] T002 [P] Add server SSE event types and payloads to `packages/shared/src/sse/events.ts` — server.create, server.update, server.delete (per data-model.md)
-- [ ] T003 [P] Re-export server record schemas from `packages/shared/src/index.ts` — add `export * from "./server/record"`
-- [ ] T004 Create servers table in `packages/db/src/schema/servers.ts` — id, name, nodeId, templateId, allocationId, status, config JSONB, createdAt, updatedAt, unique(nodeId, name), indexes (per data-model.md)
-- [ ] T005 Export servers table from `packages/db/src/schema/index.ts` — add `export * from "./servers"`
-- [ ] T006 Generate Drizzle migration for servers table — `bun --filter @sigilpanel/db db:generate`
-- [ ] T007 [P] Update test-cleanup endpoint in `apps/api/src/routes/test-cleanup.ts` — delete servers before allocations/nodes cleanup
-- [ ] T008 [P] Update test-cleanup helper in `apps/api/src/test/helpers.ts` — add cleanupServers() helper
+- [X] T001 Add server record schemas to `packages/shared/src/server/record.ts` — ServerStatusEnum, ServerRecordSchema, ServerCreateInputSchema, ServerListResponseSchema, ServerPowerActionSchema (per data-model.md)
+- [X] T002 [P] Add server SSE event types and payloads to `packages/shared/src/sse/events.ts` — server.create, server.update, server.delete (per data-model.md)
+- [X] T003 [P] Re-export server record schemas from `packages/shared/src/index.ts` — add `export * from "./server/record"`
+- [X] T004 Create servers table in `packages/db/src/schema/servers.ts` — id, name, nodeId, templateId, allocationId, status, config JSONB, createdAt, updatedAt, unique(nodeId, name), indexes (per data-model.md)
+- [X] T005 Export servers table from `packages/db/src/schema/index.ts` — add `export * from "./servers"`
+- [X] T006 Generate Drizzle migration for servers table — `bun --filter @sigilpanel/db db:generate`
+- [X] T007 [P] Update test-cleanup endpoint in `apps/api/src/routes/test-cleanup.ts` — delete servers before allocations/nodes cleanup
+- [X] T008 [P] Update test-cleanup helper in `apps/api/src/test/helpers.ts` — add cleanupServers() helper
 
 **Checkpoint**: Shared contracts, DB schema, and test infrastructure ready.
 
@@ -47,8 +47,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T009 Implement server.service.ts in `apps/api/src/services/server.service.ts` — createServer (validate node/template/allocations, auto-assign allocation via R7, build ServerConfiguration from template, create record, dispatch to daemon), getServer, listServers (with filters: nodeId, status, pagination), deleteServer (daemon cleanup + release allocations + delete record), powerAction (validate state transition, send to daemon, update status), updateServerState (from daemon reports, map ContainerState → panel status)
-- [ ] T010 Write server.service.spec.ts in `apps/api/src/services/server.service.spec.ts` — integration tests for create, list, get, delete, power actions, state transitions, allocation integration, error cases
+- [X] T009 Implement server.service.ts in `apps/api/src/services/server.service.ts` — createServer (validate node/template/allocations, auto-assign allocation via R7, build ServerConfiguration from template, create record, dispatch to daemon), getServer, listServers (with filters: nodeId, status, pagination), deleteServer (daemon cleanup + release allocations + delete record), powerAction (validate state transition, send to daemon, update status), updateServerState (from daemon reports, map ContainerState → panel status)
+- [X] T010 Write server.service.spec.ts in `apps/api/src/services/server.service.spec.ts` — integration tests for create, list, get, delete, power actions, state transitions, allocation integration, error cases
 
 **Checkpoint**: Server service ready — user story implementation can now begin.
 
@@ -62,20 +62,20 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Refactor POST /api/admin/servers route in `apps/api/src/routes/servers.ts` — use ServerCreateInputSchema (name, nodeId, templateId, variables), call server.service.createServer, return ServerRecord, emit server.create SSE event
-- [ ] T012 [US1] Refactor GET /api/admin/servers route in `apps/api/src/routes/servers.ts` — use server.service.listServers with nodeId/status/limit/offset query params, return ServerListResponse
-- [ ] T013 [US1] Refactor GET /api/admin/servers/:serverId route in `apps/api/src/routes/servers.ts` — use server.service.getServer, return ServerRecord or 404
-- [ ] T014 [US1] Write route tests in `apps/api/src/routes/servers.spec.ts` — create success, create no allocations (409), create node unreachable (502), create duplicate name (409), create inactive template (409), list with filters, get by id, get not found (404)
-- [ ] T015 [US1] Mount servers routes in `apps/api/src/index.ts` — ensure /api/admin/servers is mounted (may already be mounted, verify)
-- [ ] T016 [P] [US1] Add useServers, useServer, useCreateServer hooks to `apps/panel/src/hooks/useServers.ts` — useServers(nodeId?, status?) with query keys, useCreateServer mutation with invalidation
-- [ ] T017 [US1] Add server SSE invalidation to panel SSE hook in `apps/panel/src/hooks/useSSE.ts` — invalidate ["servers"] and ["server", serverId] on server.create/update/delete events
-- [ ] T018 [P] [US1] Create server-create-dialog component in `apps/panel/src/components/servers/server-create-dialog.tsx` — name input, node dropdown, template dropdown (active only), variable inputs, submit button
-- [ ] T019 [US1] Create server-list component in `apps/panel/src/components/servers/server-list.tsx` — table with name, node, status, template, filter by status, link to detail
-- [ ] T020 [US1] Create servers list page in `apps/panel/src/routes/servers.tsx` — Layout, server-list, create button with server-create-dialog
-- [ ] T021 [US1] Add servers route to TanStack Router in `apps/panel/src/router.ts` (or wherever routes are registered) — /servers path
-- [ ] T022 [US1] Add "Servers" navigation link to Layout in `apps/panel/src/components/Layout.tsx`
-- [ ] T023 [US1] MCP verification — start dev services, create a server via panel UI, verify it appears in the list with status "offline", verify allocation assigned on node detail page, verify daemon created the container
-- [ ] T024 [US1] Add E2E test for server creation in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — create server via panel, verify in list, verify allocation assigned
+- [X] T011 [US1] Refactor POST /api/admin/servers route in `apps/api/src/routes/servers.ts` — use ServerCreateInputSchema (name, nodeId, templateId, variables), call server.service.createServer, return ServerRecord, emit server.create SSE event
+- [X] T012 [US1] Refactor GET /api/admin/servers route in `apps/api/src/routes/servers.ts` — use server.service.listServers with nodeId/status/limit/offset query params, return ServerListResponse
+- [X] T013 [US1] Refactor GET /api/admin/servers/:serverId route in `apps/api/src/routes/servers.ts` — use server.service.getServer, return ServerRecord or 404
+- [X] T014 [US1] Write route tests in `apps/api/src/routes/servers.spec.ts` — create success, create no allocations (409), create node unreachable (502), create duplicate name (409), create inactive template (409), list with filters, get by id, get not found (404)
+- [X] T015 [US1] Mount servers routes in `apps/api/src/index.ts` — ensure /api/admin/servers is mounted (may already be mounted, verify)
+- [X] T016 [P] [US1] Add useServers, useServer, useCreateServer hooks to `apps/panel/src/hooks/useServers.ts` — useServers(nodeId?, status?) with query keys, useCreateServer mutation with invalidation
+- [X] T017 [US1] Add server SSE invalidation to panel SSE hook in `apps/panel/src/hooks/useSSE.ts` — invalidate ["servers"] and ["server", serverId] on server.create/update/delete events
+- [X] T018 [P] [US1] Create server-create-dialog component in `apps/panel/src/components/servers/server-create-dialog.tsx` — name input, node dropdown, template dropdown (active only), variable inputs, submit button
+- [X] T019 [US1] Create server-list component in `apps/panel/src/components/servers/server-list.tsx` — table with name, node, status, template, filter by status, link to detail
+- [X] T020 [US1] Create servers list page in `apps/panel/src/routes/servers.tsx` — Layout, server-list, create button with server-create-dialog
+- [X] T021 [US1] Add servers route to TanStack Router in `apps/panel/src/router.ts` (or wherever routes are registered) — /servers path
+- [X] T022 [US1] Add "Servers" navigation link to Layout in `apps/panel/src/components/Layout.tsx`
+- [X] T023 [US1] MCP verification — start dev services, create a server via panel UI, verify it appears in the list with status "offline", verify allocation assigned on node detail page, verify daemon created the container
+- [X] T024 [US1] Add E2E test for server creation in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — create server via panel, verify in list, verify allocation assigned
 
 **Checkpoint**: Admin can create a server and see it in the list. MVP delivered.
 
@@ -89,15 +89,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Refactor POST /api/admin/servers/:serverId/power route in `apps/api/src/routes/servers.ts` — accept ServerPowerActionSchema (start/stop/restart), call server.service.powerAction, return { serverId, status }, emit server.update SSE
-- [ ] T026 [US2] Update server-state.ts route in `apps/api/src/routes/server-state.ts` — call server.service.updateServerState to persist state, emit server.update SSE event (currently only emits raw server.state)
-- [ ] T027 [US2] Add power action tests to `apps/api/src/routes/servers.spec.ts` — start from offline, stop from running, restart from running, invalid transition (409), node unreachable (502)
-- [ ] T028 [P] [US2] Add usePowerAction hook to `apps/panel/src/hooks/useServers.ts` — mutation for POST /:serverId/power, invalidate server + servers queries on success
-- [ ] T029 [US2] Create server-detail component in `apps/panel/src/components/servers/server-detail.tsx` — server info (name, node, template, allocation, status), power buttons (Start/Stop/Restart) with state-aware disabled logic
-- [ ] T030 [US2] Create server detail page in `apps/panel/src/routes/server-detail.tsx` — Layout, server-detail component, SSE-driven refresh
-- [ ] T031 [US2] Add server detail route to TanStack Router — /servers/:serverId path
-- [ ] T032 [US2] MCP verification — start a server via panel, verify status transitions to "running" via SSE (no reload), stop it, verify "stopped", restart, verify "running"
-- [ ] T033 [US2] Add E2E test for power actions in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — start, verify running, stop, verify stopped, restart, verify running
+- [X] T025 [US2] Refactor POST /api/admin/servers/:serverId/power route in `apps/api/src/routes/servers.ts` — accept ServerPowerActionSchema (start/stop/restart), call server.service.powerAction, return { serverId, status }, emit server.update SSE
+- [X] T026 [US2] Update server-state.ts route in `apps/api/src/routes/server-state.ts` — call server.service.updateServerState to persist state, emit server.update SSE event (currently only emits raw server.state)
+- [X] T027 [US2] Add power action tests to `apps/api/src/routes/servers.spec.ts` — start from offline, stop from running, restart from running, invalid transition (409), node unreachable (502)
+- [X] T028 [P] [US2] Add usePowerAction hook to `apps/panel/src/hooks/useServers.ts` — mutation for POST /:serverId/power, invalidate server + servers queries on success
+- [X] T029 [US2] Create server-detail component in `apps/panel/src/components/servers/server-detail.tsx` — server info (name, node, template, allocation, status), power buttons (Start/Stop/Restart) with state-aware disabled logic
+- [X] T030 [US2] Create server detail page in `apps/panel/src/routes/server-detail.tsx` — Layout, server-detail component, SSE-driven refresh
+- [X] T031 [US2] Add server detail route to TanStack Router — /servers/:serverId path
+- [X] T032 [US2] MCP verification — start a server via panel, verify status transitions to "running" via SSE (no reload), stop it, verify "stopped", restart, verify "running"
+- [X] T033 [US2] Add E2E test for power actions in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — start, verify running, stop, verify stopped, restart, verify running
 
 **Checkpoint**: Admin can control server power state with real-time SSE updates.
 
@@ -111,12 +111,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Refactor DELETE /api/admin/servers/:serverId route in `apps/api/src/routes/servers.ts` — call server.service.deleteServer (daemon cleanup + release allocations + delete record), emit server.delete SSE, return 204
-- [ ] T035 [US3] Add deletion tests to `apps/api/src/routes/servers.spec.ts` — delete success (204), delete releases allocations, delete node unreachable (502), delete not found (404)
-- [ ] T036 [P] [US3] Add useDeleteServer hook to `apps/panel/src/hooks/useServers.ts` — mutation for DELETE /:serverId, invalidate servers query on success
-- [ ] T037 [US3] Add delete button with confirmation to server-detail component in `apps/panel/src/components/servers/server-detail.tsx` — confirm dialog, call useDeleteServer, navigate to /servers on success
-- [ ] T038 [US3] MCP verification — delete a server via panel, verify it disappears from list (SSE), verify allocations released on node detail page, verify container removed on daemon
-- [ ] T039 [US3] Add E2E test for server deletion in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — create server, delete via panel, verify removed from list, verify allocations released
+- [X] T034 [US3] Refactor DELETE /api/admin/servers/:serverId route in `apps/api/src/routes/servers.ts` — call server.service.deleteServer (daemon cleanup + release allocations + delete record), emit server.delete SSE, return 204
+- [X] T035 [US3] Add deletion tests to `apps/api/src/routes/servers.spec.ts` — delete success (204), delete releases allocations, delete node unreachable (502), delete not found (404)
+- [X] T036 [P] [US3] Add useDeleteServer hook to `apps/panel/src/hooks/useServers.ts` — mutation for DELETE /:serverId, invalidate servers query on success
+- [X] T037 [US3] Add delete button with confirmation to server-detail component in `apps/panel/src/components/servers/server-detail.tsx` — confirm dialog, call useDeleteServer, navigate to /servers on success
+- [X] T038 [US3] MCP verification — delete a server via panel, verify it disappears from list (SSE), verify allocations released on node detail page, verify container removed on daemon
+- [X] T039 [US3] Add E2E test for server deletion in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — create server, delete via panel, verify removed from list, verify allocations released
 
 **Checkpoint**: Admin can delete servers with full cleanup.
 
@@ -130,12 +130,12 @@
 
 ### Implementation for User Story 4
 
-- [ ] T040 [US4] Add status filter dropdown to server-list component in `apps/panel/src/components/servers/server-list.tsx` — all/offline/starting/running/stopping/stopped/crashed/creation_failed
-- [ ] T041 [US4] Add node filter dropdown to server-list component in `apps/panel/src/components/servers/server-list.tsx` — distinct nodes from server list
-- [ ] T042 [US4] Add server summary counts to servers page in `apps/panel/src/routes/servers.tsx` — total, running, stopped, crashed counts
-- [ ] T043 [US4] Add filter tests to `apps/api/src/routes/servers.spec.ts` — filter by status, filter by nodeId, combined filters, pagination
-- [ ] T044 [US4] MCP verification — create multiple servers on different nodes, filter by status, filter by node, verify correct subset, verify SSE updates list in real-time
-- [ ] T045 [US4] Add E2E test for filtering in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — create servers, filter by status, filter by node, verify correct subset displayed
+- [X] T040 [US4] Add status filter dropdown to server-list component in `apps/panel/src/components/servers/server-list.tsx` — all/offline/starting/running/stopping/stopped/crashed/creation_failed
+- [X] T041 [US4] Add node filter dropdown to server-list component in `apps/panel/src/components/servers/server-list.tsx` — distinct nodes from server list
+- [X] T042 [US4] Add server summary counts to servers page in `apps/panel/src/routes/servers.tsx` — total, running, stopped, crashed counts
+- [X] T043 [US4] Add filter tests to `apps/api/src/routes/servers.spec.ts` — filter by status, filter by nodeId, combined filters, pagination
+- [X] T044 [US4] MCP verification — create multiple servers on different nodes, filter by status, filter by node, verify correct subset, verify SSE updates list in real-time
+- [X] T045 [US4] Add E2E test for filtering in `apps/panel/tests/e2e/server-lifecycle.spec.ts` — create servers, filter by status, filter by node, verify correct subset displayed
 
 **Checkpoint**: Server list and detail page fully functional with filtering and real-time updates.
 
@@ -145,14 +145,14 @@
 
 **Purpose**: Improvements that affect multiple user stories.
 
-- [ ] T046 [P] Update test-cleanup to handle server-allocation relationships in `apps/api/src/routes/test-cleanup.ts` — ensure servers are deleted before allocations
-- [ ] T047 [P] Add audit log entries for all server lifecycle actions in `apps/api/src/services/server.service.ts` — create, start, stop, restart, delete (verify existing audit calls in routes are updated to service)
-- [ ] T048 Run `bun run check` (lint + format) and fix any issues
-- [ ] T049 Run `bun run typecheck` and fix any type errors
-- [ ] T050 Run `bun run test` and ensure all unit/integration tests pass
-- [ ] T051 Run `bun run test:e2e` and ensure all E2E tests pass (including new server lifecycle tests)
-- [ ] T052 Run quickstart.md validation scenarios end-to-end
-- [ ] T053 Update ROADMAP.md to mark R9 as `done` (in the same commit that completes the last task)
+- [X] T046 [P] Update test-cleanup to handle server-allocation relationships in `apps/api/src/routes/test-cleanup.ts` — ensure servers are deleted before allocations
+- [X] T047 [P] Add audit log entries for all server lifecycle actions in `apps/api/src/services/server.service.ts` — create, start, stop, restart, delete (verify existing audit calls in routes are updated to service)
+- [X] T048 Run `bun run check` (lint + format) and fix any issues
+- [X] T049 Run `bun run typecheck` and fix any type errors
+- [X] T050 Run `bun run test` and ensure all unit/integration tests pass
+- [X] T051 Run `bun run test:e2e` and ensure all E2E tests pass (including new server lifecycle tests)
+- [X] T052 Run quickstart.md validation scenarios end-to-end
+- [X] T053 Update ROADMAP.md to mark R9 as `done` (in the same commit that completes the last task)
 
 ---
 

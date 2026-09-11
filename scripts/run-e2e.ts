@@ -134,6 +134,7 @@ async function main() {
       REDIS_URL: redisUrl,
       NODE_ENV: "development",
       RATE_LIMIT_DISABLED: "1",
+      SIGIL_VOLUME_BASE_PATH: "/tmp/sigil/volumes",
     },
   });
   apiProcess.stdout?.on("data", (data) => {

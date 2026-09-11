@@ -13,6 +13,7 @@ export * from "./node/pairing";
 export * from "./node/region";
 export * from "./server/config";
 export * from "./server/lifecycle";
+export * from "./server/record";
 export * from "./server/state";
 export * from "./sse/events";
 export * from "./template/changelog";

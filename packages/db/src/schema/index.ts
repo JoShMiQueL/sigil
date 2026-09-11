@@ -7,6 +7,7 @@ export { pairingTokens } from "./pairing-tokens";
 export { passwordResetTokens } from "./password-reset-tokens";
 export { regions } from "./regions";
 export { registries } from "./registries";
+export { servers } from "./servers";
 export { sessions } from "./sessions";
 export { templates } from "./templates";
 export { users } from "./users";

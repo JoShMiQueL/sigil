@@ -9,6 +9,7 @@ import { pairingTokens } from "./schema/pairing-tokens";
 import { passwordResetTokens } from "./schema/password-reset-tokens";
 import { regions } from "./schema/regions";
 import { registries } from "./schema/registries";
+import { servers } from "./schema/servers";
 import { sessions } from "./schema/sessions";
 import { templates } from "./schema/templates";
 import { users } from "./schema/users";
@@ -28,6 +29,7 @@ export const schema = {
   variables,
   registries,
   allocations,
+  servers,
 };
 
 const connectionString =

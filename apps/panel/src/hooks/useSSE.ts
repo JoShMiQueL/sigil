@@ -154,6 +154,9 @@ function connect(): void {
     "allocation.create",
     "allocation.update",
     "allocation.delete",
+    "server.create",
+    "server.update",
+    "server.delete",
   ];
 
   for (const type of eventTypes) {

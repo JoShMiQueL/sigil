@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { StateChangeEventSchema } from "@sigil/shared";
 import { Hono } from "hono";
 import { type NodeAuthContext, nodeAuthMiddleware } from "../middleware/node-auth";
+import { updateServerState } from "../services/server.service";
 import { emitServerStateEvent } from "../services/server-state.service";
 
 const serverStateApp = new Hono<NodeAuthContext>();
@@ -26,6 +27,9 @@ serverStateApp.post(
     }
 
     const event = c.req.valid("json");
+
+    // Persist state change to server record (R9)
+    await updateServerState(event.serverId, event.newState);
 
     // Emit SSE event to connected admin browsers
     emitServerStateEvent(event);

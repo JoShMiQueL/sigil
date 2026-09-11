@@ -23,49 +23,76 @@ async function fetchRetry(url: string, init?: RequestInit, retries = 3): Promise
   throw new Error("unreachable");
 }
 
-test.describe("R6 US4: Server state reporting", () => {
+async function getAdminCookie(): Promise<string> {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "admin@sigil.local", password: "admin12345" }),
+  });
+  const setCookie = res.headers.get("set-cookie") ?? "";
+  return setCookie.split(";")[0];
+}
+
+async function createTemplate(cookie: string, name: string): Promise<string> {
+  const res = await fetchRetry(`${API_URL}/api/admin/templates`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({
+      name,
+      tags: [],
+      image: "alpine:latest",
+      startupCommand: "sleep infinity",
+      resourceLimits: { memoryMb: 64, cpuLimit: 0.5, pidsLimit: 128 },
+    }),
+  });
+  const body = await res.json();
+  return body.id;
+}
+
+async function activateTemplate(cookie: string, templateId: string): Promise<void> {
+  await fetchRetry(`${API_URL}/api/admin/templates/${templateId}/activate`, {
+    method: "POST",
+    headers: { Cookie: cookie },
+  });
+}
+
+async function addAllocations(cookie: string, nodeId: string): Promise<void> {
+  await fetchRetry(`${API_URL}/api/admin/nodes/${nodeId}/allocations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ ip: "203.0.113.10", portStart: 25565, portEnd: 25575, protocol: "tcp" }),
+  });
+}
+
+async function createServer(
+  cookie: string,
+  nodeId: string,
+  templateId: string,
+  name: string,
+): Promise<{ id: string }> {
+  const res = await fetchRetry(`${API_URL}/api/admin/servers`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ name, nodeId, templateId, variables: {} }),
+  });
+  const body = await res.json();
+  return { id: body.id };
+}
+
+test.describe("R6 US4: Server state reporting (R9 panel-owned)", () => {
   test.afterEach(async () => {
-    const nodeId = getNodeId();
-    const cookie = await getAdminCookie();
-    try {
-      const listRes = await fetchRetry(`${API_URL}/api/admin/servers?node_id=${nodeId}`, {
-        headers: { Cookie: cookie },
-      });
-      if (listRes.ok) {
-        const servers = await listRes.json();
-        for (const s of servers) {
-          await fetchRetry(`${API_URL}/api/admin/servers/${s.serverId}?node_id=${nodeId}`, {
-            method: "DELETE",
-            headers: { Cookie: cookie },
-          });
-        }
-      }
-    } catch {
-      // Best-effort cleanup
-    }
     await cleanupDatabase();
   });
 
   test("container crash is detected and reported to panel", async () => {
     const nodeId = getNodeId();
     const cookie = await getAdminCookie();
-    const serverId = crypto.randomUUID();
 
-    // Create server
-    const createRes = await fetchRetry(`${API_URL}/api/admin/servers?node_id=${nodeId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Cookie: cookie },
-      body: JSON.stringify({
-        serverId,
-        image: "alpine:latest",
-        startupCommand: "sleep infinity",
-        environment: {},
-        portMappings: [],
-        resourceLimits: { memoryMb: 64, cpuLimit: 0.5 },
-        volumePath: `/tmp/sigil/volumes/${serverId}`,
-      }),
-    });
-    expect(createRes.status).toBe(201);
+    const templateId = await createTemplate(cookie, "Crash Test Template");
+    await activateTemplate(cookie, templateId);
+    await addAllocations(cookie, nodeId);
+
+    const { id: serverId } = await createServer(cookie, nodeId, templateId, "Crash Test Server");
 
     // Kill the container directly via Docker
     const { execSync } = await import("node:child_process");
@@ -79,50 +106,38 @@ test.describe("R6 US4: Server state reporting", () => {
     await new Promise((r) => setTimeout(r, 5000));
 
     // Verify panel shows crashed state
-    const statusRes = await fetchRetry(
-      `${API_URL}/api/admin/servers/${serverId}?node_id=${nodeId}`,
-      {
-        headers: { Cookie: cookie },
-      },
-    );
+    const statusRes = await fetchRetry(`${API_URL}/api/admin/servers/${serverId}`, {
+      headers: { Cookie: cookie },
+    });
     expect(statusRes.status).toBe(200);
     const statusBody = await statusRes.json();
-    expect(statusBody.state).toBe("crashed");
+    expect(statusBody.status).toBe("crashed");
   });
 
   test("startup reconciliation reports existing containers", async () => {
     const nodeId = getNodeId();
     const cookie = await getAdminCookie();
-    const serverId = crypto.randomUUID();
 
-    // Create server
-    const createRes = await fetchRetry(`${API_URL}/api/admin/servers?node_id=${nodeId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Cookie: cookie },
-      body: JSON.stringify({
-        serverId,
-        image: "alpine:latest",
-        startupCommand: "sleep infinity",
-        environment: {},
-        portMappings: [],
-        resourceLimits: { memoryMb: 64, cpuLimit: 0.5 },
-        volumePath: `/tmp/sigil/volumes/${serverId}`,
-      }),
-    });
-    expect(createRes.status).toBe(201);
+    const templateId = await createTemplate(cookie, "Reconcile Test Template");
+    await activateTemplate(cookie, templateId);
+    await addAllocations(cookie, nodeId);
+
+    const { id: serverId } = await createServer(
+      cookie,
+      nodeId,
+      templateId,
+      "Reconcile Test Server",
+    );
 
     // Verify running
-    const statusRes = await fetchRetry(
-      `${API_URL}/api/admin/servers/${serverId}?node_id=${nodeId}`,
-      {
-        headers: { Cookie: cookie },
-      },
-    );
+    const statusRes = await fetchRetry(`${API_URL}/api/admin/servers/${serverId}`, {
+      headers: { Cookie: cookie },
+    });
     const statusBody = await statusRes.json();
-    expect(statusBody.state).toBe("running");
+    expect(statusBody.status).toBe("running");
 
     // Clean up
-    await fetchRetry(`${API_URL}/api/admin/servers/${serverId}?node_id=${nodeId}`, {
+    await fetchRetry(`${API_URL}/api/admin/servers/${serverId}`, {
       method: "DELETE",
       headers: { Cookie: cookie },
     });
@@ -131,54 +146,29 @@ test.describe("R6 US4: Server state reporting", () => {
   test("intentional stop reports stopped state (not crashed)", async () => {
     const nodeId = getNodeId();
     const cookie = await getAdminCookie();
-    const serverId = crypto.randomUUID();
 
-    // Create server
-    await fetchRetry(`${API_URL}/api/admin/servers?node_id=${nodeId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Cookie: cookie },
-      body: JSON.stringify({
-        serverId,
-        image: "alpine:latest",
-        startupCommand: "sleep infinity",
-        environment: {},
-        portMappings: [],
-        resourceLimits: { memoryMb: 64, cpuLimit: 0.5 },
-        volumePath: `/tmp/sigil/volumes/${serverId}`,
-      }),
-    });
+    const templateId = await createTemplate(cookie, "Stop Test Template");
+    await activateTemplate(cookie, templateId);
+    await addAllocations(cookie, nodeId);
+
+    const { id: serverId } = await createServer(cookie, nodeId, templateId, "Stop Test Server");
 
     // Stop via API (intentional)
-    const stopRes = await fetchRetry(
-      `${API_URL}/api/admin/servers/${serverId}/stop?node_id=${nodeId}`,
-      {
-        method: "POST",
-        headers: { Cookie: cookie },
-      },
-    );
+    const stopRes = await fetchRetry(`${API_URL}/api/admin/servers/${serverId}/power`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: cookie },
+      body: JSON.stringify({ action: "stop" }),
+    });
     expect(stopRes.status).toBe(200);
 
     // Wait for state to settle
     await new Promise((r) => setTimeout(r, 3000));
 
     // Verify state is "stopped", not "crashed"
-    const statusRes = await fetchRetry(
-      `${API_URL}/api/admin/servers/${serverId}?node_id=${nodeId}`,
-      {
-        headers: { Cookie: cookie },
-      },
-    );
+    const statusRes = await fetchRetry(`${API_URL}/api/admin/servers/${serverId}`, {
+      headers: { Cookie: cookie },
+    });
     const statusBody = await statusRes.json();
-    expect(statusBody.state).toBe("stopped");
+    expect(statusBody.status).toBe("stopped");
   });
 });
-
-async function getAdminCookie(): Promise<string> {
-  const res = await fetch(`${API_URL}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "admin@sigil.local", password: "admin12345" }),
-  });
-  const setCookie = res.headers.get("set-cookie") ?? "";
-  return setCookie.split(";")[0];
-}

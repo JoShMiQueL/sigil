@@ -1,9 +1,17 @@
 import { zValidator } from "@hono/zod-validator";
-import { CreateServerRequestSchema } from "@sigil/shared";
-import { type Context, Hono } from "hono";
+import type { ServerRecord } from "@sigil/shared";
+import { ServerCreateInputSchema, ServerPowerActionSchema } from "@sigil/shared";
+import { Hono } from "hono";
+import { z } from "zod";
 import type { AuthContext } from "../middleware/auth";
 import { logAudit } from "../services/audit.service";
-import { createDaemonClient, DaemonError } from "../services/daemon-client.service";
+import {
+  createServer,
+  deleteServer,
+  getServer,
+  listServers,
+  powerAction,
+} from "../services/server.service";
 
 const servers = new Hono<AuthContext>();
 
@@ -11,322 +19,137 @@ const servers = new Hono<AuthContext>();
 servers.use("*", async (c, next) => {
   const user = c.get("user");
   if (user?.role !== "admin") {
-    return c.json({ error: "Forbidden" }, 403);
+    return c.json({ error: { code: "FORBIDDEN", message: "Forbidden" } }, 403);
   }
   await next();
 });
 
-// Create a server on a node
-servers.post("/", zValidator("json", CreateServerRequestSchema), async (c) => {
-  const config = c.req.valid("json");
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
+// Create a server
+servers.post("/", zValidator("json", ServerCreateInputSchema), async (c) => {
+  const input = c.req.valid("json");
+  let result: ServerRecord | { error: string; code: string };
   try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.createServer(config);
-
-    const user = c.get("user");
-    await logAudit({
-      userId: user?.id,
-      action: "server_create",
-      targetType: "server",
-      targetId: config.serverId,
-      metadata: { nodeId, image: config.image },
-    });
-
-    return c.json(result, 201);
+    result = await createServer(input);
   } catch (err) {
-    return handleDaemonError(c, err);
+    console.error("Server creation error:", err);
+    return c.json({ error: { code: "INTERNAL_ERROR", message: (err as Error).message } }, 500);
   }
-});
 
-// Start a server
-servers.post("/:serverId/start", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
+  if ("error" in result) {
+    const status =
+      result.code === "NO_AVAILABLE_ALLOCATIONS" ||
+      result.code === "DUPLICATE_NAME" ||
+      result.code === "TEMPLATE_INACTIVE"
+        ? 409
+        : 502;
     return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.startServer(serverId);
-
-    const user = c.get("user");
-    await logAudit({
-      userId: user?.id,
-      action: "server_start",
-      targetType: "server",
-      targetId: serverId,
-      metadata: { nodeId },
-    });
-
-    return c.json(result);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// Stop a server
-servers.post("/:serverId/stop", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.stopServer(serverId);
-
-    const user = c.get("user");
-    await logAudit({
-      userId: user?.id,
-      action: "server_stop",
-      targetType: "server",
-      targetId: serverId,
-      metadata: { nodeId },
-    });
-
-    return c.json(result);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// Restart a server
-servers.post("/:serverId/restart", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.restartServer(serverId);
-
-    const user = c.get("user");
-    await logAudit({
-      userId: user?.id,
-      action: "server_restart",
-      targetType: "server",
-      targetId: serverId,
-      metadata: { nodeId },
-    });
-
-    return c.json(result);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// Remove a server
-servers.delete("/:serverId", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    await client.removeServer(serverId);
-
-    const user = c.get("user");
-    await logAudit({
-      userId: user?.id,
-      action: "server_delete",
-      targetType: "server",
-      targetId: serverId,
-      metadata: { nodeId },
-    });
-
-    return c.body(null, 204);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// Get server status
-servers.get("/:serverId", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.getServerStatus(serverId);
-    return c.json(result);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// List servers on a node
-servers.get("/", async (c) => {
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.listServers();
-    return c.json(result);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// Write a file to a server volume (through jail)
-servers.post("/:serverId/files/write", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  const body = await c.req.json();
-  if (!body.path || body.data === undefined) {
-    return c.json({ error: { code: "INVALID_REQUEST", message: "path and data required" } }, 400);
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    await client.writeFile(serverId, body.path, body.data);
-    return c.body(null, 204);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// Read a file from a server volume (through jail)
-servers.get("/:serverId/files/read", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-  const path = c.req.query("path");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  if (!path) {
-    return c.json(
-      { error: { code: "INVALID_REQUEST", message: "path query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.readFile(serverId, path);
-    return c.json(result);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// List files in a server volume (through jail)
-servers.get("/:serverId/files/list", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-  const path = c.req.query("path") || ".";
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    const result = await client.listFiles(serverId, path);
-    return c.json(result);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-// Delete a file from a server volume (through jail)
-servers.delete("/:serverId/files/delete", async (c) => {
-  const serverId = c.req.param("serverId");
-  const nodeId = c.req.query("node_id");
-  const path = c.req.query("path");
-
-  if (!nodeId) {
-    return c.json(
-      { error: { code: "MISSING_NODE", message: "node_id query param required" } },
-      400,
-    );
-  }
-
-  if (!path) {
-    return c.json(
-      { error: { code: "INVALID_REQUEST", message: "path query param required" } },
-      400,
-    );
-  }
-
-  try {
-    const client = await createDaemonClient(nodeId);
-    await client.deleteFile(serverId, path);
-    return c.body(null, 204);
-  } catch (err) {
-    return handleDaemonError(c, err);
-  }
-});
-
-function handleDaemonError(c: Context, err: unknown): Response {
-  if (err instanceof DaemonError) {
-    const status = err.statusCode >= 400 && err.statusCode < 500 ? err.statusCode : 502;
-    return c.json(
-      { error: { code: err.code, message: err.message } },
+      { error: { code: result.code, message: result.error } },
       status as 400 | 404 | 409 | 502,
     );
   }
-  return c.json({ error: { code: "DAEMON_UNREACHABLE", message: (err as Error).message } }, 502);
-}
+
+  const user = c.get("user");
+  await logAudit({
+    userId: user?.id,
+    action: "server_create",
+    targetType: "server",
+    targetId: result.id,
+    metadata: { nodeId: result.nodeId, name: result.name },
+  });
+
+  return c.json(result, 201);
+});
+
+// List servers
+servers.get("/", async (c) => {
+  const nodeId = c.req.query("nodeId");
+  const status = c.req.query("status");
+  const limit = parseInt(c.req.query("limit") ?? "50", 10);
+  const offset = parseInt(c.req.query("offset") ?? "0", 10);
+
+  const result = await listServers(nodeId, status, limit, offset);
+  return c.json(result, 200);
+});
+
+// Get server detail
+servers.get("/:serverId", async (c) => {
+  const serverId = c.req.param("serverId");
+  const server = await getServer(serverId);
+
+  if (!server) {
+    return c.json({ error: { code: "SERVER_NOT_FOUND", message: "Server not found" } }, 404);
+  }
+
+  return c.json(server, 200);
+});
+
+// Power action (start/stop/restart)
+servers.post(
+  "/:serverId/power",
+  zValidator("json", z.object({ action: ServerPowerActionSchema })),
+  async (c) => {
+    const serverId = c.req.param("serverId");
+    const { action } = c.req.valid("json");
+
+    let result: ServerRecord | { error: string; code: string };
+    try {
+      result = await powerAction(serverId, action);
+    } catch (err) {
+      console.error("Power action error:", err);
+      return c.json({ error: { code: "INTERNAL_ERROR", message: (err as Error).message } }, 500);
+    }
+
+    if ("error" in result) {
+      const status = result.code === "INVALID_STATE_TRANSITION" ? 409 : 502;
+      return c.json(
+        { error: { code: result.code, message: result.error } },
+        status as 400 | 404 | 409 | 502,
+      );
+    }
+
+    const user = c.get("user");
+    await logAudit({
+      userId: user?.id,
+      action: `server_${action}` as "server_start" | "server_stop" | "server_restart",
+      targetType: "server",
+      targetId: serverId,
+      metadata: { nodeId: result.nodeId },
+    });
+
+    return c.json({ serverId: result.id, status: result.status }, 200);
+  },
+);
+
+// Delete a server
+servers.delete("/:serverId", async (c) => {
+  const serverId = c.req.param("serverId");
+
+  let result: { ok: true } | { error: string; code: string };
+  try {
+    result = await deleteServer(serverId);
+  } catch (err) {
+    console.error("Server deletion error:", err);
+    return c.json({ error: { code: "INTERNAL_ERROR", message: (err as Error).message } }, 500);
+  }
+
+  if ("error" in result) {
+    const status = result.code === "SERVER_NOT_FOUND" ? 404 : 502;
+    return c.json(
+      { error: { code: result.code, message: result.error } },
+      status as 400 | 404 | 502,
+    );
+  }
+
+  const user = c.get("user");
+  await logAudit({
+    userId: user?.id,
+    action: "server_delete",
+    targetType: "server",
+    targetId: serverId,
+    metadata: {},
+  });
+
+  return c.body(null, 204);
+});
 
 export default servers;

@@ -7,6 +7,7 @@ import {
 import { UserSchema } from "../auth/user";
 import { NodeSchema } from "../node/node";
 import { RegionWithCountsSchema } from "../node/region";
+import { ServerLifecycleStatusEnum } from "../server/record";
 import { ChangeSchema } from "../template/changelog";
 import { TemplateSchema } from "../template/template";
 
@@ -16,6 +17,9 @@ export const SSEEventTypeSchema = z.enum([
   "node.delete",
   "region.update",
   "server.state",
+  "server.create",
+  "server.update",
+  "server.delete",
   "user.update",
   "connected",
   "template.create",
@@ -57,6 +61,29 @@ export const ServerStatePayloadSchema = z.object({
 });
 export type ServerStatePayload = z.infer<typeof ServerStatePayloadSchema>;
 
+export const ServerCreatePayloadSchema = z.object({
+  serverId: z.string().uuid(),
+  nodeId: z.string().uuid(),
+  name: z.string(),
+  status: ServerLifecycleStatusEnum,
+});
+export type ServerCreatePayload = z.infer<typeof ServerCreatePayloadSchema>;
+
+export const ServerUpdatePayloadSchema = z.object({
+  serverId: z.string().uuid(),
+  nodeId: z.string().uuid(),
+  status: ServerLifecycleStatusEnum,
+  previousStatus: ServerLifecycleStatusEnum,
+});
+export type ServerUpdatePayload = z.infer<typeof ServerUpdatePayloadSchema>;
+
+export const ServerDeletePayloadSchema = z.object({
+  serverId: z.string().uuid(),
+  nodeId: z.string().uuid(),
+  deleted: z.literal(true),
+});
+export type ServerDeletePayload = z.infer<typeof ServerDeletePayloadSchema>;
+
 export const ConnectedPayloadSchema = z.object({
   connectionId: z.string().uuid(),
   userId: z.string().uuid(),
@@ -96,6 +123,9 @@ export const SSEEventPayloadSchema = z.union([
   UserSchema,
   UserDeletePayloadSchema,
   ServerStatePayloadSchema,
+  ServerCreatePayloadSchema,
+  ServerUpdatePayloadSchema,
+  ServerDeletePayloadSchema,
   ConnectedPayloadSchema,
   TemplateSchema,
   TemplateDeletePayloadSchema,
